@@ -368,3 +368,5 @@ export const adminUploadProductImages = asyncHandler(async (req: AuthRequest, re
 
   res.json({ success: true, message: 'Images uploaded', data: created });
 });
+e x p o r t   c o n s t   g e t P r o d u c t R e v i e w s   =   a s y n c H a n d l e r ( a s y n c   ( r e q :   R e q u e s t ,   r e s :   R e s p o n s e )   = >   {   c o n s t   {   i d   }   =   r e q . p a r a m s ;   c o n s t   r e v i e w s   =   a w a i t   p r i s m a . r e v i e w . f i n d M a n y ( {   w h e r e :   {   p r o d u c t I d :   i d ,   i s A p p r o v e d :   t r u e   } ,   i n c l u d e :   {   u s e r :   {   s e l e c t :   {   f i r s t N a m e :   t r u e ,   l a s t N a m e :   t r u e   }   }   } ,   o r d e r B y :   {   c r e a t e d A t :   ' d e s c '   }   } ) ;   r e s . j s o n ( {   s u c c e s s :   t r u e ,   d a t a :   r e v i e w s   } ) ;   } ) ;  
+ 

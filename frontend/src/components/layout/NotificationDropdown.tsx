@@ -93,7 +93,7 @@ export const NotificationDropdown: React.FC = () => {
       )}
 
       <style>{`
-        .notification-wrapper { position: relative; }
+        .notification-wrapper { position: relative; display: flex; align-items: center; justify-content: center; }
         .notification-dropdown {
           position: absolute; top: calc(100% + 12px); right: -10px;
           width: 320px; background: var(--color-surface);
