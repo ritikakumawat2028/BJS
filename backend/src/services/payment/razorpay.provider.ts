@@ -1,7 +1,7 @@
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import { IPaymentProvider, PaymentInitializationResponse, WebhookResult } from './payment.interface';
-import { getSetting } from '../utils/getSetting';
+import { getSetting } from '../../utils/getSetting';
 
 export class RazorpayProvider implements IPaymentProvider {
   private async getKeys() {

@@ -32,7 +32,17 @@ const RegisterPage: React.FC = () => {
       toast.success('Account created! Welcome to BJ\'S Natural Care.');
       navigate('/account');
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        const serverErrors: Record<string, string> = {};
+        err.response.data.errors.forEach((e: any) => {
+          const field = e.field.replace('body.', '');
+          serverErrors[field] = e.message;
+        });
+        setErrors(serverErrors);
+        toast.error('Please fix the errors in the form.');
+      } else {
+        toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

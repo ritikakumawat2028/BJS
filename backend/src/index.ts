@@ -6,7 +6,6 @@ import rateLimit from 'express-rate-limit';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import hpp from 'hpp';
-import xssClean from 'xss-clean';
 
 import authRoutes from './routes/auth.routes';
 import productRoutes from './routes/product.routes';
@@ -34,7 +33,7 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 }));
-app.use(xssClean());
+
 app.use(cookieParser());
 
 // Rate limiting

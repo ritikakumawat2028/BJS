@@ -34,7 +34,17 @@ const LoginPage: React.FC = () => {
         navigate('/account');
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Invalid email or password');
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        const serverErrors: Record<string, string> = {};
+        err.response.data.errors.forEach((e: any) => {
+          const field = e.field.replace('body.', '');
+          serverErrors[field] = e.message;
+        });
+        setErrors(serverErrors);
+        toast.error('Please fix the errors in the form.');
+      } else {
+        toast.error(err.response?.data?.message || 'Invalid email or password');
+      }
     } finally {
       setLoading(false);
     }
