@@ -2,16 +2,53 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ordersApi } from '../services/api';
+import { adminApi, ordersApi } from '../services/api';
 import { Order } from '../types';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
+import toast from 'react-hot-toast';
+import { InvoiceTemplate } from '../components/order/InvoiceTemplate';
 
 const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading } = useQuery({ queryKey: ['order', id], queryFn: () => ordersApi.getById(id!), enabled: !!id });
+  const { data: settingsData } = useQuery({ queryKey: ['store-settings'], queryFn: () => adminApi.getSettings() });
+  
   const order = data?.data?.data;
+  const storeSettings = settingsData?.data?.data || {};
+  
+  const invoiceRef = React.useRef<HTMLDivElement>(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = React.useState(false);
 
   if (isLoading) return <div className="container" style={{ paddingTop: '120px' }}><div className="skeleton" style={{ height: '400px' }} /></div>;
   if (!order) return <div className="container" style={{ paddingTop: '120px', textAlign: 'center' }}><h2>Order not found</h2></div>;
+
+  const handleDownloadInvoice = async () => {
+    if (!invoiceRef.current) return;
+    try {
+      setIsGeneratingPDF(true);
+      toast.loading('Generating invoice...', { id: 'pdf-toast' });
+      const canvas = await html2canvas(invoiceRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [794, 1123] // A4 at 96 DPI
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, 794, 1123);
+      pdf.save(`Invoice_${order.orderNumber}.pdf`);
+      toast.success('Invoice downloaded successfully', { id: 'pdf-toast' });
+    } catch (error) {
+      console.error('Failed to generate PDF', error);
+      toast.error('Failed to generate invoice', { id: 'pdf-toast' });
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -51,6 +88,10 @@ const OrderDetailPage: React.FC = () => {
             ← Back to Orders
           </Link>
           
+          <div style={{ position: 'absolute', top: '-10000px', left: '-10000px' }}>
+            <InvoiceTemplate ref={invoiceRef} order={order} storeSettings={storeSettings} />
+          </div>
+          
           <div className="order-header">
             <div className="order-header__left">
               <h1 className="section-title" style={{ marginBottom: '8px' }}>Order #{order.orderNumber}</h1>
@@ -58,7 +99,14 @@ const OrderDetailPage: React.FC = () => {
                 Placed on {formatDate(order.createdAt)} • Last updated: {formatDate(order.updatedAt)}
               </p>
             </div>
-            <div className="order-header__right">
+            <div className="order-header__right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <button 
+                className="btn btn-outline-gold btn-sm" 
+                onClick={handleDownloadInvoice} 
+                disabled={isGeneratingPDF}
+              >
+                {isGeneratingPDF ? 'Generating...' : 'Download Invoice'}
+              </button>
               <span className="status-badge" style={{ backgroundColor: getStatusColor(order.status) }}>
                 {order.status.replace(/_/g, ' ')}
               </span>
