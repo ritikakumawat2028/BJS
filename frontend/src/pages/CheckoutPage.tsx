@@ -157,7 +157,12 @@ const CheckoutPage: React.FC = () => {
       });
       rzp.open();
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to place order');
+      const msg = err.response?.data?.message || 'An unexpected error occurred';
+      toast.error(msg);
+      if (msg.toLowerCase().includes('cart is empty')) {
+        clearCart();
+        navigate('/cart');
+      }
     } finally {
       setLoading(false);
     }
