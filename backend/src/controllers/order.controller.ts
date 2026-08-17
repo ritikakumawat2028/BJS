@@ -9,11 +9,11 @@ import { PaymentFactory } from '../services/payment/payment.factory';
 const generateOrderNumber = () => `BJS${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
 export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { shippingAddressId, billingAddressId, paymentMethod, notes } = req.body;
+  const { shippingAddressId, billingAddressId, paymentMethod, notes, sessionId } = req.body;
   const userId = req.user!.userId;
 
   // Get user's cart
-  const cart = await prisma.cart.findUnique({
+  let cart = await prisma.cart.findUnique({
     where: { userId },
     include: {
       items: {
@@ -25,6 +25,25 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
       coupon: true,
     },
   });
+
+  // If user cart is empty but session ID is provided, try session cart (guest cart not yet merged)
+  if ((!cart || cart.items.length === 0) && sessionId) {
+    const sessionCart = await prisma.cart.findUnique({
+      where: { sessionId },
+      include: {
+        items: {
+          include: {
+            product: { include: { inventory: true } },
+            variant: true,
+          },
+        },
+        coupon: true,
+      },
+    });
+    if (sessionCart && sessionCart.items.length > 0) {
+      cart = sessionCart;
+    }
+  }
 
   if (!cart || cart.items.length === 0) throw createError('Cart is empty', 400);
 

@@ -99,10 +99,12 @@ const CheckoutPage: React.FC = () => {
       // 1. Create Order in our DB
       const deliveryNotes = deliveryMethod === 'EXPRESS' ? 'Requested Express Delivery' : 'Standard Delivery';
       
+      const sessionId = localStorage.getItem('bjs_session_id') || undefined;
       const { data: orderRes } = await ordersApi.create({
         shippingAddressId: selectedAddressId,
         paymentMethod,
         notes: deliveryNotes,
+        sessionId,
       });
 
       const order = orderRes.data;
