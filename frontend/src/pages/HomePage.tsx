@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { productsApi, adminApi, userApi } from "../services/api";
+import { productsApi, adminApi, userApi, bannersApi } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
 import { Product, Banner, Campaign, StoreSettings, Review } from "../types";
 import toast from "react-hot-toast";
@@ -46,8 +46,7 @@ const HomePage: React.FC = () => {
   const { data: featuredData } = useQuery({ queryKey: ["featured-products"], queryFn: () => productsApi.getFeatured() });
   const { data: bestsellersData } = useQuery({ queryKey: ["bestsellers"], queryFn: () => productsApi.getBestsellers() });
   const { data: newArrivalsData } = useQuery({ queryKey: ["new-arrivals"], queryFn: () => productsApi.getNewArrivals() });
-  const { data: bannersData } = useQuery({ queryKey: ["hero-banners"], queryFn: () => adminApi.getBanners("HERO") });
-  const { data: promoBannersData } = useQuery({ queryKey: ["promo-banners"], queryFn: () => adminApi.getBanners("PROMO") });
+  const { data: bannersData } = useQuery({ queryKey: ["active-banners"], queryFn: () => bannersApi.getActive() });
   const { data: campaignsData } = useQuery({ queryKey: ["campaigns"], queryFn: () => adminApi.getCampaigns() });
   const { data: settingsData } = useQuery({ queryKey: ["store-settings"], queryFn: () => adminApi.getSettings() });
   const { data: reviewsData } = useQuery({ queryKey: ["approved-reviews"], queryFn: () => adminApi.getReviews({ isApproved: true, limit: 10 }) });
@@ -55,8 +54,9 @@ const HomePage: React.FC = () => {
   const featured: Product[] = featuredData?.data?.data || [];
   const bestsellers: Product[] = (bestsellersData?.data?.data?.length ?? 0) > 0 ? bestsellersData!.data.data : DUMMY_BESTSELLERS;
   const newArrivals: Product[] = (newArrivalsData?.data?.data?.length ?? 0) > 0 ? newArrivalsData!.data.data : DUMMY_NEW_ARRIVALS;
-  const banners: Banner[] = bannersData?.data?.data || [];
-  const promoBanners: Banner[] = promoBannersData?.data?.data || [];
+  const allBanners: Banner[] = bannersData?.data?.data || [];
+  const heroBanners = allBanners.filter(b => b.placement === "HERO");
+  const promoBanners = allBanners.filter(b => b.placement === "PROMO");
   const campaigns: Campaign[] = campaignsData?.data?.data || [];
   const settings: StoreSettings = settingsData?.data?.data || {};
   const approvedReviews: Review[] = reviewsData?.data?.data || [];
@@ -108,7 +108,13 @@ const HomePage: React.FC = () => {
 
   const heroHeading = settings.hero_heading || "Luxury, Naturally Crafted.";
   const heroSub = settings.hero_subheading || "Premium perfumes, skincare & haircare — elevated for the discerning few.";
-  const heroImg = "https://public.readdy.ai/ai/img_res/3812a198e3446b048d04b92569ffca79.jpg";
+  
+  // Choose the top priority HERO banner if available
+  const topHero = heroBanners.length > 0 ? heroBanners[0] : null;
+  const heroImg = topHero?.desktopImage || "https://public.readdy.ai/ai/img_res/3812a198e3446b048d04b92569ffca79.jpg";
+  const displayHeading = topHero?.title || heroHeading;
+  const displaySub = topHero?.description || heroSub;
+  
   const t = displayTestimonials[testimonialIdx];
 
   const categories = [
@@ -137,14 +143,10 @@ const HomePage: React.FC = () => {
                 <span className="hp-hero__eyebrow-dot"></span>
                 PREMIUM LUXURY COLLECTION
               </div>
-              <h1 className="hp-hero__heading">
-                Luxury, <span className="gold-text">Naturally</span><br />Crafted
-              </h1>
-              <p className="hp-hero__sub">
-                Discover our exquisite collection of perfumes, skincare, haircare, and<br />body care — all crafted with the finest natural ingredients for the<br />discerning you.
-              </p>
+              <h1 className="hp-hero__heading" dangerouslySetInnerHTML={{ __html: displayHeading }} />
+              <p className="hp-hero__sub" dangerouslySetInnerHTML={{ __html: displaySub }} />
               <div className="hp-hero__ctas">
-                <Link to="/shop" className="btn btn-primary btn-lg">SHOP COLLECTION</Link>
+                <Link to={topHero?.ctaUrl || "/shop"} className="btn btn-primary btn-lg">{topHero?.ctaText || "SHOP COLLECTION"}</Link>
                 <Link to="/about" className="btn btn-outline btn-lg">EXPLORE OUR STORY</Link>
               </div>
             </div>

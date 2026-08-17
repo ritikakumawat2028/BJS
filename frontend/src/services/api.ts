@@ -96,6 +96,19 @@ export const cartApi = {
   mergeCart: (sessionId: string) => api.post('/cart/merge', { sessionId }),
 };
 
+export const promotionsApi = {
+  getActive: () => api.get('/promotions'),
+  applyCoupon: (code: string, cartTotal: number) => api.post('/promotions/apply', { code, cartTotal }),
+};
+
+export const bannersApi = {
+  getActive: () => api.get('/banners'),
+  getAllAdmin: () => api.get('/banners/admin'),
+  create: (data: any) => api.post('/banners', data),
+  update: (id: string, data: any) => api.put(`/banners/${id}`, data),
+  delete: (id: string) => api.delete(`/banners/${id}`),
+};
+
 // ===== ORDERS =====
 export const ordersApi = {
   create: (data: any) => api.post('/orders', data),

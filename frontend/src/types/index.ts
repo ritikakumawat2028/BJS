@@ -75,12 +75,32 @@ export interface ProductVariant {
   id: string;
   name: string;
   sku: string;
-  price: number;
-  comparePrice?: number;
+  price: number | string;
+  comparePrice?: number | string;
   stock: number;
   weight?: string;
   image?: string;
   isActive: boolean;
+}
+
+export interface Banner {
+  id: string;
+  title: string;
+  subtitle?: string;
+  description?: string;
+  desktopImage: string;
+  mobileImage?: string;
+  ctaText?: string;
+  ctaUrl?: string;
+  couponCode?: string;
+  badgeText?: string;
+  placement: string;
+  startDate?: string;
+  endDate?: string;
+  priority: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Category {

@@ -5,6 +5,7 @@ import { useCartStore } from '../../store/cart.store';
 import { useWishlistStore } from '../../store/wishlist.store';
 import { useAuthStore } from '../../store/auth.store';
 import { useNavigate } from 'react-router-dom';
+import { optimizeImage } from '../../utils/image';
 
 interface ProductCardProps {
   product: Product;
@@ -42,7 +43,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, isWishlistPage }) =>
     <Link to={`/products/${product.slug}`} className={`product-card ${isWishlistPage ? 'product-card--wishlist' : ''}`} style={{ display: 'block' }}>
       <div className="product-card__image-wrap">
         <img
-          src={thumbnail || 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=400'}
+          src={optimizeImage(thumbnail) || 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=400'}
           alt={product.name}
           className="product-card__image"
           loading="lazy"

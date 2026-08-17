@@ -1,133 +1,109 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { adminApi } from '../../services/api';
+import { bannersApi, uploadApi } from '../../services/api';
 import { Banner } from '../../types';
 import toast from 'react-hot-toast';
 
 const AdminBannersPage: React.FC = () => {
-  const qc = useQueryClient();
-  const [showForm, setShowForm] = useState(false);
-  const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [formData, setFormData] = useState<Partial<Banner>>({
+    title: '', subtitle: '', description: '', desktopImage: '', mobileImage: '',
+    ctaText: '', ctaUrl: '', placement: 'HERO', priority: 0, isActive: true
+  });
+  const [editId, setEditId] = useState<string | null>(null);
 
-  // Form State
-  const [formData, setFormData] = useState({
-    title: '',
-    subtitle: '',
-    description: '',
-    desktopImage: '',
-    mobileImage: '',
-    ctaText: '',
-    ctaUrl: '',
-    couponCode: '',
-    badgeText: '',
-    placement: 'HERO',
-    priority: '' as string | number,
-    startDate: '',
-    endDate: '',
-    isActive: true,
+  const queryClient = useQueryClient();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['adminBanners'],
+    queryFn: () => bannersApi.getAllAdmin()
   });
 
-  const { data, isLoading } = useQuery({ 
-    queryKey: ['admin-banners'], 
-    queryFn: () => adminApi.getBanners() 
-  });
-
-  const banners: Banner[] = data?.data?.data || [];
+  const banners = data?.data?.data || [];
 
   const createMutation = useMutation({
-    mutationFn: (data: any) => adminApi.createBanner(data),
-    onSuccess: () => { 
-      toast.success('Banner created successfully'); 
-      qc.invalidateQueries({ queryKey: ['admin-banners'] }); 
-      setShowForm(false); 
+    mutationFn: (newBanner: any) => bannersApi.create(newBanner),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminBanners'] });
+      toast.success('Banner created');
+      setIsModalOpen(false);
     },
-    onError: (err: any) => toast.error(err.response?.data?.message || 'Failed to create banner'),
+    onError: () => toast.error('Failed to create banner')
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: { id: string; payload: any }) => adminApi.updateBanner(data.id, data.payload),
-    onSuccess: () => { 
-      toast.success('Banner updated successfully'); 
-      qc.invalidateQueries({ queryKey: ['admin-banners'] }); 
-      setShowForm(false); 
+    mutationFn: (params: { id: string, data: any }) => bannersApi.update(params.id, params.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminBanners'] });
+      toast.success('Banner updated');
+      setIsModalOpen(false);
     },
-    onError: (err: any) => toast.error(err.response?.data?.message || 'Failed to update banner'),
+    onError: () => toast.error('Failed to update banner')
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => adminApi.deleteBanner(id),
-    onSuccess: () => { 
-      toast.success('Banner deleted'); 
-      qc.invalidateQueries({ queryKey: ['admin-banners'] }); 
-      setDeleteId(null); 
+    mutationFn: (id: string) => bannersApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminBanners'] });
+      toast.success('Banner deleted');
     },
-    onError: () => toast.error('Failed to delete banner'),
+    onError: () => toast.error('Failed to delete banner')
   });
 
-  const openForm = (banner?: Banner) => {
+  const handleOpenModal = (banner?: Banner) => {
     if (banner) {
-      setEditingBanner(banner);
-      setFormData({
-        title: banner.title,
-        subtitle: banner.subtitle || '',
-        description: banner.description || '',
-        desktopImage: banner.desktopImage,
-        mobileImage: banner.mobileImage || '',
-        ctaText: banner.ctaText || '',
-        ctaUrl: banner.ctaUrl || '',
-        couponCode: banner.couponCode || '',
-        badgeText: banner.badgeText || '',
-        placement: banner.placement,
-        priority: banner.priority,
-        startDate: banner.startDate ? new Date(banner.startDate).toISOString().slice(0, 16) : '',
-        endDate: banner.endDate ? new Date(banner.endDate).toISOString().slice(0, 16) : '',
-        isActive: banner.isActive,
-      });
+      setEditId(banner.id);
+      setFormData(banner);
     } else {
-      setEditingBanner(null);
-      setFormData({
-        title: '',
-        subtitle: '',
-        description: '',
-        desktopImage: '',
-        mobileImage: '',
-        ctaText: '',
-        ctaUrl: '',
-        couponCode: '',
-        badgeText: '',
-        placement: 'HERO',
-        priority: '',
-        startDate: '',
-        endDate: '',
-        isActive: true,
-      });
+      setEditId(null);
+      setFormData({ title: '', subtitle: '', description: '', desktopImage: '', mobileImage: '', ctaText: '', ctaUrl: '', placement: 'HERO', priority: 0, isActive: true });
     }
-    setShowForm(true);
+    setIsModalOpen(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'desktopImage' | 'mobileImage') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const form = new FormData();
+    form.append('image', file);
+    try {
+      const { data } = await uploadApi.uploadImage(form);
+      setFormData(prev => ({ ...prev, [field]: data.url }));
+      toast.success('Image uploaded');
+    } catch {
+      toast.error('Image upload failed');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const payload = {
-      ...formData,
-      priority: Number(formData.priority),
-      startDate: formData.startDate ? new Date(formData.startDate).toISOString() : null,
-      endDate: formData.endDate ? new Date(formData.endDate).toISOString() : null,
-    };
-    if (editingBanner) {
-      updateMutation.mutate({ id: editingBanner.id, payload });
+    if (!formData.title || !formData.desktopImage) {
+      return toast.error('Title and Desktop Image are required');
+    }
+
+    if (editId) {
+      updateMutation.mutate({ id: editId, data: formData });
     } else {
-      createMutation.mutate(payload);
+      createMutation.mutate(formData);
     }
   };
 
+  const toggleActive = (banner: Banner) => {
+    updateMutation.mutate({ id: banner.id, data: { isActive: !banner.isActive } });
+  };
+
+  if (isLoading) return <div className="admin-page"><div className="spinner"></div></div>;
+
   return (
-    <>
-      <Helmet><title>Banners | Admin | BJS Natural Care</title></Helmet>
+    <div className="admin-page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 className="admin-page-title" style={{ marginBottom: 0 }}>Banners</h1>
-        <button className="btn btn-primary" onClick={() => openForm()}>+ Add Banner</button>
+        <h1 className="admin-page-title" style={{ marginBottom: 0 }}>Banner & Poster Management</h1>
+        <button className="btn btn-primary" onClick={() => handleOpenModal()}>Add New Banner</button>
       </div>
 
       <div className="table-wrapper">
@@ -135,7 +111,7 @@ const AdminBannersPage: React.FC = () => {
           <thead>
             <tr>
               <th>Image</th>
-              <th>Title</th>
+              <th>Details</th>
               <th>Placement</th>
               <th>Priority</th>
               <th>Status</th>
@@ -143,154 +119,131 @@ const AdminBannersPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {isLoading ? Array.from({ length: 4 }).map((_, i) => <tr key={i}><td colSpan={6}><div className="skeleton" style={{ height: '20px' }} /></td></tr>)
-              : banners.map((b) => (
-              <tr key={b.id}>
-                <td>
-                  <img src={b.desktopImage} alt={b.title} style={{ width: '80px', height: '40px', objectFit: 'cover', borderRadius: '4px', background: '#1A1A1A' }} />
-                </td>
-                <td style={{ fontSize: '0.9rem' }}>{b.title}</td>
-                <td style={{ fontSize: '0.875rem' }}>{b.placement}</td>
-                <td>{b.priority}</td>
-                <td><span className={`status-badge ${b.isActive ? 'active' : ''}`}>{b.isActive ? 'Active' : 'Inactive'}</span></td>
-                <td>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="btn btn-outline btn-sm" onClick={() => openForm(b)}>Edit</button>
-                    <button className="btn btn-sm" style={{ borderColor: 'var(--color-error)', color: 'var(--color-error)', background: 'transparent', border: '1px solid' }} onClick={() => setDeleteId(b.id)}>Delete</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {banners.length === 0 ? (
+              <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px' }}>No banners found.</td></tr>
+            ) : (
+              banners.map((b: Banner) => (
+                <tr key={b.id}>
+                  <td>
+                    <img src={b.desktopImage} alt={b.title} style={{ width: '120px', height: '60px', objectFit: 'cover', borderRadius: '4px', background: '#333' }} />
+                  </td>
+                  <td>
+                    <div style={{ fontWeight: 600 }}>{b.title}</div>
+                    <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>{b.subtitle}</div>
+                  </td>
+                  <td><span className="badge" style={{ background: '#333', color: '#fff' }}>{b.placement}</span></td>
+                  <td>{b.priority}</td>
+                  <td>
+                    <button 
+                      onClick={() => toggleActive(b)}
+                      className={`badge ${b.isActive ? 'status-paid' : 'status-failed'}`}
+                      style={{ cursor: 'pointer', border: 'none' }}
+                    >
+                      {b.isActive ? 'Active' : 'Inactive'}
+                    </button>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button className="btn btn-outline btn-sm" onClick={() => handleOpenModal(b)}>Edit</button>
+                      <button className="btn btn-outline btn-sm" onClick={() => {
+                        if (window.confirm('Delete this banner?')) deleteMutation.mutate(b.id);
+                      }} style={{ color: 'var(--color-error)' }}>Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      {banners.length === 0 && !isLoading && (
-        <div className="empty-state">
-          <p className="empty-state__title">No banners found</p>
-          <p className="empty-state__text">Add your first banner to display on the store.</p>
-        </div>
-      )}
+      {isModalOpen && (
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal animate-scale-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <button className="modal-close" onClick={() => setIsModalOpen(false)}>✕</button>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: '24px' }}>
+              {editId ? 'Edit Banner' : 'Create Banner'}
+            </h2>
 
-      {showForm && (
-        <div className="modal-overlay">
-          <div className="modal animate-scale-in" style={{ maxWidth: '600px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: 'var(--color-ivory)', marginBottom: '24px' }}>
-              {editingBanner ? 'Edit Banner' : 'Create Banner'}
-            </h3>
-            
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label className="form-label">Title *</label>
-                  <input type="text" className="form-input" required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
-                </div>
-                <div>
-                  <label className="form-label">Subtitle</label>
-                  <input type="text" className="form-input" value={formData.subtitle} onChange={e => setFormData({...formData, subtitle: e.target.value})} />
-                </div>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label className="form-label">Title *</label>
+                <input className="form-input" type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required />
               </div>
-
-              <div>
-                <label className="form-label">Description (Optional)</label>
-                <textarea className="form-input" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} rows={2}></textarea>
-              </div>
-
-              <div>
-                <label className="form-label">Desktop Image URL *</label>
-                <input type="url" className="form-input" required value={formData.desktopImage} onChange={e => setFormData({...formData, desktopImage: e.target.value})} />
-              </div>
-
-              <div>
-                <label className="form-label">Mobile Image URL</label>
-                <input type="url" className="form-input" value={formData.mobileImage} onChange={e => setFormData({...formData, mobileImage: e.target.value})} />
+              
+              <div className="form-group">
+                <label className="form-label">Subtitle</label>
+                <input className="form-input" type="text" value={formData.subtitle || ''} onChange={e => setFormData({...formData, subtitle: e.target.value})} />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label className="form-label">CTA Text</label>
-                  <input type="text" className="form-input" value={formData.ctaText} onChange={e => setFormData({...formData, ctaText: e.target.value})} />
-                </div>
-                <div>
-                  <label className="form-label">CTA URL</label>
-                  <input type="text" className="form-input" value={formData.ctaUrl} onChange={e => setFormData({...formData, ctaUrl: e.target.value})} />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label className="form-label">Coupon Code (Promo Banners)</label>
-                  <input type="text" className="form-input" value={formData.couponCode} onChange={e => setFormData({...formData, couponCode: e.target.value})} placeholder="e.g. SUMMER25" />
-                </div>
-                <div>
-                  <label className="form-label">Badge Text (Promo Banners)</label>
-                  <input type="text" className="form-input" value={formData.badgeText} onChange={e => setFormData({...formData, badgeText: e.target.value})} placeholder="e.g. LIMITED TIME" />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label className="form-label">Start Date (Optional)</label>
-                  <input type="datetime-local" className="form-input" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} />
-                </div>
-                <div>
-                  <label className="form-label">End Date (Optional)</label>
-                  <input type="datetime-local" className="form-input" value={formData.endDate} onChange={e => setFormData({...formData, endDate: e.target.value})} />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label className="form-label">Placement</label>
+                <div className="form-group">
+                  <label className="form-label">Placement *</label>
                   <select className="form-select" value={formData.placement} onChange={e => setFormData({...formData, placement: e.target.value})}>
-                    <option value="HERO">Homepage hero</option>
-                    <option value="FESTIVAL">Festival poster</option>
-                    <option value="PROMO">Promotional banner</option>
-                    <option value="PRODUCT_CAMPAIGN">Product campaign</option>
-                    <option value="POPUP">Popup banner</option>
-                    <option value="MOBILE">Mobile banner</option>
-                    <option value="DESKTOP">Desktop banner</option>
-                    <option value="SECTION">Section</option>
+                    <option value="HERO">HERO (Homepage Banner)</option>
+                    <option value="PROMO">PROMO (Promotional Strip)</option>
+                    <option value="POPUP">POPUP (Modal Dialog)</option>
                   </select>
                 </div>
-                <div>
-                  <label className="form-label">Priority</label>
-                  <input type="number" className="form-input" value={formData.priority} onChange={e => setFormData({...formData, priority: e.target.value})} />
+                <div className="form-group">
+                  <label className="form-label">Priority (Higher = First)</label>
+                  <input className="form-input" type="number" value={formData.priority} onChange={e => setFormData({...formData, priority: parseInt(e.target.value)})} />
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', marginTop: '28px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-ivory)' }}>
-                    <input type="checkbox" checked={formData.isActive} onChange={e => setFormData({...formData, isActive: e.target.checked})} />
-                    Active
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Desktop Image (URL or Upload) *</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input className="form-input" type="text" value={formData.desktopImage} onChange={e => setFormData({...formData, desktopImage: e.target.value})} required />
+                  <label className="btn btn-outline" style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    {uploading ? '...' : 'Upload'}
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleImageUpload(e, 'desktopImage')} disabled={uploading} />
+                  </label>
+                </div>
+                {formData.desktopImage && <img src={formData.desktopImage} alt="Desktop Preview" style={{ marginTop: '8px', width: '100%', height: '100px', objectFit: 'cover', borderRadius: '4px' }} />}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Mobile Image (Optional)</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input className="form-input" type="text" value={formData.mobileImage || ''} onChange={e => setFormData({...formData, mobileImage: e.target.value})} />
+                  <label className="btn btn-outline" style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                    {uploading ? '...' : 'Upload'}
+                    <input type="file" accept="image/*" style={{ display: 'none' }} onChange={e => handleImageUpload(e, 'mobileImage')} disabled={uploading} />
                   </label>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
-                <button type="button" className="btn btn-outline" onClick={() => setShowForm(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary" disabled={createMutation.isPending || updateMutation.isPending}>
-                  {editingBanner ? 'Update' : 'Create'}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-group">
+                  <label className="form-label">CTA Text (Button)</label>
+                  <input className="form-input" type="text" value={formData.ctaText || ''} onChange={e => setFormData({...formData, ctaText: e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">CTA URL</label>
+                  <input className="form-input" type="text" value={formData.ctaUrl || ''} onChange={e => setFormData({...formData, ctaUrl: e.target.value})} />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="shop-checkbox-label">
+                  <input type="checkbox" checked={formData.isActive} onChange={e => setFormData({...formData, isActive: e.target.checked})} />
+                  Active
+                </label>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '32px' }}>
+                <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={createMutation.isPending || updateMutation.isPending || uploading}>
+                  {editId ? 'Save Changes' : 'Create Banner'}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-
-      {deleteId && (
-        <div className="modal-overlay">
-          <div className="modal animate-scale-in">
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: 'var(--color-ivory)', marginBottom: '16px' }}>Confirm Delete</h3>
-            <p style={{ color: 'var(--color-text-muted)', marginBottom: '24px' }}>Are you sure you want to delete this banner? This action cannot be undone.</p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-              <button className="btn btn-outline" onClick={() => setDeleteId(null)}>Cancel</button>
-              <button className="btn" style={{ background: 'var(--color-error)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '4px', cursor: 'pointer' }} onClick={() => deleteMutation.mutate(deleteId)}>Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    </div>
   );
 };
 
 export default AdminBannersPage;
-

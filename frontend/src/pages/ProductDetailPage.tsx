@@ -9,6 +9,7 @@ import { useAuthStore } from '../store/auth.store';
 import ProductCard from '../components/product/ProductCard';
 import ProductReviews from '../components/product/ProductReviews';
 import SEO from '../components/SEO';
+import { optimizeImage } from '../utils/image';
 import { ProductVariant } from '../types';
 import toast from 'react-hot-toast';
 
@@ -165,7 +166,7 @@ const ProductDetailPage: React.FC = () => {
               <div className="pdp-main-image">
                 <motion.img
                   key={selectedImage}
-                  src={product.images[selectedImage]?.url || 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=800'}
+                  src={optimizeImage(product.images[selectedImage]?.url) || 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=800'}
                   alt={product.images[selectedImage]?.altText || product.name}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -176,13 +177,13 @@ const ProductDetailPage: React.FC = () => {
               </div>
               {product.images.length > 1 && (
                 <div className="pdp-thumbnails">
-                  {product.images.map((img: any, i: number) => (
+                  {product.images.map((img: any, index: number) => (
                     <button
                       key={img.id}
-                      className={`pdp-thumb ${selectedImage === i ? 'active' : ''}`}
-                      onClick={() => setSelectedImage(i)}
+                      className={`pdp-thumb ${selectedImage === index ? 'active' : ''}`}
+                      onClick={() => setSelectedImage(index)}
                     >
-                      <img src={img.url} alt={img.altText || product.name} />
+                      <img src={optimizeImage(img.url)} alt={img.altText || `Thumbnail ${index + 1}`} loading="lazy" />
                     </button>
                   ))}
                 </div>

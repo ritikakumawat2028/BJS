@@ -18,6 +18,9 @@ import adminRoutes from './routes/admin.routes';
 import paymentRoutes from './routes/payment.routes';
 import promotionRoutes from './routes/promotion.routes';
 import sitemapRoutes from './routes/sitemap.routes';
+import uploadRoutes from './routes/upload.routes';
+import bannerRoutes from './routes/banner.routes';
+import path from 'path';
 import { errorHandler } from './middleware/error';
 import prisma from './config/prisma';
 
@@ -55,9 +58,6 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 // ===== HEALTH =====
 app.get('/health', (_req, res) => res.json({ status: 'OK', timestamp: new Date().toISOString() }));
 
-import uploadRoutes from './routes/upload.routes';
-import path from 'path';
-
 // ===== ROUTES =====
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -66,6 +66,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/banners', bannerRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/admin', adminRoutes);
 
