@@ -13,15 +13,21 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) throw createError('Email already registered', 400);
 
+  let defaultRole = await prisma.role.findUnique({ where: { name: 'CUSTOMER' } });
+  if (!defaultRole) {
+    defaultRole = await prisma.role.create({ data: { name: 'CUSTOMER', description: 'Default Customer Role' } });
+  }
+
   const passwordHash = await bcrypt.hash(password, 12);
   const emailVerifyToken = crypto.randomBytes(32).toString('hex');
   const user = await prisma.user.create({
-    data: { email, passwordHash, firstName, lastName, phone, role: 'CUSTOMER', emailVerifyToken },
+    data: { email, passwordHash, firstName, lastName, phone, roleId: defaultRole.id, emailVerifyToken },
     select: { id: true, email: true, firstName: true, lastName: true, role: true },
   });
 
-  const accessToken = generateAccessToken({ userId: user.id, role: user.role, email: user.email });
-  const refreshToken = generateRefreshToken({ userId: user.id, role: user.role, email: user.email });
+  const roleName = user.role?.name || 'CUSTOMER';
+  const accessToken = generateAccessToken({ userId: user.id, role: roleName, email: user.email });
+  const refreshToken = generateRefreshToken({ userId: user.id, role: roleName, email: user.email });
 
   await prisma.refreshToken.create({
     data: { token: refreshToken, userId: user.id, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },
@@ -35,7 +41,14 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email address.</p>`,
   });
 
-  res.status(201).json({ success: true, message: 'Account created. Please check your email to verify your account.', data: { user, accessToken, refreshToken } });
+  res.cookie('bjs_refresh_token', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+
+  res.status(201).json({ success: true, message: 'Account created. Please check your email to verify your account.', data: { user, accessToken } });
 });
 
 export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
@@ -54,40 +67,48 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { email }, include: { role: true } });
   if (!user || !user.isActive) throw createError('Invalid credentials', 401);
 
   const isMatch = await bcrypt.compare(password, user.passwordHash);
   if (!isMatch) throw createError('Invalid credentials', 401);
 
-  const accessToken = generateAccessToken({ userId: user.id, role: user.role, email: user.email });
-  const refreshToken = generateRefreshToken({ userId: user.id, role: user.role, email: user.email });
+  const roleName = user.role?.name || 'CUSTOMER';
+  const accessToken = generateAccessToken({ userId: user.id, role: roleName, email: user.email });
+  const refreshToken = generateRefreshToken({ userId: user.id, role: roleName, email: user.email });
 
   await prisma.refreshToken.create({
     data: { token: refreshToken, userId: user.id, expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },
+  });
+
+  res.cookie('bjs_refresh_token', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
   res.json({
     success: true,
     message: 'Login successful',
     data: {
-      user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role, avatar: user.avatar },
+      user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: roleName, avatar: user.avatar },
       accessToken,
-      refreshToken,
     },
   });
 });
 
 export const logout = asyncHandler(async (req: Request, res: Response) => {
-  const { refreshToken } = req.body;
+  const refreshToken = req.cookies.bjs_refresh_token;
   if (refreshToken) {
     await prisma.refreshToken.deleteMany({ where: { token: refreshToken } });
   }
+  res.clearCookie('bjs_refresh_token');
   res.json({ success: true, message: 'Logged out successfully' });
 });
 
 export const refreshToken = asyncHandler(async (req: Request, res: Response) => {
-  const { refreshToken: token } = req.body;
+  const token = req.cookies.bjs_refresh_token;
   if (!token) throw createError('Refresh token required', 401);
 
   const stored = await prisma.refreshToken.findUnique({ where: { token } });

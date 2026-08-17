@@ -25,19 +25,15 @@ api.interceptors.response.use(
     const original = error.config as any;
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
-      const refreshToken = localStorage.getItem('bjs_refresh_token');
-      if (refreshToken) {
-        try {
-          const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
-          const newToken = data.data.accessToken;
-          localStorage.setItem('bjs_access_token', newToken);
-          original.headers.Authorization = `Bearer ${newToken}`;
-          return api(original);
-        } catch {
-          localStorage.removeItem('bjs_access_token');
-          localStorage.removeItem('bjs_refresh_token');
-          window.location.href = '/login';
-        }
+      try {
+        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, {}, { withCredentials: true });
+        const newToken = data.data.accessToken;
+        localStorage.setItem('bjs_access_token', newToken);
+        original.headers.Authorization = `Bearer ${newToken}`;
+        return api(original);
+      } catch {
+        localStorage.removeItem('bjs_access_token');
+        window.location.href = '/login';
       }
     }
     return Promise.reject(error);
@@ -51,8 +47,8 @@ export const authApi = {
   register: (data: { email: string; password: string; firstName: string; lastName: string; phone?: string }) =>
     api.post('/auth/register', data),
   login: (data: { email: string; password: string }) => api.post('/auth/login', data),
-  logout: (refreshToken: string) => api.post('/auth/logout', { refreshToken }),
-  refresh: (refreshToken: string) => api.post('/auth/refresh', { refreshToken }),
+  logout: () => api.post('/auth/logout'),
+  refresh: () => api.post('/auth/refresh'),
   forgotPassword: (email: string) => api.post('/auth/forgot-password', { email }),
   resetPassword: (token: string, password: string) => api.post('/auth/reset-password', { token, password }),
   getMe: () => api.get('/auth/me'),
@@ -103,8 +99,8 @@ export const cartApi = {
 // ===== ORDERS =====
 export const ordersApi = {
   create: (data: any) => api.post('/orders', data),
-  createRazorpay: (data: { orderId: string }) => api.post('/orders/razorpay', data),
-  verifyPayment: (data: any) => api.post('/orders/verify', data),
+  createRazorpay: (data: { orderId: string }) => api.post('/payments/create', data),
+  verifyPayment: (data: any) => api.post('/payments/verify', data),
   getAll: (params?: any) => api.get('/orders', { params }),
   getById: (id: string) => api.get(`/orders/${id}`),
   adminGetAll: (params?: any) => api.get('/admin/orders', { params }),
@@ -133,53 +129,53 @@ export const userApi = {
 
 // ===== ADMIN =====
 export const adminApi = {
-  getDashboard: (period?: string) => api.get('/dashboard', { params: { period } }),
-  getPayments: (params?: Record<string, any>) => api.get('/payments', { params }),
+  getDashboard: (period?: string) => api.get('/admin/dashboard', { params: { period } }),
+  getPayments: (params?: Record<string, any>) => api.get('/admin/payments', { params }),
   
   // Delivery & Shipping Zones
-  getShippingZones: () => api.get('/shipping-zones'),
-  createShippingZone: (data: any) => api.post('/shipping-zones', data),
-  updateShippingZone: (id: string, data: any) => api.put(`/shipping-zones/${id}`, data),
-  deleteShippingZone: (id: string) => api.delete(`/shipping-zones/${id}`),
+  getShippingZones: () => api.get('/admin/shipping-zones'),
+  createShippingZone: (data: any) => api.post('/admin/shipping-zones', data),
+  updateShippingZone: (id: string, data: any) => api.put(`/admin/shipping-zones/${id}`, data),
+  deleteShippingZone: (id: string) => api.delete(`/admin/shipping-zones/${id}`),
   // Customers
-  getCustomers: (params?: Record<string, any>) => api.get('/customers', { params }),
-  toggleUserStatus: (id: string) => api.put(`/customers/${id}/toggle-status`),
+  getCustomers: (params?: Record<string, any>) => api.get('/admin/customers', { params }),
+  toggleUserStatus: (id: string) => api.put(`/admin/customers/${id}/toggle-status`),
   // Banners
-  getBanners: (placement?: string) => api.get('/banners', { params: placement ? { placement } : undefined }),
-  createBanner: (data: any) => api.post('/banners', data),
-  updateBanner: (id: string, data: any) => api.put(`/banners/${id}`, data),
-  deleteBanner: (id: string) => api.delete(`/banners/${id}`),
+  getBanners: (placement?: string) => api.get('/admin/banners', { params: placement ? { placement } : undefined }),
+  createBanner: (data: any) => api.post('/admin/banners', data),
+  updateBanner: (id: string, data: any) => api.put(`/admin/banners/${id}`, data),
+  deleteBanner: (id: string) => api.delete(`/admin/banners/${id}`),
   // Campaigns
-  getCampaigns: () => api.get('/campaigns'),
-  createCampaign: (data: any) => api.post('/campaigns', data),
-  updateCampaign: (id: string, data: any) => api.put(`/campaigns/${id}`, data),
+  getCampaigns: () => api.get('/admin/campaigns'),
+  createCampaign: (data: any) => api.post('/admin/campaigns', data),
+  updateCampaign: (id: string, data: any) => api.put(`/admin/campaigns/${id}`, data),
   // Coupons
-  getCoupons: () => api.get('/coupons'),
-  createCoupon: (data: any) => api.post('/coupons', data),
-  updateCoupon: (id: string, data: any) => api.put(`/coupons/${id}`, data),
-  deleteCoupon: (id: string) => api.delete(`/coupons/${id}`),
+  getCoupons: () => api.get('/admin/coupons'),
+  createCoupon: (data: any) => api.post('/admin/coupons', data),
+  updateCoupon: (id: string, data: any) => api.put(`/admin/coupons/${id}`, data),
+  deleteCoupon: (id: string) => api.delete(`/admin/coupons/${id}`),
   // Reviews
-  getReviews: () => api.get('/reviews'),
-  updateReviewStatus: (id: string, data: any) => api.put(`/reviews/${id}/status`, data),
-  deleteReview: (id: string) => api.delete(`/reviews/${id}`),
+  getReviews: () => api.get('/admin/reviews'),
+  updateReviewStatus: (id: string, data: any) => api.put(`/admin/reviews/${id}/status`, data),
+  deleteReview: (id: string) => api.delete(`/admin/reviews/${id}`),
   // Settings
-  getSettings: () => api.get('/settings'),
-  updateSettings: (settings: Record<string, string>) => api.put('/settings', { settings }),
+  getSettings: () => api.get('/admin/settings'),
+  updateSettings: (settings: Record<string, string>) => api.put('/admin/settings', { settings }),
   // Support
-  createTicket: (data: any) => api.post('/support', data),
-  getTickets: () => api.get('/support'),
+  createTicket: (data: any) => api.post('/admin/support', data),
+  getTickets: () => api.get('/admin/support'),
   // Audit Logs
-  getAuditLogs: () => api.get('/audit-logs'),
+  getAuditLogs: () => api.get('/admin/audit-logs'),
   // Inventory
-  getInventoryStats: () => api.get('/inventory/stats'),
-  getInventoryList: (params?: Record<string, any>) => api.get('/inventory/list', { params }),
-  adjustStock: (data: { id: string; isVariant: boolean; type: string; quantity: number; note?: string }) => api.post('/inventory/adjust', data),
-  getStockHistory: (id: string, isVariant: boolean) => api.get('/inventory/history', { params: { id, isVariant } }),
+  getInventoryStats: () => api.get('/admin/inventory/stats'),
+  getInventoryList: (params?: Record<string, any>) => api.get('/admin/inventory/list', { params }),
+  adjustStock: (data: { id: string; isVariant: boolean; type: string; quantity: number; note?: string }) => api.post('/admin/inventory/adjust', data),
+  getStockHistory: (id: string, isVariant: boolean) => api.get('/admin/inventory/history', { params: { id, isVariant } }),
   // Promotions
-  getPromotions: () => api.get('/promotions'),
-  createPromotion: (data: any) => api.post('/promotions', data),
-  updatePromotion: (id: string, data: any) => api.put(`/promotions/${id}`, data),
-  deletePromotion: (id: string) => api.delete(`/promotions/${id}`),
+  getPromotions: () => api.get('/admin/promotions'),
+  createPromotion: (data: any) => api.post('/admin/promotions', data),
+  updatePromotion: (id: string, data: any) => api.put(`/admin/promotions/${id}`, data),
+  deletePromotion: (id: string) => api.delete(`/admin/promotions/${id}`),
   // Newsletter
   subscribeNewsletter: (email: string) => api.post('/newsletter/subscribe', { email }),
   // Upload

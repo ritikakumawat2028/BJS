@@ -24,7 +24,7 @@ export const getDashboard = asyncHandler(async (req: AuthRequest, res: Response)
     prisma.order.count({ where: { status: 'PENDING' } }),
     prisma.order.count({ where: { status: 'DELIVERED' } }),
     prisma.order.count({ where: { status: 'REFUNDED' } }),
-    prisma.user.count({ where: { role: 'CUSTOMER' } }),
+    prisma.user.count({ where: { role: { name: 'CUSTOMER' } } }),
     prisma.product.count({ where: { isActive: true } }),
     prisma.inventory.count({ where: { quantity: { lte: prisma.inventory.fields.lowStockThreshold } } }),
     prisma.order.groupBy({
@@ -77,7 +77,7 @@ export const getDashboard = asyncHandler(async (req: AuthRequest, res: Response)
 export const adminGetCustomers = asyncHandler(async (req: Request, res: Response) => {
   const { page = '1', limit = '20', search, status } = req.query as Record<string, string>;
   const skip = (parseInt(page) - 1) * parseInt(limit);
-  const where: any = { role: 'CUSTOMER' };
+  const where: any = { role: { name: 'CUSTOMER' } };
   if (search) where.OR = [{ email: { contains: search, mode: 'insensitive' } }, { firstName: { contains: search, mode: 'insensitive' } }];
   if (status === 'active') where.isActive = true;
   if (status === 'blocked') where.isActive = false;
@@ -100,8 +100,8 @@ export const adminGetCustomers = asyncHandler(async (req: Request, res: Response
 
 export const adminToggleUserStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
-  const user = await prisma.user.findUnique({ where: { id } });
-  if (!user || user.role === 'ADMIN') throw createError('Cannot modify this user', 400);
+  const user = await prisma.user.findUnique({ where: { id }, include: { role: true } });
+  if (!user || user.role?.name === 'ADMIN') throw createError('Cannot modify this user', 400);
 
   const updated = await prisma.user.update({ where: { id }, data: { isActive: !user.isActive } });
   await prisma.adminActivityLog.create({

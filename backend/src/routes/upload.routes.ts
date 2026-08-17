@@ -1,27 +1,19 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { v2 as cloudinary } from 'cloudinary';
 import { authenticate, requireAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
-// Ensure upload directory exists
-const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Configure multer storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+// Configure multer memory storage
+const storage = multer.memoryStorage();
 
 // File filter to only allow images
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
@@ -32,27 +24,49 @@ const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCa
   }
 };
 
-const upload = multer({ storage: storage, fileFilter: fileFilter });
+const upload = multer({ 
+  storage: storage, 
+  fileFilter: fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
 
 // Upload route
-router.post('/', authenticate, requireAdmin, upload.single('image'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ success: false, message: 'No file uploaded' });
+router.post('/', authenticate, requireAdmin, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    if (!process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME === 'placeholder') {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Cloudinary is not configured. Please add keys to .env file.' 
+      });
+    }
+
+    // Wrap the upload_stream in a promise
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: 'bjs_natural_care' },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      stream.end(req.file!.buffer);
+    });
+
+    const imageUrl = (result as any).secure_url;
+
+    res.json({
+      success: true,
+      message: 'File uploaded successfully',
+      data: { url: imageUrl }
+    });
+  } catch (error) {
+    console.error('Cloudinary Upload Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to upload image to cloud storage' });
   }
-
-  // Construct public URL
-  const port = process.env.PORT || 5000;
-  const baseUrl = process.env.NODE_ENV === 'production' 
-    ? process.env.BACKEND_URL || `http://localhost:${port}`
-    : `http://localhost:${port}`;
-    
-  const imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
-
-  res.json({
-    success: true,
-    message: 'File uploaded successfully',
-    data: { url: imageUrl }
-  });
 });
 
 export default router;

@@ -6,8 +6,9 @@ export interface User {
   firstName: string;
   lastName: string;
   phone?: string;
-  role: 'CUSTOMER' | 'ADMIN' | 'STAFF';
+  role: string;
   avatar?: string;
+  isActive: boolean;
   isEmailVerified: boolean;
   createdAt: string;
   addresses?: Address[];

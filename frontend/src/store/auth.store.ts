@@ -6,7 +6,6 @@ import { authApi, cartApi } from '../services/api';
 interface AuthStore {
   user: User | null;
   accessToken: string | null;
-  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -23,7 +22,6 @@ export const useAuthStore = create<AuthStore>()(
       (set, get) => ({
         user: null,
         accessToken: null,
-        refreshToken: null,
         isAuthenticated: false,
         isLoading: false,
 
@@ -31,10 +29,9 @@ export const useAuthStore = create<AuthStore>()(
           set({ isLoading: true });
           try {
             const { data } = await authApi.login({ email, password });
-            const { user, accessToken, refreshToken } = data.data;
+            const { user, accessToken } = data.data;
             localStorage.setItem('bjs_access_token', accessToken);
-            localStorage.setItem('bjs_refresh_token', refreshToken);
-            set({ user, accessToken, refreshToken, isAuthenticated: true, isLoading: false });
+            set({ user, accessToken, isAuthenticated: true, isLoading: false });
             
             // Merge guest cart if exists
             const sessionId = localStorage.getItem('bjs_session_id');
@@ -56,10 +53,9 @@ export const useAuthStore = create<AuthStore>()(
           set({ isLoading: true });
           try {
             const { data: res } = await authApi.register(data);
-            const { user, accessToken, refreshToken } = res.data;
+            const { user, accessToken } = res.data;
             localStorage.setItem('bjs_access_token', accessToken);
-            localStorage.setItem('bjs_refresh_token', refreshToken);
-            set({ user, accessToken, refreshToken, isAuthenticated: true, isLoading: false });
+            set({ user, accessToken, isAuthenticated: true, isLoading: false });
             
             // Merge guest cart if exists
             const sessionId = localStorage.getItem('bjs_session_id');
@@ -76,13 +72,9 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         logout: async () => {
-          const { refreshToken } = get();
-          if (refreshToken) {
-            try { await authApi.logout(refreshToken); } catch { /* ignore */ }
-          }
+          try { await authApi.logout(); } catch { /* ignore */ }
           localStorage.removeItem('bjs_access_token');
-          localStorage.removeItem('bjs_refresh_token');
-          set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
+          set({ user: null, accessToken: null, isAuthenticated: false });
         },
 
         setUser: (user) => set({ user, isAuthenticated: true }),
@@ -93,11 +85,11 @@ export const useAuthStore = create<AuthStore>()(
             const { data } = await authApi.getMe();
             set({ user: data.data, isAuthenticated: true });
           } catch {
-            set({ user: null, isAuthenticated: false, accessToken: null, refreshToken: null });
+            set({ user: null, isAuthenticated: false, accessToken: null });
           }
         },
       }),
-      { name: 'bjs-auth', partialize: (state) => ({ accessToken: state.accessToken, refreshToken: state.refreshToken, user: state.user, isAuthenticated: state.isAuthenticated }) }
+      { name: 'bjs-auth', partialize: (state) => ({ accessToken: state.accessToken, user: state.user, isAuthenticated: state.isAuthenticated }) }
     )
   )
 );

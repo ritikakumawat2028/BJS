@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
@@ -9,6 +8,7 @@ import { useWishlistStore } from '../store/wishlist.store';
 import { useAuthStore } from '../store/auth.store';
 import ProductCard from '../components/product/ProductCard';
 import ProductReviews from '../components/product/ProductReviews';
+import SEO from '../components/SEO';
 import { ProductVariant } from '../types';
 import toast from 'react-hot-toast';
 
@@ -106,14 +106,44 @@ const ProductDetailPage: React.FC = () => {
       <span key={i} style={{ color: i < Math.floor(rating) ? 'var(--color-gold)' : 'var(--color-border)', fontSize: '1.1rem' }}>???</span>
     ));
 
+  // JSON-LD Schema
+  const productSchema = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.images?.map((img: any) => img.url) || [],
+    "description": product.shortDescription || product.description,
+    "sku": product.sku,
+    "brand": {
+      "@type": "Brand",
+      "name": product.brand || "BJ'S Natural Care"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": `${import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'}/products/${product.slug}`,
+      "priceCurrency": "INR",
+      "price": currentPrice,
+      "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+    },
+    ...(product.avgRating > 0 && {
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": product.avgRating,
+        "reviewCount": product.reviewCount || 1
+      }
+    })
+  };
+
   return (
     <>
-      <Helmet>
-        <title>{product.metaTitle || `${product.name} ??? BJ'S Natural Care`}</title>
-        <meta name="description" content={product.metaDesc || product.shortDescription || ''} />
-        <meta property="og:title" content={product.name} />
-        <meta property="og:image" content={thumbnail?.url} />
-      </Helmet>
+      <SEO 
+        title={product.metaTitle || product.name}
+        description={product.metaDesc || product.shortDescription || product.description?.substring(0, 160)}
+        type="product"
+        url={`/products/${product.slug}`}
+        image={thumbnail?.url}
+        schema={productSchema}
+      />
 
       <div style={{ paddingTop: 'var(--nav-height)' }}>
         <div className="container" style={{ paddingTop: '32px', paddingBottom: '80px' }}>

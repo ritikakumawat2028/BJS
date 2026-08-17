@@ -12,7 +12,15 @@ datasource db {
 
 // ========== USER & AUTH ==========
 
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique // e.g. "CUSTOMER", "ADMIN", "STAFF"
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
+  users       User[]
+}
 
 model User {
   id              String    @id @default(uuid())
@@ -21,7 +29,8 @@ model User {
   firstName       String
   lastName        String
   passwordHash    String
-  role String @default("CUSTOMER")
+  roleId          String?
+  role            Role?     @relation(fields: [roleId], references: [id])
   isActive        Boolean   @default(true)
   isEmailVerified Boolean   @default(false)
   emailVerifyToken String?
@@ -42,7 +51,7 @@ model User {
   refreshTokens   RefreshToken[]
 
   @@index([email])
-  @@index([role])
+  @@index([roleId])
 }
 
 model RefreshToken {
@@ -625,7 +634,7 @@ model Notification {
 
 // ========== SHIPPING ==========
 
-model ShippingZone {
+model Shipping {
   id              String   @id @default(uuid())
   name            String
   states          String?

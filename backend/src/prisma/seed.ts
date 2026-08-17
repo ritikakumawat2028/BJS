@@ -12,15 +12,20 @@ async function main() {
   const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@BJS2024!';
   const adminHash = await bcrypt.hash(adminPassword, 12);
 
+  let adminRole = await prisma.role.findUnique({ where: { name: 'ADMIN' } });
+  if (!adminRole) {
+    adminRole = await prisma.role.create({ data: { name: 'ADMIN', description: 'Administrator Role' } });
+  }
+
   const admin = await prisma.user.upsert({
     where: { email: adminEmail },
-    update: {},
+    update: { roleId: adminRole.id },
     create: {
       email: adminEmail,
       passwordHash: adminHash,
       firstName: process.env.ADMIN_FIRST_NAME || 'Admin',
       lastName: process.env.ADMIN_LAST_NAME || 'BJS',
-      role: "ADMIN",
+      roleId: adminRole.id,
       isEmailVerified: true,
     },
   });
