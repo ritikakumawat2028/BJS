@@ -1,0 +1,532 @@
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import { motion, AnimatePresence } from "framer-motion";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { productsApi, adminApi, userApi } from "../services/api";
+import ProductCard from "../components/product/ProductCard";
+import { Product, Banner, Campaign, StoreSettings, Review } from "../types";
+import toast from "react-hot-toast";
+
+const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } };
+const stagger = { visible: { transition: { staggerChildren: 0.1 } } };
+
+const DUMMY_BESTSELLERS: Product[] = [
+  { id: "dummy-1", name: "Royal Oud Essence", slug: "royal-oud-essence", description: "", price: 1499, comparePrice: 2141, category: { name: "Fragrance", slug: "fragrance" }, images: [{ id: "i1", url: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isBestseller: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.8, reviewCount: 45 } as unknown as Product,
+  { id: "dummy-2", name: "Velvet Rose Noir", slug: "velvet-rose-noir", description: "", price: 1999, comparePrice: 2665, category: { name: "Fragrance", slug: "fragrance" }, images: [{ id: "i2", url: "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isBestseller: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.7, reviewCount: 32 } as unknown as Product,
+  { id: "dummy-3", name: "Sandalwood Gold", slug: "sandalwood-gold", description: "", price: 1299, comparePrice: 1665, category: { name: "Fragrance", slug: "fragrance" }, images: [{ id: "i3", url: "https://images.unsplash.com/photo-1541643600914-78b084683702?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isBestseller: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.6, reviewCount: 28 } as unknown as Product,
+  { id: "dummy-4", name: "Argan Gold Shampoo", slug: "argan-gold-shampoo", description: "", price: 349, comparePrice: 485, category: { name: "Hair Care", slug: "hair-care" }, images: [{ id: "i4", url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isBestseller: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.5, reviewCount: 89 } as unknown as Product,
+];
+
+const DUMMY_NEW_ARRIVALS: Product[] = [
+  { id: "na-1", name: "Sandalwood Gold", slug: "sandalwood-gold", description: "", price: 1299, comparePrice: 1699, category: { name: "Fragrance", slug: "fragrance" }, images: [{ id: "i1", url: "https://images.unsplash.com/photo-1541643600914-78b084683702?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isNewArrival: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.5, reviewCount: 12 } as unknown as Product,
+  { id: "na-2", name: "Rose Glow Toner", slug: "rose-glow-toner", description: "", price: 549, comparePrice: 749, category: { name: "Skin Care", slug: "skin-care" }, images: [{ id: "i2", url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isNewArrival: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.3, reviewCount: 8 } as unknown as Product,
+  { id: "na-3", name: "Exfoliating Body Scrub", slug: "exfoliating-body-scrub", description: "", price: 649, comparePrice: 849, category: { name: "Body Care", slug: "body-care" }, images: [{ id: "i3", url: "https://images.unsplash.com/photo-1556228578-6a0b1fcef94a?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isNewArrival: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.6, reviewCount: 21 } as unknown as Product,
+  { id: "na-4", name: "Natural Aloe Gel", slug: "natural-aloe-gel", description: "", price: 349, comparePrice: 449, category: { name: "Natural Care", slug: "natural-care" }, images: [{ id: "i4", url: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isNewArrival: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.7, reviewCount: 34 } as unknown as Product,
+];
+
+const FALLBACK_TESTIMONIALS = [
+  { id: "f1", rating: 5, comment: "The Royal Oud Essence is absolutely divine. I receive compliments every time I wear it. The scent lasts all day and the packaging is so luxurious. This is my third purchase and I am officially obsessed.", user: { firstName: "Priya", lastName: "Sharma", avatar: "https://randomuser.me/api/portraits/women/44.jpg" }, productName: "Royal Oud Essence", location: "Mumbai, India" },
+  { id: "f2", rating: 5, comment: "The Argan Gold Shampoo transformed my hair in just two weeks. It feels incredibly soft and looks so healthy and shiny. I will never switch back to any other brand.", user: { firstName: "Anjali", lastName: "Mehta", avatar: "https://randomuser.me/api/portraits/women/68.jpg" }, productName: "Argan Gold Shampoo", location: "Delhi, India" },
+  { id: "f3", rating: 5, comment: "I gifted the special set to my sister and she absolutely loved it. The packaging was premium and the fragrances are unlike anything we have tried before.", user: { firstName: "Rahul", lastName: "Verma", avatar: "https://randomuser.me/api/portraits/men/32.jpg" }, productName: "Gift Set", location: "Bangalore, India" },
+];
+
+const StarSelector: React.FC<{ value: number; onChange: (v: number) => void }> = ({ value, onChange }) => (
+  <div className="star-selector" role="group" aria-label="Star rating">
+    {[1, 2, 3, 4, 5].map(star => (
+      <button key={star} type="button" className={"star-btn" + (star <= value ? " filled" : "")} onClick={() => onChange(star)} aria-label={star + " star"}>
+        &#9733;
+      </button>
+    ))}
+  </div>
+);
+
+const HomePage: React.FC = () => {
+  const queryClient = useQueryClient();
+  const { data: featuredData } = useQuery({ queryKey: ["featured-products"], queryFn: () => productsApi.getFeatured() });
+  const { data: bestsellersData } = useQuery({ queryKey: ["bestsellers"], queryFn: () => productsApi.getBestsellers() });
+  const { data: newArrivalsData } = useQuery({ queryKey: ["new-arrivals"], queryFn: () => productsApi.getNewArrivals() });
+  const { data: bannersData } = useQuery({ queryKey: ["hero-banners"], queryFn: () => adminApi.getBanners("HERO") });
+  const { data: promoBannersData } = useQuery({ queryKey: ["promo-banners"], queryFn: () => adminApi.getBanners("PROMO") });
+  const { data: campaignsData } = useQuery({ queryKey: ["campaigns"], queryFn: () => adminApi.getCampaigns() });
+  const { data: settingsData } = useQuery({ queryKey: ["store-settings"], queryFn: () => adminApi.getSettings() });
+  const { data: reviewsData } = useQuery({ queryKey: ["approved-reviews"], queryFn: () => adminApi.getReviews({ isApproved: true, limit: 10 }) });
+
+  const featured: Product[] = featuredData?.data?.data || [];
+  const bestsellers: Product[] = (bestsellersData?.data?.data?.length ?? 0) > 0 ? bestsellersData!.data.data : DUMMY_BESTSELLERS;
+  const newArrivals: Product[] = (newArrivalsData?.data?.data?.length ?? 0) > 0 ? newArrivalsData!.data.data : DUMMY_NEW_ARRIVALS;
+  const banners: Banner[] = bannersData?.data?.data || [];
+  const promoBanners: Banner[] = promoBannersData?.data?.data || [];
+  const campaigns: Campaign[] = campaignsData?.data?.data || [];
+  const settings: StoreSettings = settingsData?.data?.data || {};
+  const approvedReviews: Review[] = reviewsData?.data?.data || [];
+
+  const displayTestimonials = approvedReviews.length > 0
+    ? approvedReviews.map((r: Review) => ({ id: r.id, rating: r.rating, comment: r.comment || "Great product!", user: r.user, productName: (r as any).productName || "BJ's Product", location: "" }))
+    : FALLBACK_TESTIMONIALS;
+
+  const [testimonialIdx, setTestimonialIdx] = useState(0);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "success">("idle");
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ name: "", email: "", rating: 5, comment: "", product: "" });
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (displayTestimonials.length === 0) return;
+    const timer = setInterval(() => setTestimonialIdx(i => (i + 1) % displayTestimonials.length), 5500);
+    return () => clearInterval(timer);
+  }, [displayTestimonials.length]);
+
+  const submitReviewMutation = useMutation({
+    mutationFn: (data: any) => userApi.addReview(data),
+    onSuccess: () => {
+      setReviewSubmitted(true);
+      setReviewForm({ name: "", email: "", rating: 5, comment: "", product: "" });
+      toast.success("Review submitted! It will appear after admin approval.");
+      queryClient.invalidateQueries({ queryKey: ["approved-reviews"] });
+    },
+    onError: () => toast.error("Failed to submit review. Please try again."),
+  });
+
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewForm.comment.trim() || !reviewForm.name.trim()) return;
+    submitReviewMutation.mutate({ rating: reviewForm.rating, comment: reviewForm.comment, title: "Review by " + reviewForm.name });
+  };
+
+  const handleNewsletter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    try {
+      await adminApi.subscribeNewsletter(newsletterEmail);
+      setNewsletterStatus("success");
+      setNewsletterEmail("");
+      setTimeout(() => setNewsletterStatus("idle"), 5000);
+    } catch { toast.error("Subscription failed. Please try again."); }
+  };
+
+  const heroHeading = settings.hero_heading || "Luxury, Naturally Crafted.";
+  const heroSub = settings.hero_subheading || "Premium perfumes, skincare & haircare — elevated for the discerning few.";
+  const heroImg = "https://public.readdy.ai/ai/img_res/3812a198e3446b048d04b92569ffca79.jpg";
+  const t = displayTestimonials[testimonialIdx];
+
+  const categories = [
+    { name: "Fragrance", slug: "fragrance", img: "https://public.readdy.ai/ai/img_res/f682c1ec4ecd0bd7dcec60e9b50b2d80.jpg", desc: "Discover our curated collection of premium fragrances, from intoxicating oud perfumes to delicate floral scents." },
+    { name: "Hair Care", slug: "hair-care", img: "https://public.readdy.ai/ai/img_res/c63fa98daea1dca6f21cbc9f0d2b932a.jpg", desc: "Transform your hair with our nourishing shampoos, conditioners, serums, and oils crafted with natural ingredients." },
+    { name: "Skin Care", slug: "skin-care", img: "https://public.readdy.ai/ai/img_res/d4e5882dc5c5fda45cf81a161be1cb4a.jpg", desc: "Reveal your natural radiance with our luxurious face care, moisturizers, and treatments." },
+    { name: "Body Care", slug: "body-care", img: "https://public.readdy.ai/ai/img_res/19ec0adabc268a426b7f985d246acca9.jpg", desc: "Indulge in rich body lotions, invigorating scrubs, and luxurious body washes." },
+    { name: "Natural Care", slug: "natural-care", img: "https://public.readdy.ai/ai/img_res/2c4b5da4455932bd864205f53302f109.jpg", desc: "Harness the power of nature with our herbal, Ayurvedic, and natural wellness products." },
+    { name: "Gift Sets", slug: "gift-sets", img: "https://public.readdy.ai/ai/img_res/bc4097a9a8a5871f93cb05a3f9fe0ca7.jpg", desc: "Thoughtfully curated gift collections for the ones you cherish." },
+  ];
+
+  return (
+    <>
+      <Helmet>
+        <title>{settings.meta_title || "BJ'S Natural Care - Premium Luxury Beauty & Fragrance"}</title>
+        <meta name="description" content={settings.meta_description || "Shop premium perfumes, skincare, haircare and natural beauty products."} />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </Helmet>
+      <main>
+        {/* HERO */}
+        <section className="hp-hero" style={{ backgroundImage: `url('${heroImg}')` }}>
+          <div className="hp-hero__overlay" />
+          <div className="hp-hero__container container">
+            <div className="hp-hero__text">
+              <div className="hp-hero__eyebrow-pill">
+                <span className="hp-hero__eyebrow-dot"></span>
+                PREMIUM LUXURY COLLECTION
+              </div>
+              <h1 className="hp-hero__heading">
+                Luxury, <span className="gold-text">Naturally</span><br />Crafted
+              </h1>
+              <p className="hp-hero__sub">
+                Discover our exquisite collection of perfumes, skincare, haircare, and<br />body care — all crafted with the finest natural ingredients for the<br />discerning you.
+              </p>
+              <div className="hp-hero__ctas">
+                <Link to="/shop" className="btn btn-primary btn-lg">SHOP COLLECTION</Link>
+                <Link to="/about" className="btn btn-outline btn-lg">EXPLORE OUR STORY</Link>
+              </div>
+            </div>
+          </div>
+          <div className="hp-hero__scroll">
+            <span className="hp-hero__scroll-text">SCROLL</span>
+            <div className="hp-hero__scroll-arrow">&darr;</div>
+          </div>
+        </section>
+
+        {/* TRUST BAR */}
+        <section className="hp-trust">
+          <div className="container">
+            <div className="hp-trust__grid">
+              {[
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 20A7 7 0 0 1 9.9 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 22l7-7"/></svg>, title: "100% Natural", desc: "Crafted with pure, sustainably sourced ingredients" },
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>, title: "Cruelty Free", desc: "Never tested on animals, certified ethical" },
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, title: "Free Shipping", desc: "On all orders over ₹1,499 across India" },
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>, title: "Easy Returns", desc: "30-day hassle-free return policy" },
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>, title: "Premium Quality", desc: "Handcrafted in small batches for excellence" },
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>, title: "24/7 Support", desc: "Dedicated team always ready to help" },
+              ].map(item => (
+                <motion.div key={item.title} className="hp-trust__item" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                  <div className="hp-trust__icon">{item.icon}</div>
+                  <h3 className="hp-trust__title">{item.title}</h3>
+                  <p className="hp-trust__desc">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CATEGORIES */}
+        <section className="section">
+          <div className="container">
+            <motion.div className="hp-section-head hp-section-head--center" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <p className="hp-label">EXPLORE</p>
+              <h2 className="hp-title">Shop by Category</h2>
+              <p className="hp-subtitle">Curated collections for every aspect of your beauty and wellness routine</p>
+            </motion.div>
+            <motion.div className="hp-cats" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              {categories.map(cat => (
+                <motion.div key={cat.slug} variants={fadeUp}>
+                  <Link to={`/shop?category=${cat.slug}`} className="hp-cat">
+                    <div className="hp-cat__img-wrap">
+                      <img src={cat.img} alt={cat.name} className="hp-cat__img" loading="lazy" />
+                      <div className="hp-cat__overlay" />
+                    </div>
+                    <div className="hp-cat__info">
+                      <h3 className="hp-cat__name">{cat.name}</h3>
+                      <p className="hp-cat__desc">{cat.desc}</p>
+                      <span className="hp-cat__arrow">Explore &rarr;</span>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* BESTSELLERS */}
+        <section className="section">
+          <div className="container">
+            <motion.div className="hp-section-head hp-section-head--row" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <div><p className="hp-label">MOST LOVED</p><h2 className="hp-title" style={{ marginBottom: 0 }}>Bestsellers</h2></div>
+              <Link to="/shop?bestseller=true" className="hp-view-all">View All &rarr;</Link>
+            </motion.div>
+            <motion.div key={bestsellers.length ? bestsellers[0].id : 'empty'} className="hp-products-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              {bestsellers.slice(0, 4).map(product => (
+                <motion.div key={product.id} variants={fadeUp}><ProductCard product={product} /></motion.div>
+              ))}
+            </motion.div>
+          </div>
+        </section>
+
+        {/* BANNERS */}
+        {promoBanners && promoBanners.length > 0 && (
+          <section className="hp-banners">
+            <div className="container">
+              <div className="hp-banners__grid">
+                {promoBanners.map(banner => (
+                  <div key={banner.id} className="hp-banner" style={{ backgroundImage: `url('${banner.desktopImage}')` }}>
+                    <div className="hp-banner__overlay" />
+                    <div className="hp-banner__content">
+                      {banner.badgeText && <span className="hp-banner__badge">{banner.badgeText}</span>}
+                      <h2 className="hp-banner__title">{banner.title}</h2>
+                      {banner.subtitle && <h3 className="hp-banner__subtitle">{banner.subtitle}</h3>}
+                      {banner.description && <p className="hp-banner__desc">{banner.description}</p>}
+                      <div className="hp-banner__actions">
+                        {banner.ctaText && (
+                          <Link to={banner.ctaUrl || '/shop'} className="btn btn-primary">{banner.ctaText}</Link>
+                        )}
+                        {banner.couponCode && (
+                          <div className="hp-banner__code">Code: <span>{banner.couponCode}</span></div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* FEATURED */}
+        {featured.length > 0 && (
+          <section className="section" style={{ background: "var(--color-rich-black)" }}>
+            <div className="container">
+              <motion.div className="hp-section-head hp-section-head--row" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                <div><p className="hp-label">CURATED</p><h2 className="hp-title" style={{ marginBottom: 0 }}>Featured Products</h2></div>
+                <Link to="/shop?featured=true" className="hp-view-all">View All &rarr;</Link>
+              </motion.div>
+              <motion.div key={featured.length ? featured[0].id : 'empty-f'} className="hp-products-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                {featured.slice(0, 4).map(product => (
+                  <motion.div key={product.id} variants={fadeUp}><ProductCard product={product} /></motion.div>
+                ))}
+              </motion.div>
+            </div>
+          </section>
+        )}
+
+        {/* NEW ARRIVALS */}
+        {newArrivals.length > 0 && (
+          <section className="section" style={{ background: "var(--color-rich-black)" }}>
+            <div className="container">
+              <motion.div className="hp-section-head hp-section-head--row" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                <div><p className="hp-label">FRESH IN</p><h2 className="hp-title" style={{ marginBottom: 0 }}>New Arrivals</h2></div>
+                <Link to="/shop?newArrival=true" className="hp-view-all">View All New &rarr;</Link>
+              </motion.div>
+              <motion.div key={newArrivals.length ? newArrivals[0].id : 'empty-na'} className="hp-products-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                {newArrivals.slice(0, 4).map(product => (
+                  <motion.div key={product.id} variants={fadeUp}><ProductCard product={product} /></motion.div>
+                ))}
+              </motion.div>
+            </div>
+          </section>
+        )}
+
+        {/* TESTIMONIALS + REVIEW FORM */}
+        <section className="hp-testimonials">
+          <div className="container">
+            <motion.div className="hp-section-head hp-section-head--center" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <p className="hp-label">TESTIMONIALS</p>
+              <h2 className="hp-title">What Our Customers Say</h2>
+              <p className="hp-subtitle">Real experiences from real people who have discovered the luxury of natural care</p>
+            </motion.div>
+            {t && (
+              <>
+                <AnimatePresence mode="wait">
+                  <motion.div key={testimonialIdx} className="hp-testimonial" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
+                    <div className="hp-testimonial__stars">{Array.from({ length: t.rating }).map((_, i) => <span key={i}>&#9733;</span>)}</div>
+                    <p className="hp-testimonial__quote">&ldquo;{t.comment}&rdquo;</p>
+                    <div className="hp-testimonial__author">
+                      {t.user?.avatar && <img src={t.user.avatar} alt={t.user.firstName} className="hp-testimonial__avatar" />}
+                      <div>
+                        <span className="hp-testimonial__name">{t.user.firstName} {t.user.lastName}</span>
+                        {t.location && <span className="hp-testimonial__location">{t.location}</span>}
+                      </div>
+                    </div>
+                    <p className="hp-testimonial__product">PURCHASED: {t.productName || "BJ'S Product"}</p>
+                  </motion.div>
+                </AnimatePresence>
+                <div className="hp-testimonial__dots">
+                  {displayTestimonials.map((_, i) => (
+                    <button key={i} className={"hp-testimonial__dot" + (i === testimonialIdx ? " active" : "")} onClick={() => setTestimonialIdx(i)} aria-label={`Testimonial ${i + 1}`} />
+                  ))}
+                </div>
+              </>
+            )}
+            <div className="hp-review-cta">
+              <button className="hp-review-toggle-btn" onClick={() => { setShowReviewForm(v => !v); setReviewSubmitted(false); }}>
+                {showReviewForm ? "Close Form" : "Write a Review"}
+              </button>
+            </div>
+            <AnimatePresence>
+              {showReviewForm && (
+                <motion.div className="hp-review-form-wrap" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.4 }}>
+                  {reviewSubmitted ? (
+                    <div className="hp-review-success">
+                      <span className="hp-review-success__icon">&#10003;</span>
+                      <div><strong>Thank you for your review!</strong><p>It will appear after admin approval.</p></div>
+                    </div>
+                  ) : (
+                    <form className="hp-review-form" onSubmit={handleReviewSubmit}>
+                      <h3 className="hp-review-form__title">Share Your Experience</h3>
+                      <div className="hp-review-form__grid">
+                        <div className="hp-form-group">
+                          <label className="hp-form-label">Your Name *</label>
+                          <input className="hp-form-input" type="text" placeholder="e.g. Priya Sharma" value={reviewForm.name} onChange={e => setReviewForm(f => ({ ...f, name: e.target.value }))} required />
+                        </div>
+                        <div className="hp-form-group">
+                          <label className="hp-form-label">Email Address *</label>
+                          <input className="hp-form-input" type="email" placeholder="your@email.com" value={reviewForm.email} onChange={e => setReviewForm(f => ({ ...f, email: e.target.value }))} required />
+                        </div>
+                        <div className="hp-form-group">
+                          <label className="hp-form-label">Product Name</label>
+                          <input className="hp-form-input" type="text" placeholder="e.g. Royal Oud Essence" value={reviewForm.product} onChange={e => setReviewForm(f => ({ ...f, product: e.target.value }))} />
+                        </div>
+                        <div className="hp-form-group">
+                          <label className="hp-form-label">Rating *</label>
+                          <StarSelector value={reviewForm.rating} onChange={v => setReviewForm(f => ({ ...f, rating: v }))} />
+                        </div>
+                        <div className="hp-form-group hp-form-group--full">
+                          <label className="hp-form-label">Your Review *</label>
+                          <textarea className="hp-form-input hp-form-textarea" placeholder="Tell us about your experience..." value={reviewForm.comment} onChange={e => setReviewForm(f => ({ ...f, comment: e.target.value }))} required rows={4} />
+                        </div>
+                      </div>
+                      <p className="hp-review-notice">Your review will be visible after admin approval.</p>
+                      <button type="submit" className="btn btn-primary hp-review-submit" disabled={submitReviewMutation.isPending}>
+                        {submitReviewMutation.isPending ? "Submitting..." : "Submit Review"}
+                      </button>
+                    </form>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </section>
+
+        {/* NEWSLETTER */}
+        <section className="hp-newsletter">
+          <div className="container">
+            <motion.div className="hp-newsletter__content" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <div className="hp-newsletter__icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </div>
+              <h2 className="hp-newsletter__title">Stay in the Loop</h2>
+              <p className="hp-newsletter__sub">Subscribe to receive exclusive offers, early access to new collections, and beauty tips curated just for you.</p>
+              {newsletterStatus === "success" ? (
+                <div className="hp-newsletter__success">You are subscribed! Welcome to the BJ&apos;S family.</div>
+              ) : (
+                <form className="hp-newsletter__form" onSubmit={handleNewsletter}>
+                  <input type="email" className="hp-newsletter__input" placeholder="Enter your email address" value={newsletterEmail} onChange={e => setNewsletterEmail(e.target.value)} required />
+                  <button type="submit" className="hp-newsletter__btn">Subscribe</button>
+                </form>
+              )}
+              <p className="hp-newsletter__legal">By subscribing, you agree to our <Link to="/privacy-policy" style={{ color: "inherit", textDecoration: "underline" }}>Privacy Policy</Link>. Unsubscribe anytime.</p>
+            </motion.div>
+          </div>
+        </section>
+      </main>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+        .hp-hero { min-height: 100vh; background-size: cover; background-position: center; background-attachment: scroll; display: flex; align-items: center; position: relative; }
+        .hp-hero__overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%); z-index: 0; }
+        .hp-hero__container { position: relative; z-index: 2; padding-top: var(--nav-height); width: 100%; display: flex; justify-content: center; }
+        .hp-hero__text { max-width: 800px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .hp-hero__eyebrow-pill { display: inline-flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.05em; color: var(--color-gold); border: 1px solid var(--color-gold); border-radius: 30px; padding: 6px 16px; margin-bottom: var(--space-6); background: transparent; }
+        .hp-hero__eyebrow-dot { width: 6px; height: 6px; background-color: var(--color-gold); border-radius: 50%; }
+        .hp-hero__heading { font-family: 'Playfair Display', var(--font-serif); font-size: clamp(3rem, 7vw, 6rem); font-weight: 600; color: var(--color-ivory); line-height: 1.1; margin-bottom: var(--space-5); letter-spacing: -0.02em; }
+        .hp-hero__heading .gold-text { color: var(--color-gold); }
+        .hp-hero__sub { font-size: 1.1rem; color: var(--color-ivory); line-height: 1.6; margin-bottom: var(--space-8); max-width: 700px; font-weight: 400; }
+        .hp-hero__ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-4); }
+        .hp-hero__ctas .btn { border-radius: var(--radius-md); font-weight: 600; letter-spacing: 0.05em; padding: 14px 32px; font-size: 0.85rem; }
+        .hp-hero__scroll { position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; z-index: 2; cursor: pointer; transition: opacity 0.3s; }
+        .hp-hero__scroll:hover { opacity: 0.7; }
+        .hp-hero__scroll-text { font-size: .75rem; letter-spacing: .1em; color: var(--color-ivory); font-weight: 400; }
+        .hp-hero__scroll-arrow { color: var(--color-ivory); font-size: 1.2rem; animation: bounce 2s infinite; line-height: 1; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } 60% { transform: translateY(-3px); } }
+        .hp-trust { background: var(--color-black); border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border); padding: var(--space-8) 0; }
+        .hp-trust__grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--space-4); }
+        .hp-trust__item { text-align: center; padding: var(--space-2); }
+        .hp-trust__icon { width: 56px; height: 56px; margin: 0 auto var(--space-4); display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.4); color: var(--color-gold); }
+        .hp-trust__icon svg { width: 22px; height: 22px; }
+        .hp-trust__title { font-family: var(--font-serif); font-size: 1.05rem; font-weight: 600; color: var(--color-gold); margin-bottom: 6px; }
+        .hp-trust__desc { font-size: .75rem; color: var(--color-text-muted); line-height: 1.5; }
+        .hp-label { font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #DAA520; margin-bottom: 12px; }
+        .hp-title { font-family: 'Playfair Display', 'Cormorant Garamond', serif; font-size: clamp(2rem, 4.5vw, 3rem); color: #ffffff; margin-bottom: 12px; font-weight: 400; }
+        .hp-subtitle { font-family: 'Inter', sans-serif; font-size: 0.95rem; color: #a3a3a3; line-height: 1.6; max-width: 520px; }
+        .hp-section-head { margin-bottom: var(--space-8); }
+        .hp-section-head--center { text-align: center; }
+        .hp-section-head--center .hp-subtitle { margin: 0 auto; }
+        .hp-section-head--row { display: flex; justify-content: space-between; align-items: flex-end; }
+        .hp-view-all { color: var(--color-gold); font-size: .88rem; font-weight: 500; transition: opacity .2s; white-space: nowrap; }
+        .hp-view-all:hover { opacity: .75; }
+        .hp-cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+        .hp-cat { display: block; position: relative; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); transition: all var(--transition-luxury); }
+        .hp-cat:hover { border-color: var(--color-border-gold); transform: translateY(-4px); box-shadow: var(--shadow-gold); }
+        .hp-cat__img-wrap { position: relative; aspect-ratio: 4/3; overflow: hidden; }
+        .hp-cat__img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--transition-luxury); }
+        .hp-cat:hover .hp-cat__img { transform: scale(1.06); }
+        .hp-cat__overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.95) 0%, rgba(0,0,0,.35) 50%, transparent 100%); }
+        .hp-cat__info { position: absolute; bottom: 0; left: 0; right: 0; padding: var(--space-5) var(--space-4); }
+        .hp-cat__name { font-family: var(--font-serif); font-size: 1.4rem; color: var(--color-ivory); margin-bottom: 6px; }
+        .hp-cat__desc { font-size: .78rem; color: var(--color-text-secondary); margin-bottom: var(--space-3); line-height: 1.5; }
+        .hp-cat__arrow { color: var(--color-gold); font-size: .82rem; font-weight: 500; transition: transform var(--transition-fast); display: inline-block; }
+        .hp-cat:hover .hp-cat__arrow { transform: translateX(4px); }
+        .hp-products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+        .hp-banners { padding: var(--space-10) 0; }
+        .hp-banners__grid { display: flex; flex-direction: column; gap: var(--space-7); }
+        .hp-banner { position: relative; border-radius: var(--radius-md); overflow: hidden; background-size: cover; background-position: center; min-height: 380px; display: flex; align-items: center; }
+        .hp-banner__overlay { position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,.9) 0%, rgba(0,0,0,.5) 55%, transparent 100%); }
+        .hp-banner__content { position: relative; z-index: 2; padding: var(--space-10) var(--space-12); max-width: 560px; }
+        .hp-banner__badge { display: inline-block; font-size: .72rem; font-weight: 700; color: var(--color-black); background: var(--color-gold); padding: 5px 12px; border-radius: 2px; margin-bottom: var(--space-4); letter-spacing: .05em; text-transform: uppercase; }
+        .hp-banner__title { font-family: var(--font-serif); font-size: clamp(1.8rem, 4vw, 2.5rem); color: var(--color-ivory); margin-bottom: 8px; }
+        .hp-banner__subtitle { font-size: 1.05rem; color: var(--color-gold); margin-bottom: var(--space-4); font-weight: 500; }
+        .hp-banner__desc { color: var(--color-ivory); line-height: 1.65; margin-bottom: var(--space-6); font-size: .92rem; }
+        .hp-banner__actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; }
+        .hp-banner__code { border: 1px dashed rgba(255,255,255,.4); padding: 8px 16px; color: var(--color-text-secondary); border-radius: var(--radius-sm); font-size: .88rem; }
+        .hp-banner__code span { color: var(--color-gold); margin-left: 4px; font-weight: 600; }
+        .hp-testimonials { padding: var(--space-20) 0; background: #000000; }
+        .hp-testimonial { max-width: 800px; margin: 0 auto; text-align: center; padding: 0 var(--space-5); }
+        .hp-testimonial__stars { color: #DAA520; font-size: 1.6rem; letter-spacing: 2px; margin-bottom: var(--space-6); }
+        .hp-testimonial__quote { font-family: 'Playfair Display', 'Cormorant Garamond', serif; font-size: clamp(1.2rem, 3vw, 1.8rem); color: oklch(.88 .08 85); line-height: 1.6; font-style: italic; margin-bottom: var(--space-8); font-weight: 500; }
+        .hp-testimonial__author { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4); margin-bottom: var(--space-4); }
+        .hp-testimonial__avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: none; }
+        .hp-testimonial__name { font-family: 'Inter', sans-serif; display: block; font-weight: 600; font-size: 1rem; color: #ffffff; text-align: left; }
+        .hp-testimonial__location { font-family: 'Inter', sans-serif; display: block; font-size: 0.8rem; color: #a3a3a3; text-align: left; }
+        .hp-testimonial__product { font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em; color: #DAA520; text-transform: uppercase; margin-top: var(--space-4); }
+        .hp-testimonial__dots { display: flex; justify-content: center; gap: var(--space-2); margin-top: var(--space-8); }
+        .hp-testimonial__dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--color-gold); background: transparent; cursor: pointer; transition: background .3s; padding: 0; }
+        .hp-testimonial__dot.active { background: var(--color-gold); }
+        .hp-review-cta { text-align: center; margin-top: var(--space-10); }
+        .hp-review-toggle-btn { background: transparent; border: 1px solid var(--color-border-gold); color: var(--color-gold); padding: 12px 28px; border-radius: var(--radius-md); font-size: .88rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+        .hp-review-toggle-btn:hover { background: rgba(201,162,39,.1); }
+        .hp-review-form-wrap { overflow: hidden; }
+        .hp-review-form { background: var(--color-charcoal); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-8); margin-top: var(--space-6); max-width: 760px; margin-left: auto; margin-right: auto; }
+        .hp-review-form__title { font-family: var(--font-serif); font-size: 1.4rem; color: var(--color-gold); margin-bottom: var(--space-6); text-align: center; }
+        .hp-review-form__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-5); margin-bottom: var(--space-5); }
+        .hp-form-group { display: flex; flex-direction: column; gap: var(--space-2); }
+        .hp-form-group--full { grid-column: 1 / -1; }
+        .hp-form-label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-muted); }
+        .hp-form-input { background: rgba(255,255,255,.05); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 12px 16px; color: var(--color-ivory); font-size: .9rem; outline: none; transition: border-color .2s; font-family: inherit; width: 100%; box-sizing: border-box; }
+        .hp-form-input:focus { border-color: var(--color-gold); }
+        .hp-form-input::placeholder { color: var(--color-text-muted); }
+        .hp-form-textarea { resize: vertical; min-height: 110px; }
+        .hp-review-notice { font-size: .78rem; color: var(--color-text-muted); margin-bottom: var(--space-5); text-align: center; }
+        .hp-review-submit { width: 100%; padding: 14px; font-size: 1rem; }
+        .hp-review-success { display: flex; align-items: center; gap: var(--space-4); background: rgba(201,162,39,.08); border: 1px solid var(--color-border-gold); border-radius: var(--radius-md); padding: var(--space-5) var(--space-6); max-width: 760px; margin: var(--space-6) auto 0; }
+        .hp-review-success__icon { font-size: 1.8rem; color: var(--color-gold); line-height: 1; }
+        .hp-review-success strong { display: block; color: var(--color-gold); margin-bottom: 4px; }
+        .hp-review-success p { font-size: .85rem; color: var(--color-text-muted); margin: 0; }
+        .star-selector { display: flex; gap: 4px; }
+        .star-btn { background: transparent; border: none; font-size: 1.6rem; cursor: pointer; color: rgba(255,255,255,.2); transition: color .15s; padding: 0; line-height: 1; }
+        .star-btn.filled, .star-btn:hover { color: var(--color-gold); }
+        .hp-newsletter { padding: var(--space-20) 0; background: #000000; text-align: center; }
+        .hp-newsletter__content { max-width: 560px; margin: 0 auto; }
+        .hp-newsletter__icon { font-size: 1.4rem; width: 56px; height: 56px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid #333333; margin-bottom: var(--space-5); color: #DAA520; }
+        .hp-newsletter__icon svg { width: 22px; height: 22px; }
+        .hp-newsletter__title { font-family: 'Playfair Display', 'Cormorant Garamond', serif; font-size: clamp(1.8rem, 3.5vw, 2.5rem); color: #ffffff; margin-bottom: var(--space-4); font-weight: 400; }
+        .hp-newsletter__sub { font-family: 'Inter', sans-serif; color: #a3a3a3; font-size: 0.95rem; line-height: 1.6; margin-bottom: var(--space-7); max-width: 500px; margin-left: auto; margin-right: auto; }
+        .hp-newsletter__form { display: flex; gap: var(--space-3); max-width: 520px; margin: 0 auto var(--space-4); }
+        .hp-newsletter__input { font-family: 'Inter', sans-serif; flex: 1; background: #000000; border: 1px solid #333333; color: #ffffff; padding: 14px 18px; border-radius: 4px; font-size: 0.95rem; outline: none; transition: border-color .2s; min-width: 0; }
+        .hp-newsletter__input:focus { border-color: #DAA520; }
+        .hp-newsletter__input::placeholder { color: #555555; font-size: 0.9rem; }
+        .hp-newsletter__btn { font-family: 'Inter', sans-serif; background: #DAA520; color: #000000; border: none; padding: 14px 32px; font-weight: 600; font-size: 0.95rem; border-radius: 4px; cursor: pointer; transition: background .2s; white-space: nowrap; }
+        .hp-newsletter__btn:hover { background: #b8922a; }
+        .hp-newsletter__legal { font-family: 'Inter', sans-serif; font-size: 0.8rem; color: #555555; }
+        @media (max-width: 1200px) { .hp-trust__grid { grid-template-columns: repeat(3, 1fr); } .hp-products-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 1024px) { .hp-cats { grid-template-columns: repeat(2, 1fr); } .hp-products-grid { grid-template-columns: repeat(2, 1fr); } .hp-section-head--row { flex-wrap: wrap; gap: var(--space-3); } }
+        @media (max-width: 768px) {
+          .hp-hero { background-attachment: scroll; min-height: 85vh; }
+          .hp-trust__grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+          .hp-cats { grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+          .hp-products-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+          .hp-banner { min-height: auto; padding: var(--space-8) 0; background-position: right center; }
+          .hp-banner__overlay { background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 100%); }
+          .hp-banner__content { padding: var(--space-5) var(--space-5); text-align: center; margin: 0 auto; display: flex; flex-direction: column; align-items: center; max-width: 100%; }
+          .hp-banner__actions { flex-direction: column; align-items: center; gap: var(--space-4); width: 100%; }
+          .hp-banner__actions .btn { width: 100%; }
+          .hp-review-form__grid { grid-template-columns: 1fr; }
+          .hp-review-form { padding: var(--space-5) var(--space-4); }
+          .hp-newsletter__form { flex-direction: column; }
+          .hp-newsletter__btn { width: 100%; }
+        }
+        @media (max-width: 480px) {
+          .hp-hero__ctas { flex-direction: column; }
+          .hp-hero__ctas .btn { width: 100%; text-align: center; }
+          .hp-cats { grid-template-columns: 1fr; }
+          .hp-products-grid { grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+          .hp-trust__grid { grid-template-columns: repeat(2, 1fr); }
+          .hp-section-head--row { flex-direction: column; align-items: flex-start; }
+          .hp-banner__content { padding: var(--space-5) var(--space-4); max-width: 100%; }
+        }
+        @media (max-width: 360px) { .hp-products-grid { grid-template-columns: 1fr; } }
+      `}</style>
+    </>
+  );
+};
+
+export default HomePage;
