@@ -4,24 +4,144 @@ import { useAuthStore } from '../../store/auth.store';
 import toast from 'react-hot-toast';
 import { NotificationDropdown } from '../../components/layout/NotificationDropdown';
 
-const adminNav = [
-  { label: 'Dashboard', to: '/admin', icon: '◉', end: true },
-  { label: 'Products', to: '/admin/products', icon: '◈' },
-  { label: 'Categories', to: '/admin/categories', icon: '▦' },
-  { label: 'Inventory', to: '/admin/inventory', icon: '⊟' },
-  { label: 'Orders', to: '/admin/orders', icon: '◎' },
-  { label: 'Payments', to: '/admin/payments', icon: '₹' },
-  { label: 'Delivery', to: '/admin/delivery', icon: '⛟' },
-  { label: 'Customers', to: '/admin/customers', icon: '◐' },
-  { label: 'Coupons', to: '/admin/coupons', icon: '%' },
-  { label: 'Promotions', to: '/admin/promotions', icon: '◈' },
-  { label: 'Banners', to: '/admin/banners', icon: '▤' },
-  { label: 'Campaigns', to: '/admin/campaigns', icon: '✦' },
-  { label: 'Reviews', to: '/admin/reviews', icon: '★' },
-  { label: 'Support', to: '/admin/support', icon: '☎' },
-  { label: 'Audit Logs', to: '/admin/audit-logs', icon: '≡' },
-  { label: 'Settings', to: '/admin/settings', icon: '⚙' },
+type NavItem = { label: string; to: string; icon?: string; end?: boolean };
+type NavGroup = { label?: string; icon?: string; items: NavItem[]; isCollapsible?: boolean };
+
+const adminSidebarGroups: NavGroup[] = [
+  {
+    items: [
+      { label: 'Dashboard', to: '/admin', icon: '◉', end: true },
+    ]
+  },
+  {
+    label: 'Catalog',
+    icon: '▦',
+    isCollapsible: true,
+    items: [
+      { label: 'Products', to: '/admin/products', icon: '◈' },
+      { label: 'Categories', to: '/admin/categories', icon: '▤' },
+      { label: 'Inventory', to: '/admin/inventory', icon: '⊟' },
+    ]
+  },
+  {
+    label: 'Orders',
+    icon: '◎',
+    isCollapsible: true,
+    items: [
+      { label: 'All Orders', to: '/admin/orders', end: true },
+      { label: 'Pending', to: '/admin/orders?status=PENDING' },
+      { label: 'Processing', to: '/admin/orders?status=PROCESSING' },
+      { label: 'Shipped', to: '/admin/orders?status=SHIPPED' },
+      { label: 'Delivered', to: '/admin/orders?status=DELIVERED' },
+      { label: 'Returns', to: '/admin/orders?status=RETURN_REQUESTED' },
+      { label: 'Refunds', to: '/admin/orders?status=REFUNDED' },
+    ]
+  },
+  {
+    items: [
+      { label: 'Customers', to: '/admin/customers', icon: '◐' },
+      { label: 'Payments', to: '/admin/payments', icon: '₹' },
+    ]
+  },
+  {
+    label: 'Marketing',
+    icon: '✦',
+    isCollapsible: true,
+    items: [
+      { label: 'Banners', to: '/admin/banners' },
+      { label: 'Campaigns', to: '/admin/campaigns' },
+      { label: 'Coupons', to: '/admin/coupons' },
+      { label: 'Promotions', to: '/admin/promotions' },
+    ]
+  },
+  {
+    items: [
+      { label: 'Reviews', to: '/admin/reviews', icon: '★' },
+      { label: 'Analytics', to: '/admin/analytics', icon: '📈' },
+    ]
+  },
+  {
+    label: 'Content',
+    icon: '✎',
+    isCollapsible: true,
+    items: [
+      { label: 'Homepage', to: '/admin/content/homepage' },
+      { label: 'About', to: '/admin/content/about' },
+      { label: 'FAQ', to: '/admin/content/faq' },
+      { label: 'Policies', to: '/admin/content/policies' },
+    ]
+  },
+  {
+    items: [
+      { label: 'Settings', to: '/admin/settings', icon: '⚙' },
+      { label: 'Admin Activity Logs', to: '/admin/audit-logs', icon: '≡' },
+    ]
+  }
 ];
+
+const NavGroupComponent: React.FC<{ group: NavGroup; setSidebarOpen: (o: boolean) => void }> = ({ group, setSidebarOpen }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  if (!group.label) {
+    return (
+      <div className="admin-nav-group" style={{ marginBottom: '8px' }}>
+        {group.items.map(item => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
+            onClick={() => setSidebarOpen(false)}
+          >
+            {item.icon && <span className="admin-nav-icon">{item.icon}</span>}
+            <span className="admin-nav-label">{item.label}</span>
+          </NavLink>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="admin-nav-group" style={{ marginBottom: '8px' }}>
+      <button 
+        className="admin-nav-item" 
+        onClick={() => setIsOpen(!isOpen)} 
+        style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'none', border: 'none', cursor: 'pointer', outline: 'none' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {group.icon && <span className="admin-nav-icon">{group.icon}</span>}
+          <span className="admin-nav-label" style={{ fontWeight: 600 }}>{group.label}</span>
+        </div>
+        <span style={{ fontSize: '0.7rem', opacity: 0.5, transition: 'transform 0.2s', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+      </button>
+      
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '2px', 
+        overflow: 'hidden', 
+        maxHeight: isOpen ? '500px' : '0px', 
+        transition: 'max-height 0.3s ease-in-out'
+      }}>
+        <div style={{ paddingLeft: '36px', paddingTop: '4px', paddingBottom: '4px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          {group.items.map(item => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) => `admin-nav-item sub-item ${isActive ? 'active' : ''}`}
+              onClick={() => setSidebarOpen(false)}
+              style={{ padding: '6px 12px', fontSize: '0.85rem', minHeight: 'auto', borderRadius: '6px' }}
+            >
+              {item.icon && <span className="admin-nav-icon" style={{ fontSize: '0.9rem', marginRight: '8px' }}>{item.icon}</span>}
+              <span className="admin-nav-label">{item.label}</span>
+            </NavLink>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const AdminLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -46,18 +166,9 @@ const AdminLayout: React.FC = () => {
           <button className="admin-sidebar__close" onClick={() => setSidebarOpen(false)} style={{ color: 'var(--color-text-muted)' }}>✕</button>
         </div>
 
-        <nav className="admin-sidebar__nav">
-          {adminNav.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) => `admin-nav-item ${isActive ? 'active' : ''}`}
-              onClick={() => setSidebarOpen(false)}
-            >
-              <span className="admin-nav-icon">{item.icon}</span>
-              <span className="admin-nav-label">{item.label}</span>
-            </NavLink>
+        <nav className="admin-sidebar__nav" style={{ padding: '16px', overflowY: 'auto', flex: 1 }}>
+          {adminSidebarGroups.map((group, idx) => (
+            <NavGroupComponent key={idx} group={group} setSidebarOpen={setSidebarOpen} />
           ))}
         </nav>
 
