@@ -112,7 +112,7 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
   let shippingChargeValue = parseFloat(shippingSettings.find(s => s.key === 'default_shipping_charge')?.value || '99');
 
   // Find matching Shipping Zone
-  const zones = await prisma.shippingZone.findMany({ where: { isActive: true } });
+  const zones = await prisma.shipping.findMany({ where: { isActive: true } });
   const matchingZone = zones.find(z => z.states?.toLowerCase().includes(address.state.toLowerCase()));
   
   if (matchingZone) {
