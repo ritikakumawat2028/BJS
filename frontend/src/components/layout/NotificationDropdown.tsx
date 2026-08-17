@@ -50,12 +50,15 @@ export const NotificationDropdown: React.FC = () => {
   return (
     <div className="notification-wrapper" ref={dropdownRef}>
       <button 
-        className="notification-btn" 
+        className="navbar__action-btn navbar__action-badge-wrap" 
         onClick={() => setIsOpen(!isOpen)}
         title="Notifications"
       >
-        <span className="bell-icon">🔔</span>
-        {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        {unreadCount > 0 && <span className="navbar__badge">{unreadCount}</span>}
       </button>
 
       {isOpen && (
@@ -91,18 +94,6 @@ export const NotificationDropdown: React.FC = () => {
 
       <style>{`
         .notification-wrapper { position: relative; }
-        .notification-btn {
-          background: transparent; border: none; font-size: 1.2rem; cursor: pointer;
-          position: relative; padding: 4px; color: var(--color-text);
-        }
-        .notification-badge {
-          position: absolute; top: 0; right: 0;
-          background: #e74c3c; color: white;
-          font-size: 0.65rem; font-weight: bold;
-          min-width: 16px; height: 16px; border-radius: 8px;
-          display: flex; align-items: center; justify-content: center;
-          padding: 0 4px;
-        }
         .notification-dropdown {
           position: absolute; top: calc(100% + 12px); right: -10px;
           width: 320px; background: var(--color-surface);
