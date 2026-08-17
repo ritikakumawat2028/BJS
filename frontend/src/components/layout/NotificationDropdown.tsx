@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { userAPI } from '../../services/api';
+import { userApi } from '../../services/api';
 import type { Notification } from '../../types';
 
 export const NotificationDropdown: React.FC = () => {
@@ -10,7 +10,7 @@ export const NotificationDropdown: React.FC = () => {
 
   const fetchNotifications = async () => {
     try {
-      const res = await userAPI.getNotifications();
+      const res = await userApi.getNotifications();
       if (res.success) {
         setNotifications(res.data);
         setUnreadCount(res.data.filter((n: Notification) => !n.isRead).length);
@@ -39,7 +39,7 @@ export const NotificationDropdown: React.FC = () => {
 
   const handleMarkRead = async (id: string) => {
     try {
-      await userAPI.markNotificationRead(id);
+      await userApi.markNotificationRead(id);
       setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
