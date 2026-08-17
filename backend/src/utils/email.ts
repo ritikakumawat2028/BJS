@@ -1,14 +1,5 @@
 import nodemailer from 'nodemailer';
-
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT) || 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+import { getSetting } from './getSetting';
 
 interface EmailOptions {
   to: string;
@@ -16,17 +7,40 @@ interface EmailOptions {
   html: string;
 }
 
-export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<void> => {
-  if (!process.env.EMAIL_USER || process.env.EMAIL_USER === 'placeholder@gmail.com') {
-    console.log(`[EMAIL SKIPPED] To: ${to} | Subject: ${subject}`);
-    return;
+export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<boolean> => {
+  const emailHost = await getSetting('email_host', 'EMAIL_HOST');
+  const emailPort = await getSetting('email_port', 'EMAIL_PORT');
+  const emailUser = await getSetting('email_user', 'EMAIL_USER');
+  const emailPass = await getSetting('email_pass', 'EMAIL_PASS');
+  const emailFrom = await getSetting('email_from', 'EMAIL_FROM');
+
+  if (!emailUser || emailUser === 'placeholder@gmail.com') {
+    console.log(`[EMAIL SKIPPED - NOT CONFIGURED] To: ${to} | Subject: ${subject}`);
+    return false;
   }
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
-    to,
-    subject,
-    html,
+
+  const transporter = nodemailer.createTransport({
+    host: emailHost,
+    port: Number(emailPort) || 587,
+    secure: false,
+    auth: {
+      user: emailUser,
+      pass: emailPass,
+    },
   });
+
+  try {
+    await transporter.sendMail({
+      from: emailFrom || emailUser,
+      to,
+      subject,
+      html,
+    });
+    return true;
+  } catch (error) {
+    console.error(`[EMAIL ERROR] Failed to send email to ${to}:`, error);
+    return false;
+  }
 };
 
 export const orderConfirmationEmail = (orderNumber: string, customerName: string, total: string): string => `

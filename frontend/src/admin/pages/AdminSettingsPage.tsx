@@ -42,11 +42,15 @@ const AdminSettingsPage: React.FC = () => {
   if (isLoading) return <div style={{ padding: '40px', textAlign: 'center', color: '#fff' }}>Loading settings...</div>;
 
   const tabs = [
-    { id: 'store', label: 'Store Info' },
-    { id: 'contact', label: 'Contact Info' },
-    { id: 'pages', label: 'Pages Content' },
+    { id: 'store', label: 'Store' },
+    { id: 'payments', label: 'Payments' },
+    { id: 'shipping', label: 'Shipping' },
+    { id: 'tax', label: 'Tax' },
+    { id: 'email', label: 'Email' },
+    { id: 'social', label: 'Social' },
+    { id: 'seo', label: 'SEO' },
+    { id: 'pages', label: 'Pages' },
     { id: 'policies', label: 'Policies' },
-    { id: 'footer', label: 'Footer & Social' },
   ];
 
   return (
@@ -95,18 +99,28 @@ const AdminSettingsPage: React.FC = () => {
                 <input type="text" className="form-input" value={formData.store_name || ''} onChange={e => handleChange('store_name', e.target.value)} />
               </div>
               <div>
+                <label className="form-label">Store Logo URL</label>
+                <input type="url" className="form-input" placeholder="https://res.cloudinary.com/.../logo.png" value={formData.store_logo || ''} onChange={e => handleChange('store_logo', e.target.value)} />
+              </div>
+              <div>
                 <label className="form-label">Store Tagline</label>
                 <input type="text" className="form-input" value={formData.store_tagline || ''} onChange={e => handleChange('store_tagline', e.target.value)} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                <div>
-                  <label className="form-label">SEO Meta Title (Default)</label>
-                  <input type="text" className="form-input" value={formData.meta_title || ''} onChange={e => handleChange('meta_title', e.target.value)} />
-                </div>
-                <div>
-                  <label className="form-label">SEO Meta Description</label>
-                  <input type="text" className="form-input" value={formData.meta_description || ''} onChange={e => handleChange('meta_description', e.target.value)} />
-                </div>
+              <div>
+                <label className="form-label">Contact Email</label>
+                <input type="email" className="form-input" value={formData.store_email || ''} onChange={e => handleChange('store_email', e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">Contact Phone</label>
+                <input type="text" className="form-input" value={formData.store_phone || ''} onChange={e => handleChange('store_phone', e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">Physical Address</label>
+                <textarea className="form-input" rows={3} value={formData.store_address || ''} onChange={e => handleChange('store_address', e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">Working Hours</label>
+                <input type="text" className="form-input" placeholder="e.g. Mon-Fri, 9AM to 6PM" value={formData.contact_hours || ''} onChange={e => handleChange('contact_hours', e.target.value)} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                 <div>
@@ -131,23 +145,73 @@ const AdminSettingsPage: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'contact' && (
+          {activeTab === 'payments' && (
             <div style={{ display: 'grid', gap: '24px', maxWidth: '800px' }}>
               <div>
-                <label className="form-label">Contact Email</label>
-                <input type="email" className="form-input" value={formData.store_email || ''} onChange={e => handleChange('store_email', e.target.value)} />
+                <label className="form-label">COD Enabled</label>
+                <select className="form-input" value={formData.cod_enabled || 'false'} onChange={e => handleChange('cod_enabled', e.target.value)}>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
               </div>
               <div>
-                <label className="form-label">Contact Phone</label>
-                <input type="text" className="form-input" value={formData.store_phone || ''} onChange={e => handleChange('store_phone', e.target.value)} />
+                <label className="form-label">Razorpay Key ID</label>
+                <input type="text" className="form-input" value={formData.razorpay_key_id || ''} onChange={e => handleChange('razorpay_key_id', e.target.value)} />
               </div>
               <div>
-                <label className="form-label">Physical Address</label>
-                <textarea className="form-input" rows={3} value={formData.store_address || ''} onChange={e => handleChange('store_address', e.target.value)} />
+                <label className="form-label">Razorpay Key Secret</label>
+                <input type="password" placeholder={formData.razorpay_key_secret === '********' ? '********' : 'Enter Secret...'} className="form-input" value={formData.razorpay_key_secret || ''} onChange={e => handleChange('razorpay_key_secret', e.target.value)} />
               </div>
               <div>
-                <label className="form-label">Working Hours</label>
-                <input type="text" className="form-input" placeholder="e.g. Mon-Fri, 9AM to 6PM" value={formData.contact_hours || ''} onChange={e => handleChange('contact_hours', e.target.value)} />
+                <label className="form-label">Razorpay Webhook Secret</label>
+                <input type="password" placeholder={formData.razorpay_webhook_secret === '********' ? '********' : 'Enter Webhook Secret...'} className="form-input" value={formData.razorpay_webhook_secret || ''} onChange={e => handleChange('razorpay_webhook_secret', e.target.value)} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'shipping' && (
+            <div style={{ display: 'grid', gap: '24px', maxWidth: '800px' }}>
+              <div>
+                <label className="form-label">Default Shipping Charge (₹)</label>
+                <input type="number" className="form-input" value={formData.default_shipping_charge || '0'} onChange={e => handleChange('default_shipping_charge', e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">Free Shipping Threshold (₹)</label>
+                <input type="number" className="form-input" value={formData.free_shipping_threshold || '500'} onChange={e => handleChange('free_shipping_threshold', e.target.value)} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'tax' && (
+            <div style={{ display: 'grid', gap: '24px', maxWidth: '800px' }}>
+              <div>
+                <label className="form-label">Default Tax Rate (%)</label>
+                <input type="number" className="form-input" value={formData.tax_rate || '18'} onChange={e => handleChange('tax_rate', e.target.value)} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'email' && (
+            <div style={{ display: 'grid', gap: '24px', maxWidth: '800px' }}>
+              <div>
+                <label className="form-label">SMTP Host</label>
+                <input type="text" className="form-input" placeholder="smtp.gmail.com" value={formData.email_host || ''} onChange={e => handleChange('email_host', e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">SMTP Port</label>
+                <input type="text" className="form-input" placeholder="587" value={formData.email_port || ''} onChange={e => handleChange('email_port', e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">SMTP User (Email Address)</label>
+                <input type="text" className="form-input" value={formData.email_user || ''} onChange={e => handleChange('email_user', e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">SMTP Password</label>
+                <input type="password" placeholder={formData.email_pass === '********' ? '********' : 'Enter Password...'} className="form-input" value={formData.email_pass || ''} onChange={e => handleChange('email_pass', e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">Sender Email (From)</label>
+                <input type="text" className="form-input" placeholder="BJ's Natural Care <noreply@bjsnaturalcare.com>" value={formData.email_from || ''} onChange={e => handleChange('email_from', e.target.value)} />
               </div>
             </div>
           )}
@@ -187,7 +251,7 @@ const AdminSettingsPage: React.FC = () => {
             </div>
           )}
 
-          {activeTab === 'footer' && (
+          {activeTab === 'social' && (
             <div style={{ display: 'grid', gap: '24px', maxWidth: '800px' }}>
               <div>
                 <label className="form-label">Footer Description (Short brand intro)</label>
@@ -206,6 +270,30 @@ const AdminSettingsPage: React.FC = () => {
                   <label className="form-label">YouTube Link</label>
                   <input type="url" className="form-input" placeholder="https://youtube.com/..." value={formData.youtube || ''} onChange={e => handleChange('youtube', e.target.value)} />
                 </div>
+                <div>
+                  <label className="form-label">Other Link</label>
+                  <input type="url" className="form-input" placeholder="https://..." value={formData.other_links || ''} onChange={e => handleChange('other_links', e.target.value)} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'seo' && (
+            <div style={{ display: 'grid', gap: '24px', maxWidth: '800px' }}>
+              <div>
+                <label className="form-label">SEO Meta Title (Default)</label>
+                <input type="text" className="form-input" value={formData.meta_title || ''} onChange={e => handleChange('meta_title', e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">SEO Meta Description</label>
+                <textarea className="form-input" rows={3} value={formData.meta_description || ''} onChange={e => handleChange('meta_description', e.target.value)} />
+              </div>
+              <div>
+                <label className="form-label">Enable Sitemap Generator</label>
+                <select className="form-input" value={formData.sitemap_enabled || 'false'} onChange={e => handleChange('sitemap_enabled', e.target.value)}>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
               </div>
             </div>
           )}

@@ -27,7 +27,7 @@ export interface IPaymentProvider {
    * Verifies the cryptographic signature of the payment callback.
    * @param payload Provider-specific payload containing signatures
    */
-  verifySignature(payload: Record<string, any>): boolean;
+  verifySignature(payload: Record<string, any>): Promise<boolean>;
 
   /**
    * Processes a webhook payload from the provider.

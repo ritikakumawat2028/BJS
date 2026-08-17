@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth.store';
 import toast from 'react-hot-toast';
+import { NotificationDropdown } from '../../components/layout/NotificationDropdown';
 
 const adminNav = [
   { label: 'Dashboard', to: '/admin', icon: '◉', end: true },
@@ -90,6 +91,7 @@ const AdminLayout: React.FC = () => {
               View Store ↗
             </Link>
             <div style={{ width: '1px', height: '20px', background: 'var(--color-border)' }} />
+            <NotificationDropdown />
             <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>{user?.firstName}</span>
           </div>
         </header>

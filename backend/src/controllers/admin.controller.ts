@@ -248,23 +248,38 @@ export const adminDeleteReview = asyncHandler(async (req: AuthRequest, res: Resp
 });
 
 // ========== SETTINGS ==========
+const SENSITIVE_KEYS = ['razorpay_key_secret', 'razorpay_webhook_secret', 'email_pass'];
+
 export const getStoreSettings = asyncHandler(async (_req: Request, res: Response) => {
   const settings = await prisma.storeSettings.findMany();
-  const settingsMap = settings.reduce((acc: Record<string, string>, s) => { acc[s.key] = s.value; return acc; }, {});
+  const settingsMap = settings.reduce((acc: Record<string, string>, s) => { 
+    if (SENSITIVE_KEYS.includes(s.key) && s.value) {
+      acc[s.key] = '********'; // Mask sensitive data
+    } else {
+      acc[s.key] = s.value; 
+    }
+    return acc; 
+  }, {});
   res.json({ success: true, data: settingsMap });
 });
 
 export const adminUpdateSettings = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { settings } = req.body as { settings: Record<string, string> };
-  await Promise.all(
-    Object.entries(settings).map(([key, value]) =>
-      prisma.storeSettings.upsert({
-        where: { key },
-        update: { value },
-        create: { key, value, type: 'text' },
-      })
-    )
-  );
+  
+  const promises = Object.entries(settings).map(([key, value]) => {
+    // Skip updating sensitive fields if they haven't been changed from the masked placeholder
+    if (SENSITIVE_KEYS.includes(key) && value === '********') {
+      return Promise.resolve();
+    }
+    
+    return prisma.storeSettings.upsert({
+      where: { key },
+      update: { value },
+      create: { key, value, type: 'text' },
+    });
+  });
+
+  await Promise.all(promises);
   res.json({ success: true, message: 'Settings updated' });
 });
 

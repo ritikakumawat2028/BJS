@@ -2,6 +2,7 @@ import { Response } from 'express';
 import prisma from '../config/prisma';
 import { asyncHandler, createError } from '../middleware/error';
 import { AuthRequest } from '../middleware/auth';
+import { NotificationService } from '../services/notification.service';
 
 // 1. Get overall inventory stats
 export const getInventoryStats = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -210,6 +211,35 @@ export const adjustStock = asyncHandler(async (req: AuthRequest, res: Response) 
 
     return { success: true, message: 'Stock updated successfully', newStock };
   });
+
+  // Check for low stock outside transaction
+  if (result.newStock !== undefined) {
+    let threshold = 5;
+    let productIdForAlert = id;
+    let productName = 'Unknown Product';
+
+    if (isVariant) {
+      const variant = await prisma.productVariant.findUnique({ where: { id }, include: { product: true } });
+      if (variant) {
+        productName = `${variant.product.name} - ${variant.name}`;
+        productIdForAlert = variant.productId;
+      }
+    } else {
+      const p = await prisma.product.findUnique({ where: { id }, include: { inventory: true } });
+      if (p) {
+        productName = p.name;
+        threshold = p.inventory?.lowStockThreshold || 5;
+      }
+    }
+
+    if (result.newStock <= threshold) {
+      await NotificationService.adminLowStock({ 
+        id: productIdForAlert, 
+        name: productName, 
+        inventory: { quantity: result.newStock } 
+      });
+    }
+  }
 
   res.json(result);
 });

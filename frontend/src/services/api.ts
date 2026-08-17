@@ -122,11 +122,13 @@ export const userApi = {
   updateAddress: (id: string, data: any) => api.put(`/user/addresses/${id}`, data),
   deleteAddress: (id: string) => api.delete(`/user/addresses/${id}`),
   // Reviews
-  addReview: (data: any) => api.post('/user/reviews', data),
-  updateReview: (id: string, data: any) => api.put(`/user/reviews/${id}`, data),
-  deleteReview: (id: string) => api.delete(`/user/reviews/${id}`),
-  getNotifications: () => api.get('/user/notifications'),
-  markNotificationRead: (id: string) => api.put(`/user/notifications/${id}/read`),
+  addReview: (data: any) => api.post('/user/reviews', data).then(res => res.data),
+  updateReview: (id: string, data: any) => api.put(`/user/reviews/${id}`, data).then(res => res.data),
+  deleteReview: (id: string) => api.delete(`/user/reviews/${id}`).then(res => res.data),
+
+  // User Notifications
+  getNotifications: () => api.get('/user/notifications').then(res => res.data),
+  markNotificationRead: (id: string) => api.put(`/user/notifications/${id}/read`).then(res => res.data),
 };
 
 // ===== ADMIN =====

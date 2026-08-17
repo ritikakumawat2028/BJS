@@ -5,6 +5,7 @@ import { useCartStore } from '../../store/cart.store';
 import { useWishlistStore } from '../../store/wishlist.store';
 import { productsApi } from '../../services/api';
 import { Product } from '../../types';
+import { NotificationDropdown } from './NotificationDropdown';
 
 const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -136,6 +137,8 @@ const Navbar: React.FC = () => {
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
               </svg>
             </Link>
+
+            {isAuthenticated && <NotificationDropdown />}
 
             <button className="navbar__action-btn navbar__action-badge-wrap" onClick={openCart} aria-label="Cart">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

@@ -270,6 +270,7 @@ export interface Notification {
 
 export interface StoreSettings {
   store_name?: string;
+  store_logo?: string;
   store_tagline?: string;
   store_email?: string;
   store_phone?: string;
@@ -277,12 +278,23 @@ export interface StoreSettings {
   contact_hours?: string;
   default_shipping_charge?: string;
   free_shipping_threshold?: string;
+  tax_rate?: string;
   cod_enabled?: string;
+  razorpay_key_id?: string;
+  razorpay_key_secret?: string;
+  razorpay_webhook_secret?: string;
+  email_host?: string;
+  email_port?: string;
+  email_user?: string;
+  email_pass?: string;
+  email_from?: string;
   instagram?: string;
   facebook?: string;
   youtube?: string;
+  other_links?: string;
   meta_title?: string;
   meta_description?: string;
+  sitemap_enabled?: string;
   hero_heading?: string;
   hero_subheading?: string;
   about_heading?: string;

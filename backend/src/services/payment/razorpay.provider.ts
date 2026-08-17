@@ -1,30 +1,34 @@
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import { IPaymentProvider, PaymentInitializationResponse, WebhookResult } from './payment.interface';
+import { getSetting } from '../utils/getSetting';
 
 export class RazorpayProvider implements IPaymentProvider {
-  private razorpay: Razorpay;
-  private webhookSecret: string;
-  private keyId: string;
-  private keySecret: string;
+  private async getKeys() {
+    const keyId = await getSetting('razorpay_key_id', 'RAZORPAY_KEY_ID') || '';
+    const keySecret = await getSetting('razorpay_key_secret', 'RAZORPAY_KEY_SECRET') || '';
+    const webhookSecret = await getSetting('razorpay_webhook_secret', 'RAZORPAY_WEBHOOK_SECRET') || '';
 
-  constructor() {
-    this.keyId = process.env.RAZORPAY_KEY_ID || '';
-    this.keySecret = process.env.RAZORPAY_KEY_SECRET || '';
-    this.webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || '';
-
-    if (!this.keyId || this.keyId === 'rzp_test_placeholder') {
+    if (!keyId || keyId === 'rzp_test_placeholder') {
       console.warn('Razorpay is not fully configured (using placeholder keys).');
     }
 
-    this.razorpay = new Razorpay({
-      key_id: this.keyId,
-      key_secret: this.keySecret,
+    return { keyId, keySecret, webhookSecret };
+  }
+
+  private async getRazorpayInstance() {
+    const { keyId, keySecret } = await this.getKeys();
+    return new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
     });
   }
 
   async initializePayment(orderId: string, amount: number, currency: string, receipt: string): Promise<PaymentInitializationResponse> {
-    const razorpayOrder = await this.razorpay.orders.create({
+    const razorpay = await this.getRazorpayInstance();
+    const { keyId } = await this.getKeys();
+
+    const razorpayOrder = await razorpay.orders.create({
       amount: Math.round(amount * 100), // Convert to subunits (e.g., paise)
       currency,
       receipt,
@@ -35,19 +39,21 @@ export class RazorpayProvider implements IPaymentProvider {
       providerOrderId: razorpayOrder.id,
       amount: (razorpayOrder.amount as number) / 100, // keep the interface normalized
       currency: razorpayOrder.currency,
-      key: this.keyId,
+      key: keyId,
     };
   }
 
-  verifySignature(payload: Record<string, any>): boolean {
+  async verifySignature(payload: Record<string, any>): Promise<boolean> {
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature } = payload;
     
     if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
       return false;
     }
 
+    const { keySecret } = await this.getKeys();
+
     const expectedSignature = crypto
-      .createHmac('sha256', this.keySecret)
+      .createHmac('sha256', keySecret)
       .update(`${razorpayOrderId}|${razorpayPaymentId}`)
       .digest('hex');
 
@@ -55,8 +61,10 @@ export class RazorpayProvider implements IPaymentProvider {
   }
 
   async handleWebhook(body: string, signature: string): Promise<WebhookResult> {
+    const { webhookSecret } = await this.getKeys();
+
     const expectedSignature = crypto
-      .createHmac('sha256', this.webhookSecret)
+      .createHmac('sha256', webhookSecret)
       .update(body)
       .digest('hex');
 

@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import prisma from '../config/prisma';
 import { asyncHandler, createError } from '../middleware/error';
 import { AuthRequest } from '../middleware/auth';
-import { sendEmail, orderConfirmationEmail } from '../utils/email';
+import { NotificationService } from '../services/notification.service';
 import { PaymentFactory } from '../services/payment/payment.factory';
 
 const generateOrderNumber = () => `BJS${Date.now()}${Math.floor(Math.random() * 1000)}`;
@@ -182,21 +182,9 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
   if (paymentMethod === 'COD') {
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (user) {
-      await sendEmail({
-        to: user.email,
-        subject: `Order Confirmed — ${order.orderNumber}`,
-        html: orderConfirmationEmail(order.orderNumber, user.firstName, total.toFixed(2)),
-      });
+      await NotificationService.orderPlaced(order, user);
+      await NotificationService.adminNewOrder(order);
     }
-
-    await prisma.notification.create({
-      data: {
-        userId,
-        type: 'ORDER_PLACED',
-        title: 'Order Placed',
-        message: `Your order ${order.orderNumber} has been placed successfully.`,
-      },
-    });
   }
 
   res.status(201).json({ success: true, message: 'Order created', data: order });
@@ -248,7 +236,7 @@ export const verifyPayment = asyncHandler(async (req: AuthRequest, res: Response
 
   const provider = PaymentFactory.getProvider();
   
-  const isValid = provider.verifySignature({
+  const isValid = await provider.verifySignature({
     razorpayOrderId,
     razorpayPaymentId,
     razorpaySignature
@@ -260,6 +248,11 @@ export const verifyPayment = asyncHandler(async (req: AuthRequest, res: Response
       prisma.order.update({ where: { id: orderId }, data: { paymentStatus: 'FAILED' } }),
       prisma.orderTimeline.create({ data: { orderId, status: 'FAILED', message: 'Payment signature verification failed' } })
     ]);
+    const user = await prisma.user.findUnique({ where: { id: order.userId } });
+    if (user) {
+      await NotificationService.paymentFailed(order, user);
+      await NotificationService.adminPaymentIssue(order, 'Invalid signature on verification');
+    }
     throw createError('Payment verification failed. Invalid signature.', 400);
   }
 
@@ -285,21 +278,10 @@ export const verifyPayment = asyncHandler(async (req: AuthRequest, res: Response
   // Send Confirmation Email and Notification now that payment is confirmed
   const user = await prisma.user.findUnique({ where: { id: order.userId } });
   if (user) {
-    await sendEmail({
-      to: user.email,
-      subject: `Order Confirmed — ${order.orderNumber}`,
-      html: orderConfirmationEmail(order.orderNumber, user.firstName, Number(order.total).toFixed(2)),
-    });
+    await NotificationService.paymentSuccessful(order, user);
+    await NotificationService.orderPlaced(order, user);
+    await NotificationService.adminNewOrder(order);
   }
-
-  await prisma.notification.create({
-    data: {
-      userId: order.userId,
-      type: 'PAYMENT_SUCCESS',
-      title: 'Payment Successful',
-      message: 'Your payment has been received and order is confirmed.',
-    },
-  });
 
   res.json({ success: true, message: 'Payment verified successfully' });
 });
@@ -361,6 +343,18 @@ export const razorpayWebhook = asyncHandler(async (req: AuthRequest, res: Respon
           });
         }
       });
+      // Fire notifications outside transaction
+      const user = await prisma.user.findUnique({ where: { id: internalOrder!.userId } });
+      if (user) {
+        if (result.paymentStatus === 'PAID') {
+          await NotificationService.paymentSuccessful(internalOrder, user);
+          await NotificationService.orderPlaced(internalOrder, user);
+          await NotificationService.adminNewOrder(internalOrder);
+        } else if (result.paymentStatus === 'FAILED') {
+          await NotificationService.paymentFailed(internalOrder, user);
+          await NotificationService.adminPaymentIssue(internalOrder, result.failureReason || 'Webhook reported payment failure');
+        }
+      }
     }
 
     res.json({ success: true });
@@ -477,6 +471,15 @@ export const adminUpdateOrderStatus = asyncHandler(async (req: AuthRequest, res:
   await prisma.adminActivityLog.create({
     data: { adminId: req.user!.userId, action: 'UPDATE_ORDER_STATUS', entity: 'Order', entityId: id, newValue: JSON.stringify({ status }) },
   });
+
+  const orderForNotification = await prisma.order.findUnique({ where: { id } });
+  if (orderForNotification) {
+    const user = await prisma.user.findUnique({ where: { id: orderForNotification.userId } });
+    if (user) {
+      if (status === 'SHIPPED') await NotificationService.orderShipped(orderForNotification, user);
+      if (status === 'DELIVERED') await NotificationService.orderDelivered(orderForNotification, user);
+    }
+  }
 
   res.json({ success: true, message: 'Order status updated', data: order });
 });
