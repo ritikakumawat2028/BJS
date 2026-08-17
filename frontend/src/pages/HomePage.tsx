@@ -111,7 +111,7 @@ const HomePage: React.FC = () => {
   
   // Choose the top priority HERO banner if available
   const topHero = heroBanners.length > 0 ? heroBanners[0] : null;
-  const heroImg = topHero?.desktopImage || "https://public.readdy.ai/ai/img_res/3812a198e3446b048d04b92569ffca79.jpg";
+  const heroImg = "https://public.readdy.ai/ai/img_res/3812a198e3446b048d04b92569ffca79.jpg";
   const displayHeading = topHero?.title || heroHeading;
   const displaySub = topHero?.description || heroSub;
   
