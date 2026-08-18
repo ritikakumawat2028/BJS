@@ -69,7 +69,7 @@ const AccountPage: React.FC = () => {
           </div>
 
           <div className="account-grid">
-            {user?.role === 'ADMIN' && (
+            {(user?.role === 'ADMIN' || (user?.role as any)?.name === 'ADMIN') && (
               <Link to="/admin" className="account-card" style={{ borderColor: 'var(--color-gold)' }}>
                 <div className="account-card-icon" style={{ color: 'var(--color-gold)' }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
