@@ -31,17 +31,22 @@ const CheckoutPage: React.FC = () => {
   const [newAddr, setNewAddr] = useState({ firstName: '', lastName: '', phone: '', line1: '', line2: '', city: '', state: '', pincode: '' });
 
   useEffect(() => {
+    // Check if cart is empty on mount only
     if (!cart || cart.items.length === 0) {
       navigate('/cart');
       return;
     }
     fetchAddresses();
-    // Load Razorpay script
+
+    // Load Razorpay script once
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.async = true;
-    document.body.appendChild(script);
-  }, [cart, navigate]);
+    script.id = 'razorpay-script';
+    if (!document.getElementById('razorpay-script')) {
+      document.body.appendChild(script);
+    }
+  }, []); // Run only once on mount
 
   const fetchAddresses = async () => {
     try {
