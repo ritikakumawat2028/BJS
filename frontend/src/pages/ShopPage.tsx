@@ -5,6 +5,20 @@ import { useQuery } from '@tanstack/react-query';
 import { productsApi, categoriesApi } from '../services/api';
 import ProductCard from '../components/product/ProductCard';
 import { Product, Category, ProductFilters } from '../types';
+import { motion } from 'framer-motion';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } }
+};
 
 const ShopPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -287,9 +301,13 @@ const ShopPage: React.FC = () => {
                 </div>
               ) : (
                 <>
-                  <div className="products-grid">
-                    {products.map((product) => <ProductCard key={product.id} product={product} />)}
-                  </div>
+                  <motion.div className="products-grid" variants={containerVariants} initial="hidden" animate="show">
+                    {products.map((product) => (
+                      <motion.div key={product.id} variants={itemVariants}>
+                        <ProductCard product={product} />
+                      </motion.div>
+                    ))}
+                  </motion.div>
 
                   {/* Pagination */}
                   {pagination && pagination.totalPages > 1 && (

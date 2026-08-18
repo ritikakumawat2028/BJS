@@ -100,12 +100,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, isWishlistPage }) =>
           border-radius: var(--radius-md);
           overflow: hidden;
           background: var(--color-rich-black, #0a0a0a);
-          transition: border-color var(--transition-fast);
+          transition: transform var(--transition-luxury), box-shadow var(--transition-luxury), border-color var(--transition-luxury);
         }
-        .product-card:hover { border-color: var(--color-border-gold); }
+        .product-card:hover { 
+          border-color: var(--color-border-gold); 
+          transform: translateY(-4px);
+          box-shadow: var(--shadow-gold);
+        }
         .product-card__image-wrap { position: relative; aspect-ratio: 4/5; overflow: hidden; background: #111; }
         .product-card__image { width: 100%; height: 100%; object-fit: cover; transition: transform var(--transition-luxury); }
-        .product-card:hover .product-card__image { transform: scale(1.05); }
+        .product-card:hover .product-card__image { transform: scale(1.08); }
         .product-card__badges { position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 2; }
         .product-card__badge-sale { font-size: 0.65rem; font-weight: 700; color: #fff; background: #e74c3c; padding: 4px 12px; border-radius: 20px; }
         .product-card__badge-new { font-size: 0.65rem; font-weight: 700; color: var(--color-black); background: var(--color-gold); padding: 4px 12px; border-radius: 20px; }
