@@ -454,7 +454,7 @@ const HomePage: React.FC = () => {
         .hp-testimonials { padding: var(--space-20) 0; background: #000000; }
         .hp-testimonial { max-width: 800px; margin: 0 auto; text-align: center; padding: 0 var(--space-5); }
         .hp-testimonial__stars { color: #DAA520; font-size: 1.6rem; letter-spacing: 2px; margin-bottom: var(--space-6); }
-        .hp-testimonial__quote { font-family: 'Playfair Display', 'Cormorant Garamond', serif; font-size: clamp(1.2rem, 3vw, 1.8rem); color: oklch(.88 .08 85); line-height: 1.6; font-style: italic; margin-bottom: var(--space-8); font-weight: 500; }
+        .hp-testimonial__quote { font-family: 'Playfair Display', 'Cormorant Garamond', serif; font-size: clamp(1.2rem, 3vw, 1.8rem); color: var(--color-ivory); line-height: 1.6; font-style: italic; margin-bottom: var(--space-8); font-weight: 500; }
         .hp-testimonial__author { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-4); margin-bottom: var(--space-4); }
         .hp-testimonial__avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: none; }
         .hp-testimonial__name { font-family: 'Inter', sans-serif; display: block; font-weight: 600; font-size: 1rem; color: #ffffff; text-align: left; }

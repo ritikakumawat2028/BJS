@@ -276,9 +276,13 @@ const OrderDetailPage: React.FC = () => {
                     <span>{formatPrice(order.total)}</span>
                   </div>
                 </div>
-                
-                <button className="btn btn-outline-gold btn-full" style={{ marginTop: '24px' }} onClick={() => window.print()}>
-                  Download Invoice
+                <button 
+                  className="btn btn-outline-gold btn-full" 
+                  style={{ marginTop: '24px' }} 
+                  onClick={handleDownloadInvoice}
+                  disabled={isGeneratingPDF}
+                >
+                  {isGeneratingPDF ? 'Generating...' : 'Download Invoice'}
                 </button>
               </div>
             </div>

@@ -89,6 +89,12 @@ const CheckoutPage: React.FC = () => {
   };
 
   const handlePlaceOrder = async () => {
+    if (!cart || cart.items.length === 0) {
+      toast.error('Your cart is empty');
+      navigate('/cart');
+      return;
+    }
+
     if (!selectedAddressId) {
       toast.error('Please select a shipping address');
       return;

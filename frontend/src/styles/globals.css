@@ -13,7 +13,7 @@
   --foreground-50: .96 .01 85;
 
   /* Colors */
-  --color-black: oklch(var(--background-50));
+  --color-black: #000000;
   --color-rich-black: var(--color-black);
   --color-charcoal: var(--color-black);
   --color-dark-gray: var(--color-black);
@@ -21,12 +21,12 @@
   --color-gold: #C9A227;
   --color-soft-gold: #D4AF37;
   --color-champagne: #E8D7A8;
-  --color-ivory: oklch(var(--foreground-50));
+  --color-ivory: #F8F5EE;
   --color-ivory-dim: #EFE9DC;
-  --color-white: oklch(var(--foreground-50));
+  --color-white: #FFFFFF;
   --color-text-muted: var(--color-ivory);
   --color-text-secondary: var(--color-ivory);
-  --color-border: oklch(var(--foreground-50));
+  --color-border: #333333;
   --color-border-gold: rgba(201, 162, 39, 0.3);
   --color-surface: var(--color-black);
   --color-surface-hover: var(--color-black);
@@ -89,8 +89,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; font-size: 16px; }
 body {
-  background-color: oklch(var(--background-50));
-  color: oklch(var(--foreground-50));
+  background-color: var(--color-black);
+  color: var(--color-ivory);
   font-family: var(--font-sans);
   font-weight: 400;
   line-height: 1.6;

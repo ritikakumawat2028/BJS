@@ -50,7 +50,7 @@ export class NotificationService {
       {
         to: user.email,
         subject: `Order Confirmation - #${order.id.slice(-6)}`,
-        html: orderConfirmationEmail(order.id.slice(-6), user.firstName, order.totalAmount.toString()),
+        html: orderConfirmationEmail(order.id.slice(-6), user.firstName, order.total.toString()),
       },
       { orderId: order.id }
     );
@@ -136,7 +136,7 @@ export class NotificationService {
       adminIds,
       'ADMIN_NEW_ORDER',
       'New Order Received',
-      `A new order #${order.id.slice(-6)} has been placed for ₹${order.totalAmount}.`,
+      `A new order #${order.id.slice(-6)} has been placed for ₹${order.total}.`,
       undefined, // Don't spam admin email unless specifically configured later
       { orderId: order.id }
     );
