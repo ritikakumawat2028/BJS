@@ -478,15 +478,47 @@ export const adminUpdateOrderStatus = asyncHandler(async (req: AuthRequest, res:
   const { id } = req.params;
   const { status, paymentStatus, trackingNumber, deliveryPartner, message } = req.body;
 
+  const existingOrder = await prisma.order.findUnique({ where: { id }, include: { items: true } });
+  if (!existingOrder) throw createError('Order not found', 404);
+
   const dataToUpdate: any = {};
   if (status) dataToUpdate.status = status;
   if (paymentStatus) dataToUpdate.paymentStatus = paymentStatus;
   if (trackingNumber !== undefined) dataToUpdate.trackingNumber = trackingNumber;
   if (deliveryPartner !== undefined) dataToUpdate.deliveryPartner = deliveryPartner;
 
-  const order = await prisma.order.update({
-    where: { id },
-    data: dataToUpdate,
+  const order = await prisma.$transaction(async (tx) => {
+    const updatedOrder = await tx.order.update({
+      where: { id },
+      data: dataToUpdate,
+    });
+
+    // Stock Restoration
+    if (status === 'CANCELLED' && existingOrder.status !== 'CANCELLED') {
+      for (const item of existingOrder.items) {
+        if (item.variantId) {
+          await tx.productVariant.update({ where: { id: item.variantId }, data: { stock: { increment: item.quantity } } });
+        } else {
+          await tx.inventory.update({ where: { productId: item.productId }, data: { quantity: { increment: item.quantity } } });
+        }
+        await tx.product.update({ where: { id: item.productId }, data: { totalSold: { decrement: item.quantity } } });
+      }
+    }
+
+    // Refund Record
+    if (paymentStatus === 'REFUNDED' && existingOrder.paymentStatus !== 'REFUNDED') {
+      await tx.refund.create({
+        data: {
+          orderId: id,
+          amount: existingOrder.total,
+          reason: message || 'Admin initiated refund',
+          status: 'COMPLETED',
+          processedAt: new Date()
+        }
+      });
+    }
+
+    return updatedOrder;
   });
 
   await prisma.orderTimeline.create({
