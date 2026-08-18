@@ -143,7 +143,7 @@ export const userApi = {
 
 // ===== ADMIN =====
 export const adminApi = {
-  getDashboard: (period?: string) => api.get('/admin/dashboard', { params: { period } }),
+  getDashboard: (params?: { filter?: string; startDate?: string; endDate?: string }) => api.get('/admin/dashboard', { params }),
   getPayments: (params?: Record<string, any>) => api.get('/admin/payments', { params }),
   
   // Delivery & Shipping Zones

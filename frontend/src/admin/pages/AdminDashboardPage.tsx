@@ -17,9 +17,13 @@ const StatCard: React.FC<{ label: string; value: string | number; sub?: string; 
 );
 
 const AdminDashboardPage: React.FC = () => {
+  const [filter, setFilter] = React.useState('30days');
+  const [startDate, setStartDate] = React.useState('');
+  const [endDate, setEndDate] = React.useState('');
+
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-dashboard'],
-    queryFn: () => adminApi.getDashboard('30'),
+    queryKey: ['admin-dashboard', filter, startDate, endDate],
+    queryFn: () => adminApi.getDashboard({ filter, startDate: filter === 'custom' ? startDate : undefined, endDate: filter === 'custom' ? endDate : undefined }),
   });
 
   const dashboard: any = data?.data?.data || null;
@@ -71,20 +75,45 @@ const AdminDashboardPage: React.FC = () => {
   return (
     <>
       <Helmet><title>Dashboard — Admin | BJ'S Natural Care</title></Helmet>
-      <h1 className="admin-page-title">Dashboard</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <h1 className="admin-page-title" style={{ marginBottom: 0 }}>Dashboard</h1>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <select 
+            className="form-input" 
+            value={filter} 
+            onChange={(e) => setFilter(e.target.value)}
+            style={{ width: 'auto', padding: '8px 12px' }}
+          >
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="7days">Last 7 Days</option>
+            <option value="30days">Last 30 Days</option>
+            <option value="this_month">This Month</option>
+            <option value="last_month">Previous Month</option>
+            <option value="custom">Custom Range</option>
+          </select>
+          {filter === 'custom' && (
+            <>
+              <input type="date" className="form-input" value={startDate} onChange={(e) => setStartDate(e.target.value)} style={{ width: 'auto', padding: '8px 12px' }} />
+              <span style={{ color: 'var(--color-text-muted)' }}>to</span>
+              <input type="date" className="form-input" value={endDate} onChange={(e) => setEndDate(e.target.value)} style={{ width: 'auto', padding: '8px 12px' }} />
+            </>
+          )}
+        </div>
+      </div>
 
-      {/* 10 Summary Cards */}
+      {/* Summary Cards */}
       <div className="admin-stats-grid">
-        <StatCard label="Total Revenue" value={formatCurrency(s?.totalRevenue || 0)} />
-        <StatCard label="Today's Revenue" value={formatCurrency(s?.todayRevenue || 0)} />
-        <StatCard label="Monthly Revenue" value={formatCurrency(s?.monthRevenue || 0)} />
-        <StatCard label="Total Orders" value={s?.totalOrders || 0} />
+        <StatCard label="Revenue" value={formatCurrency(s?.totalRevenue || 0)} />
+        <StatCard label="Orders" value={s?.totalOrders || 0} />
+        <StatCard label="Avg Order Value" value={formatCurrency(s?.averageOrderValue || 0)} />
+        <StatCard label="Conversion Rate" value={`${(s?.conversionRate || 0).toFixed(1)}%`} />
+        <StatCard label="New Customers" value={s?.newCustomers || 0} />
         <StatCard label="Pending Orders" value={s?.pendingOrders || 0} />
         <StatCard label="Completed Orders" value={s?.completedOrders || 0} />
-        <StatCard label="Customers" value={s?.totalCustomers || 0} />
-        <StatCard label="Products" value={s?.totalProducts || 0} />
-        <StatCard label="Low Stock Products" value={s?.lowStockProducts || 0} positive={s?.lowStockProducts === 0} />
         <StatCard label="Refunds" value={s?.refunds || 0} positive={s?.refunds === 0} />
+        <StatCard label="Low Stock Products" value={s?.lowStockProducts || 0} positive={s?.lowStockProducts === 0} />
+        <StatCard label="Total Customers" value={s?.totalCustomers || 0} />
       </div>
 
       {/* 5 Charts */}
@@ -112,7 +141,7 @@ const AdminDashboardPage: React.FC = () => {
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="empty-state"><p className="empty-state__text">No revenue data available.</p></div>
+            <div className="empty-state"><p className="empty-state__text">No data available for this period.</p></div>
           )}
         </div>
 
@@ -133,7 +162,7 @@ const AdminDashboardPage: React.FC = () => {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="empty-state"><p className="empty-state__text">No order data available.</p></div>
+            <div className="empty-state"><p className="empty-state__text">No data available for this period.</p></div>
           )}
         </div>
 
@@ -154,7 +183,7 @@ const AdminDashboardPage: React.FC = () => {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="empty-state"><p className="empty-state__text">No sales data available.</p></div>
+            <div className="empty-state"><p className="empty-state__text">No data available for this period.</p></div>
           )}
         </div>
 
@@ -171,7 +200,7 @@ const AdminDashboardPage: React.FC = () => {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="empty-state"><p className="empty-state__text">No payment data available.</p></div>
+            <div className="empty-state"><p className="empty-state__text">No data available for this period.</p></div>
           )}
         </div>
 
@@ -188,7 +217,7 @@ const AdminDashboardPage: React.FC = () => {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="empty-state"><p className="empty-state__text">No category data available.</p></div>
+            <div className="empty-state"><p className="empty-state__text">No data available for this period.</p></div>
           )}
         </div>
       </div>

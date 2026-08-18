@@ -5,62 +5,142 @@ import { AuthRequest } from '../middleware/auth';
 
 // ========== DASHBOARD ANALYTICS ==========
 export const getDashboard = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { period = '30' } = req.query as Record<string, string>;
-  const days = parseInt(period);
-  const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const { filter = '30days', startDate: customStart, endDate: customEnd } = req.query as Record<string, string>;
+
+  let start = new Date();
+  let end = new Date();
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  switch(filter) {
+    case 'today':
+      start = new Date(today);
+      end = new Date(today);
+      end.setHours(23, 59, 59, 999);
+      break;
+    case 'yesterday':
+      start = new Date(today);
+      start.setDate(start.getDate() - 1);
+      end = new Date(start);
+      end.setHours(23, 59, 59, 999);
+      break;
+    case '7days':
+      start = new Date(today);
+      start.setDate(start.getDate() - 7);
+      end = new Date();
+      break;
+    case '30days':
+      start = new Date(today);
+      start.setDate(start.getDate() - 30);
+      end = new Date();
+      break;
+    case 'this_month':
+      start = new Date(today.getFullYear(), today.getMonth(), 1);
+      end = new Date();
+      break;
+    case 'last_month':
+      start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      end = new Date(today.getFullYear(), today.getMonth(), 0);
+      end.setHours(23, 59, 59, 999);
+      break;
+    case 'custom':
+      if (customStart) start = new Date(customStart);
+      if (customEnd) end = new Date(customEnd);
+      end.setHours(23, 59, 59, 999);
+      break;
+    default:
+      start = new Date(today);
+      start.setDate(start.getDate() - 30);
+      end = new Date();
+      break;
+  }
+
+  const dateFilter = {
+    gte: start,
+    lte: end
+  };
 
   const [
-    totalRevenue, todayRevenue, monthRevenue,
-    totalOrders, pendingOrders, completedOrders, refunds,
-    totalCustomers, totalProducts, lowStockProducts,
-    revenueChart, ordersChart, topProducts, categoryStats, paymentStats
+    allOrders,
+    pendingOrdersCount,
+    completedOrdersCount,
+    refundsCount,
+    newCustomersCount,
+    totalCustomersCount,
+    totalProducts,
+    lowStockProducts,
+    topProducts,
+    categoryStats,
+    paymentStats
   ] = await Promise.all([
-    prisma.order.aggregate({ where: { paymentStatus: 'PAID' }, _sum: { total: true } }),
-    prisma.order.aggregate({ where: { paymentStatus: 'PAID', createdAt: { gte: today } }, _sum: { total: true } }),
-    prisma.order.aggregate({ where: { paymentStatus: 'PAID', createdAt: { gte: monthStart } }, _sum: { total: true } }),
-    prisma.order.count(),
-    prisma.order.count({ where: { status: 'PENDING' } }),
-    prisma.order.count({ where: { status: 'DELIVERED' } }),
-    prisma.order.count({ where: { status: 'REFUNDED' } }),
+    prisma.order.findMany({ 
+      where: { createdAt: dateFilter },
+      select: { id: true, total: true, paymentStatus: true, createdAt: true, status: true, paymentMethod: true }
+    }),
+    prisma.order.count({ where: { status: 'PENDING', createdAt: dateFilter } }),
+    prisma.order.count({ where: { status: 'DELIVERED', createdAt: dateFilter } }),
+    prisma.order.count({ where: { status: 'REFUNDED', createdAt: dateFilter } }),
+    prisma.user.count({ where: { role: { name: 'CUSTOMER' }, createdAt: dateFilter } }),
     prisma.user.count({ where: { role: { name: 'CUSTOMER' } } }),
     prisma.product.count({ where: { isActive: true } }),
     prisma.inventory.count({ where: { quantity: { lte: prisma.inventory.fields.lowStockThreshold } } }),
-    prisma.order.groupBy({
-      by: ['createdAt'], where: { paymentStatus: 'PAID', createdAt: { gte: startDate } },
-      _sum: { total: true }, orderBy: { createdAt: 'asc' },
-    }),
-    prisma.order.groupBy({
-      by: ['createdAt'], where: { createdAt: { gte: startDate } },
-      _count: { id: true }, orderBy: { createdAt: 'asc' },
-    }),
     prisma.orderItem.groupBy({
-      by: ['productName'], _sum: { quantity: true, total: true },
-      orderBy: { _sum: { total: 'desc' } }, take: 5,
+      by: ['productName'], 
+      where: { order: { paymentStatus: 'PAID', createdAt: dateFilter } },
+      _sum: { quantity: true, total: true },
+      orderBy: { _sum: { total: 'desc' } }, 
+      take: 5,
     }),
     prisma.product.groupBy({
       by: ['categoryId'], where: { isActive: true }, _count: { id: true },
     }),
     prisma.order.groupBy({
-      by: ['paymentMethod'], _count: { id: true },
+      by: ['paymentMethod'], where: { createdAt: dateFilter }, _count: { id: true },
     }),
   ]);
+
+  const paidOrders = allOrders.filter(o => o.paymentStatus === 'PAID');
+  const totalRevenue = paidOrders.reduce((sum, o) => sum + Number(o.total), 0);
+  const totalOrders = allOrders.length;
+  const averageOrderValue = paidOrders.length > 0 ? totalRevenue / paidOrders.length : 0;
+  
+  // Conversion Rate: Paid Orders / Total Orders attempted in that period
+  const conversionRate = totalOrders > 0 ? (paidOrders.length / totalOrders) * 100 : 0;
+
+  // For charts, we can just pass the raw orders data, and let frontend group by date, or group it here.
+  // We'll pass grouped data to keep frontend simple.
+  const revenueChartMap = new Map<string, number>();
+  const ordersChartMap = new Map<string, number>();
+
+  paidOrders.forEach(o => {
+    const d = new Date(o.createdAt).toLocaleDateString('en-CA'); // YYYY-MM-DD
+    revenueChartMap.set(d, (revenueChartMap.get(d) || 0) + Number(o.total));
+  });
+
+  allOrders.forEach(o => {
+    const d = new Date(o.createdAt).toLocaleDateString('en-CA');
+    ordersChartMap.set(d, (ordersChartMap.get(d) || 0) + 1);
+  });
+
+  const revenueChart = Array.from(revenueChartMap.entries()).map(([date, total]) => ({ createdAt: new Date(date), _sum: { total } })).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+  const ordersChart = Array.from(ordersChartMap.entries()).map(([date, count]) => ({ createdAt: new Date(date), _count: { id: count } })).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 
   res.json({
     success: true,
     data: {
       summary: {
-        totalRevenue: totalRevenue._sum.total || 0,
-        todayRevenue: todayRevenue._sum.total || 0,
-        monthRevenue: monthRevenue._sum.total || 0,
+        totalRevenue,
+        averageOrderValue,
+        conversionRate,
         totalOrders,
-        pendingOrders,
-        completedOrders,
-        totalCustomers,
+        pendingOrders: pendingOrdersCount,
+        completedOrders: completedOrdersCount,
+        newCustomers: newCustomersCount,
+        totalCustomers: totalCustomersCount,
         totalProducts,
         lowStockProducts,
-        refunds,
+        refunds: refundsCount,
       },
       charts: {
         revenue: revenueChart,
