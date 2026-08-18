@@ -179,7 +179,7 @@ const AdminLayout: React.FC = () => {
             </div>
             <div>
               <p style={{ fontSize: '0.875rem', color: 'var(--color-ivory)', fontWeight: 500 }}>{user?.firstName} {user?.lastName}</p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--color-gold)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{user?.role}</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--color-gold)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{typeof user?.role === 'string' ? user.role : (user?.role as any)?.name}</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
