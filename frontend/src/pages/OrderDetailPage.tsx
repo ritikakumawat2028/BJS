@@ -22,11 +22,10 @@ const OrderDetailPage: React.FC = () => {
   const invoiceRef = React.useRef<HTMLDivElement>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = React.useState(false);
 
-  if (isLoading) return <div className="container" style={{ paddingTop: '120px' }}><div className="skeleton" style={{ height: '400px' }} /></div>;
-  if (!order) return <div className="container" style={{ paddingTop: '120px', textAlign: 'center' }}><h2>Order not found</h2></div>;
+
 
   const handleDownloadInvoice = async () => {
-    if (!invoiceRef.current) return;
+    if (!invoiceRef.current || !order) return;
     try {
       setIsGeneratingPDF(true);
       toast.loading('Generating invoice...', { id: 'pdf-toast' });
@@ -64,6 +63,8 @@ const OrderDetailPage: React.FC = () => {
     }
   }, [order, location.state, navigate, location.pathname, isGeneratingPDF]);
 
+  if (isLoading) return <div className="container" style={{ paddingTop: '120px' }}><div className="skeleton" style={{ height: '400px' }} /></div>;
+  if (!order) return <div className="container" style={{ paddingTop: '120px', textAlign: 'center' }}><h2>Order not found</h2></div>;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
