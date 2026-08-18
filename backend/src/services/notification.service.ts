@@ -1,4 +1,4 @@
-import { prisma } from '../config/prisma';
+import prisma from '../config/prisma';
 import { sendEmail, orderConfirmationEmail } from '../utils/email';
 
 export class NotificationService {
@@ -124,7 +124,7 @@ export class NotificationService {
   // ==========================================
 
   private static async getAdminIds(): Promise<string[]> {
-    const admins = await prisma.user.findMany({ where: { role: 'ADMIN' }, select: { id: true } });
+    const admins = await prisma.user.findMany({ where: { role: { name: 'ADMIN' } }, select: { id: true } });
     return admins.map((a) => a.id);
   }
 
