@@ -123,7 +123,7 @@ const CheckoutPage: React.FC = () => {
       }
 
       // 2. Razorpay flow
-      const { data: rpRes } = await ordersApi.createRazorpayOrder(order.id);
+      const { data: rpRes } = await ordersApi.createRazorpay({ orderId: order.id });
       const rpOrder = rpRes.data;
 
       const options = {
