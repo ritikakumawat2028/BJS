@@ -67,7 +67,10 @@ const queryClient = new QueryClient({
 const ProtectedRoute: React.FC<{ children: React.ReactNode; requireAdmin?: boolean }> = ({ children, requireAdmin }) => {
   const { isAuthenticated, user } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (requireAdmin && user?.role !== 'ADMIN' && user?.role !== 'STAFF') return <Navigate to="/" replace />;
+  if (requireAdmin) {
+    const roleName = typeof user?.role === 'string' ? user.role : (user?.role as any)?.name;
+    if (roleName !== 'ADMIN' && roleName !== 'STAFF') return <Navigate to="/" replace />;
+  }
   return <>{children}</>;
 };
 
