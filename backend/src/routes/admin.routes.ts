@@ -11,6 +11,7 @@ import {
   adminGetPromotions, adminCreatePromotion, adminUpdatePromotion,
   adminGetPayments,
   adminGetShippingZones, adminCreateShippingZone, adminUpdateShippingZone, adminDeleteShippingZone,
+  adminCreateAdmin,
 } from '../controllers/admin.controller';
 import {
   adminGetOrders, adminGetOrderById, adminUpdateOrderStatus,
@@ -22,9 +23,10 @@ const router = Router();
 // Dashboard
 router.get('/dashboard', authenticate, requireAdmin, getDashboard);
 
-// Customers
+// Customers & Admins
 router.get('/customers', authenticate, requireAdmin, adminGetCustomers);
 router.put('/customers/:id/toggle-status', authenticate, requireAdmin, adminToggleUserStatus);
+router.post('/admins', authenticate, requireAdmin, adminCreateAdmin);
 
 // Orders & Payments
 router.get('/orders', authenticate, requireAdmin, adminGetOrders);

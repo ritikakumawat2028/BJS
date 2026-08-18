@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import prisma from '../config/prisma';
 import { asyncHandler, createError } from '../middleware/error';
 import { AuthRequest } from '../middleware/auth';
+import { logAdminAction } from '../utils/audit';
 
 // ========== DASHBOARD ANALYTICS ==========
 export const getDashboard = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -360,6 +363,14 @@ export const adminUpdateSettings = asyncHandler(async (req: AuthRequest, res: Re
   });
 
   await Promise.all(promises);
+
+  await logAdminAction({
+    adminId: req.user!.userId,
+    action: 'UPDATE_SETTINGS',
+    entity: 'Settings',
+    newValue: settings,
+  });
+
   res.json({ success: true, message: 'Settings updated' });
 });
 
@@ -562,4 +573,44 @@ export const adminUpdateShippingZone = asyncHandler(async (req: AuthRequest, res
 export const adminDeleteShippingZone = asyncHandler(async (req: AuthRequest, res: Response) => {
   await prisma.shippingZone.delete({ where: { id: req.params.id } });
   res.json({ success: true, message: 'Shipping zone deleted' });
+});
+
+// ========== ADMIN CREATION ==========
+export const adminCreateAdmin = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { email, password, firstName, lastName, phone } = req.body;
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) throw createError('Email already registered', 400);
+
+  let adminRole = await prisma.role.findUnique({ where: { name: 'ADMIN' } });
+  if (!adminRole) {
+    adminRole = await prisma.role.create({ data: { name: 'ADMIN', description: 'Administrator Role' } });
+  }
+
+  const passwordHash = await bcrypt.hash(password, 12);
+  const emailVerifyToken = crypto.randomBytes(32).toString('hex');
+  
+  const user = await prisma.user.create({
+    data: { 
+      email, 
+      passwordHash, 
+      firstName, 
+      lastName, 
+      phone, 
+      roleId: adminRole.id, 
+      emailVerifyToken,
+      isEmailVerified: true // Admins created by admins can be pre-verified
+    },
+    select: { id: true, email: true, firstName: true, lastName: true, role: true },
+  });
+
+  await logAdminAction({
+    adminId: req.user!.userId,
+    action: 'CREATE_ADMIN',
+    entity: 'User',
+    entityId: user.id,
+    newValue: { email, firstName, lastName, phone, role: 'ADMIN' },
+  });
+
+  res.status(201).json({ success: true, message: 'Administrator created successfully', data: user });
 });

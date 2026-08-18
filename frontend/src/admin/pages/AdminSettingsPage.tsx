@@ -50,6 +50,7 @@ const AdminSettingsPage: React.FC = () => {
     { id: 'social', label: 'Social' },
     { id: 'seo', label: 'SEO' },
     { id: 'pages', label: 'Pages' },
+    { id: 'trust', label: 'Trust Elements' },
     { id: 'policies', label: 'Policies' },
   ];
 
@@ -226,6 +227,36 @@ const AdminSettingsPage: React.FC = () => {
                 <label className="form-label" style={{ fontSize: '1.2rem', color: 'var(--color-gold)', marginBottom: '16px' }}>FAQ Page Content</label>
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '16px' }}>Use plain text, markdown, or clear paragraph formatting for your FAQs.</p>
                 <textarea className="form-input" rows={12} value={formData.faq_content || ''} onChange={e => handleChange('faq_content', e.target.value)} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'trust' && (
+            <div style={{ display: 'grid', gap: '32px' }}>
+              <div>
+                <label className="form-label" style={{ fontSize: '1.2rem', color: 'var(--color-gold)', marginBottom: '8px' }}>Secure Payments</label>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '16px' }}>Example: "We use industry-standard encryption for all transactions."</p>
+                <input type="text" className="form-input" value={formData.trust_secure_payments || ''} onChange={e => handleChange('trust_secure_payments', e.target.value)} />
+              </div>
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '32px' }}>
+                <label className="form-label" style={{ fontSize: '1.2rem', color: 'var(--color-gold)', marginBottom: '8px' }}>Quality Products</label>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '16px' }}>Example: "Every product is thoughtfully formulated and carefully inspected."</p>
+                <input type="text" className="form-input" value={formData.trust_quality_products || ''} onChange={e => handleChange('trust_quality_products', e.target.value)} />
+              </div>
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '32px' }}>
+                <label className="form-label" style={{ fontSize: '1.2rem', color: 'var(--color-gold)', marginBottom: '8px' }}>Easy Returns</label>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '16px' }}>Example: "Hassle-free returns within our standard policy window."</p>
+                <input type="text" className="form-input" value={formData.trust_easy_returns || ''} onChange={e => handleChange('trust_easy_returns', e.target.value)} />
+              </div>
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '32px' }}>
+                <label className="form-label" style={{ fontSize: '1.2rem', color: 'var(--color-gold)', marginBottom: '8px' }}>Customer Support</label>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '16px' }}>Example: "Reach out to our team anytime for assistance with your order."</p>
+                <input type="text" className="form-input" value={formData.trust_customer_support || ''} onChange={e => handleChange('trust_customer_support', e.target.value)} />
+              </div>
+              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '32px' }}>
+                <label className="form-label" style={{ fontSize: '1.2rem', color: 'var(--color-gold)', marginBottom: '8px' }}>Fast Delivery</label>
+                <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '16px' }}>Example: "Orders are typically dispatched within 24-48 hours."</p>
+                <input type="text" className="form-input" value={formData.trust_fast_delivery || ''} onChange={e => handleChange('trust_fast_delivery', e.target.value)} />
               </div>
             </div>
           )}

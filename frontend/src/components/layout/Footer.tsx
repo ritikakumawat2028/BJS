@@ -88,6 +88,43 @@ const Footer: React.FC = () => {
                 ))}
               </ul>
             </div>
+
+            {/* Customer Support */}
+            <div className="footer__col">
+              <h3 className="footer__col-title">CUSTOMER SUPPORT</h3>
+              <ul className="footer__links">
+                {(settings?.store_phone || '+91 98765 43210') && (
+                  <li>
+                    <a href={`tel:${settings?.store_phone || '+91 98765 43210'}`} className="footer__link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="1.5">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                      </svg>
+                      {settings?.store_phone || '+91 98765 43210'}
+                    </a>
+                  </li>
+                )}
+                {(settings?.store_email || 'info@bjsnaturalcare.com') && (
+                  <li>
+                    <a href={`mailto:${settings?.store_email || 'info@bjsnaturalcare.com'}`} className="footer__link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="1.5">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                      </svg>
+                      {settings?.store_email || 'info@bjsnaturalcare.com'}
+                    </a>
+                  </li>
+                )}
+                {(settings?.store_address || 'Mumbai, Maharashtra, India') && (
+                  <li>
+                    <div className="footer__link" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'default' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="1.5" style={{ flexShrink: 0, marginTop: '2px' }}>
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      <span style={{ whiteSpace: 'pre-line' }}>{settings?.store_address || 'Mumbai, Maharashtra, India'}</span>
+                    </div>
+                  </li>
+                )}
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -115,8 +152,14 @@ const Footer: React.FC = () => {
         .footer__top { padding: var(--space-16) 0 var(--space-10); }
         .footer__grid {
           display: grid;
-          grid-template-columns: 2fr 1fr 1fr 1fr;
+          grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
           gap: var(--space-10);
+        }
+        @media (max-width: 992px) {
+          .footer__grid { grid-template-columns: 1fr 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+          .footer__grid { grid-template-columns: 1fr; }
         }
         .footer__logo { display: flex; flex-direction: row; align-items: center; gap: 12px; margin-bottom: var(--space-5); }
         .footer__logo-circle {

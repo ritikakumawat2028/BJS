@@ -331,6 +331,11 @@ export interface StoreSettings {
   announcement_text?: string;
   announcement_link?: string;
   announcement_active?: string;
+  trust_secure_payments?: string;
+  trust_quality_products?: string;
+  trust_easy_returns?: string;
+  trust_customer_support?: string;
+  trust_fast_delivery?: string;
   [key: string]: string | undefined;
 }
 

@@ -50,6 +50,11 @@ async function main() {
     { key: 'about_text', value: "BJ'S Natural Care was born from a passion for natural beauty and luxury craftsmanship. We believe that true beauty is rooted in nature — pure, powerful, and timeless. [Update this content in Admin > Settings > Content]", group: 'content', label: 'About Text' },
     { key: 'hero_heading', value: 'Luxury, Naturally Crafted.', group: 'content', label: 'Hero Heading' },
     { key: 'hero_subheading', value: 'Premium perfumes, skincare & haircare — elevated for the discerning few.', group: 'content', label: 'Hero Subheading' },
+    { key: 'trust_secure_payments', value: 'We use industry-standard encryption for all transactions.', group: 'content', label: 'Trust: Secure Payments' },
+    { key: 'trust_quality_products', value: 'Every product is thoughtfully formulated and carefully inspected.', group: 'content', label: 'Trust: Quality Products' },
+    { key: 'trust_easy_returns', value: 'Hassle-free returns within our standard policy window.', group: 'content', label: 'Trust: Easy Returns' },
+    { key: 'trust_customer_support', value: 'Reach out to our team anytime for assistance with your order.', group: 'content', label: 'Trust: Customer Support' },
+    { key: 'trust_fast_delivery', value: 'Orders are typically dispatched within 24-48 hours.', group: 'content', label: 'Trust: Fast Delivery' },
   ];
 
   for (const s of defaultSettings) {
