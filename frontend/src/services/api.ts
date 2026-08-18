@@ -138,6 +138,7 @@ export const userApi = {
   // User Notifications
   getNotifications: () => api.get('/user/notifications').then(res => res.data),
   markNotificationRead: (id: string) => api.put(`/user/notifications/${id}/read`).then(res => res.data),
+  markAllNotificationsRead: () => api.put('/user/notifications/read-all').then(res => res.data),
 };
 
 // ===== ADMIN =====

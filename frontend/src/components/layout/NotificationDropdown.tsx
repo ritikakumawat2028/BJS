@@ -47,6 +47,17 @@ export const NotificationDropdown: React.FC = () => {
     }
   };
 
+  const handleMarkAllRead = async () => {
+    if (unreadCount === 0) return;
+    try {
+      await userApi.markAllNotificationsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Failed to mark all notifications as read', error);
+    }
+  };
+
   return (
     <div className="notification-wrapper" ref={dropdownRef}>
       <button 
@@ -64,8 +75,18 @@ export const NotificationDropdown: React.FC = () => {
       {isOpen && (
         <div className="notification-dropdown">
           <div className="notification-header">
-            <h4>Notifications</h4>
-            {unreadCount > 0 && <span>{unreadCount} new</span>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <h4>Notifications</h4>
+              {unreadCount > 0 && <span>{unreadCount} new</span>}
+            </div>
+            {unreadCount > 0 && (
+              <button 
+                onClick={handleMarkAllRead} 
+                style={{ background: 'none', border: 'none', color: 'var(--color-gold)', fontSize: '0.75rem', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                Mark all read
+              </button>
+            )}
           </div>
           
           <div className="notification-list">

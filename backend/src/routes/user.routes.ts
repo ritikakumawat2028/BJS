@@ -3,7 +3,7 @@ import {
   getWishlist, addToWishlist, removeFromWishlist,
   getAddresses, addAddress, updateAddress, deleteAddress,
   addReview, updateReview, deleteReview,
-  getNotifications, markNotificationRead,
+  getNotifications, markNotificationRead, markAllNotificationsRead
 } from '../controllers/user.controller';
 import { authenticate } from '../middleware/auth';
 
@@ -27,6 +27,7 @@ router.delete('/reviews/:id', authenticate, deleteReview);
 
 // Notifications
 router.get('/notifications', authenticate, getNotifications);
+router.put('/notifications/read-all', authenticate, markAllNotificationsRead);
 router.put('/notifications/:id/read', authenticate, markNotificationRead);
 
 export default router;
