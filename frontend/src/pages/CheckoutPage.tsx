@@ -156,14 +156,15 @@ const CheckoutPage: React.FC = () => {
         theme: { color: '#C9A227' },
       };
 
-      const rzp = new window.Razorpay(options);
+      const rzp = new (window as any).Razorpay(options);
       rzp.on('payment.failed', () => {
         toast.error('Payment failed');
         navigate(`/account/orders/${order.id}`);
       });
       rzp.open();
     } catch (err: any) {
-      const msg = err.response?.data?.message || 'An unexpected error occurred';
+      console.error('Checkout error:', err);
+      const msg = err.response?.data?.message || err.message || 'An unexpected error occurred';
       toast.error(msg);
       if (msg.toLowerCase().includes('cart is empty')) {
         clearCart();
