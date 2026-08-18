@@ -10,6 +10,7 @@ const AdminOrderDetailPage: React.FC = () => {
   const qc = useQueryClient();
 
   const [newStatus, setNewStatus] = useState('');
+  const [newPaymentStatus, setNewPaymentStatus] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [deliveryPartner, setDeliveryPartner] = useState('');
   const [timelineMessage, setTimelineMessage] = useState('');
@@ -25,6 +26,7 @@ const AdminOrderDetailPage: React.FC = () => {
   useEffect(() => {
     if (order) {
       setNewStatus(order.status);
+      setNewPaymentStatus(order.paymentStatus || '');
       setTrackingNumber(order.trackingNumber || '');
       setDeliveryPartner(order.deliveryPartner || '');
     }
@@ -44,10 +46,12 @@ const AdminOrderDetailPage: React.FC = () => {
   if (!order) return <div className="empty-state"><h2>Order Not Found</h2></div>;
 
   const statusOptions = ['PENDING','CONFIRMED','PROCESSING','PACKED','SHIPPED','OUT_FOR_DELIVERY','DELIVERED','CANCELLED','RETURN_REQUESTED','RETURNED','REFUNDED'];
+  const paymentStatusOptions = ['PENDING', 'PAID', 'FAILED', 'REFUNDED'];
 
   const handleUpdate = () => {
     updateMutation.mutate({
       status: newStatus,
+      paymentStatus: newPaymentStatus,
       trackingNumber,
       deliveryPartner,
       message: timelineMessage || `Status updated to ${newStatus} by Admin`,
@@ -154,9 +158,16 @@ const AdminOrderDetailPage: React.FC = () => {
             <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-gold)', fontSize: '1.2rem', marginBottom: '16px' }}>Fulfillment & Actions</h3>
             
             <div className="form-group">
-              <label className="form-label">Update Status</label>
+              <label className="form-label">Update Order Status</label>
               <select className="form-select" value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
                 {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Update Payment Status</label>
+              <select className="form-select" value={newPaymentStatus} onChange={(e) => setNewPaymentStatus(e.target.value)}>
+                {paymentStatusOptions.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
 

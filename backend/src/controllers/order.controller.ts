@@ -476,11 +476,17 @@ export const adminGetOrderById = asyncHandler(async (req: AuthRequest, res: Resp
 
 export const adminUpdateOrderStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
-  const { status, trackingNumber, deliveryPartner, message } = req.body;
+  const { status, paymentStatus, trackingNumber, deliveryPartner, message } = req.body;
+
+  const dataToUpdate: any = {};
+  if (status) dataToUpdate.status = status;
+  if (paymentStatus) dataToUpdate.paymentStatus = paymentStatus;
+  if (trackingNumber !== undefined) dataToUpdate.trackingNumber = trackingNumber;
+  if (deliveryPartner !== undefined) dataToUpdate.deliveryPartner = deliveryPartner;
 
   const order = await prisma.order.update({
     where: { id },
-    data: { status, trackingNumber, deliveryPartner },
+    data: dataToUpdate,
   });
 
   await prisma.orderTimeline.create({
