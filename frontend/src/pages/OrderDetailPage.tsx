@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi, ordersApi } from '../services/api';
 import { Order } from '../types';
@@ -11,6 +11,8 @@ import { InvoiceTemplate } from '../components/order/InvoiceTemplate';
 
 const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery({ queryKey: ['order', id], queryFn: () => ordersApi.getById(id!), enabled: !!id });
   const { data: settingsData } = useQuery({ queryKey: ['store-settings'], queryFn: () => adminApi.getSettings() });
   
@@ -43,12 +45,25 @@ const OrderDetailPage: React.FC = () => {
       pdf.save(`Invoice_${order.orderNumber}.pdf`);
       toast.success('Invoice downloaded successfully', { id: 'pdf-toast' });
     } catch (error) {
-      console.error('Failed to generate PDF', error);
-      toast.error('Failed to generate invoice', { id: 'pdf-toast' });
+      console.error('Failed to generate invoice', error);
+      toast.error('Failed to download invoice', { id: 'pdf-toast' });
     } finally {
       setIsGeneratingPDF(false);
     }
   };
+
+  useEffect(() => {
+    if (order && location.state?.autoDownloadInvoice && invoiceRef.current && !isGeneratingPDF) {
+      // Clear the state so it doesn't trigger again on refresh
+      navigate(location.pathname, { replace: true, state: {} });
+      
+      // Slight delay to ensure images/fonts are loaded in the hidden DOM
+      setTimeout(() => {
+        handleDownloadInvoice();
+      }, 1000);
+    }
+  }, [order, location.state, navigate, location.pathname, isGeneratingPDF]);
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });

@@ -118,7 +118,7 @@ const CheckoutPage: React.FC = () => {
       if (paymentMethod === 'COD') {
         toast.success('Order placed successfully!');
         clearCart();
-        navigate(`/account/orders/${order.id}`);
+        navigate(`/account/orders/${order.id}`, { state: { autoDownloadInvoice: true } });
         return;
       }
 
@@ -143,7 +143,7 @@ const CheckoutPage: React.FC = () => {
             });
             toast.success('Payment successful!');
             clearCart();
-            navigate(`/account/orders/${order.id}`);
+            navigate(`/account/orders/${order.id}`, { state: { autoDownloadInvoice: true } });
           } catch (err) {
             toast.error('Payment verification failed');
             navigate(`/account/orders/${order.id}`);
