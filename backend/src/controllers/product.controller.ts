@@ -113,7 +113,7 @@ export const getProductBySlug = asyncHandler(async (req: Request, res: Response)
     take: 6,
     select: {
       id: true, name: true, slug: true, price: true, comparePrice: true, avgRating: true,
-      images: { where: { isThumbnail: true }, take: 1 },
+      images: { orderBy: { sortOrder: 'asc' }, take: 2 },
     },
   });
 
@@ -127,7 +127,7 @@ export const getFeaturedProducts = asyncHandler(async (_req: Request, res: Respo
     select: {
       id: true, name: true, slug: true, price: true, comparePrice: true,
       avgRating: true, reviewCount: true,
-      images: { where: { isThumbnail: true }, take: 1 },
+      images: { orderBy: { sortOrder: 'asc' }, take: 2 },
     },
   });
   res.json({ success: true, data: products });
@@ -141,7 +141,7 @@ export const getBestsellerProducts = asyncHandler(async (_req: Request, res: Res
     select: {
       id: true, name: true, slug: true, price: true, comparePrice: true,
       avgRating: true, reviewCount: true,
-      images: { where: { isThumbnail: true }, take: 1 },
+      images: { orderBy: { sortOrder: 'asc' }, take: 2 },
     },
   });
   res.json({ success: true, data: products });
@@ -155,7 +155,7 @@ export const getNewArrivals = asyncHandler(async (_req: Request, res: Response) 
     select: {
       id: true, name: true, slug: true, price: true, comparePrice: true,
       avgRating: true, reviewCount: true,
-      images: { where: { isThumbnail: true }, take: 1 },
+      images: { orderBy: { sortOrder: 'asc' }, take: 2 },
     },
   });
   res.json({ success: true, data: products });

@@ -162,8 +162,18 @@ const ProductDetailPage: React.FC = () => {
           {/* Main Grid */}
           <div className="pdp-grid">
             {/* Image Gallery */}
-            <div>
-              <div className="pdp-main-image">
+            <div className="pdp-gallery">
+              <div 
+                className="pdp-main-image"
+                onMouseMove={(e) => {
+                  const el = e.currentTarget;
+                  const { left, top, width, height } = el.getBoundingClientRect();
+                  const x = ((e.clientX - left) / width) * 100;
+                  const y = ((e.clientY - top) / height) * 100;
+                  el.style.setProperty('--x', `${x}%`);
+                  el.style.setProperty('--y', `${y}%`);
+                }}
+              >
                 <motion.img
                   key={selectedImage}
                   src={optimizeImage(product.images[selectedImage]?.url) || 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=800'}
@@ -172,6 +182,10 @@ const ProductDetailPage: React.FC = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                   className="pdp-main-image__img"
+                />
+                <div 
+                  className="pdp-main-image__zoom"
+                  style={{ backgroundImage: `url('${optimizeImage(product.images[selectedImage]?.url) || 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=1600'}')` }}
                 />
                 {discount > 0 && <span className="product-card__badge badge-sale">{discount}% OFF</span>}
               </div>
@@ -344,12 +358,28 @@ const ProductDetailPage: React.FC = () => {
 
       <style>{`
         .pdp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-12); margin-bottom: var(--space-10); }
-        .pdp-main-image { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: var(--radius-md); background: var(--color-charcoal); border: 1px solid var(--color-border); }
-        .pdp-main-image__img { width: 100%; height: 100%; object-fit: cover; }
-        .pdp-thumbnails { display: flex; gap: var(--space-2); margin-top: var(--space-3); flex-wrap: wrap; }
-        .pdp-thumb { width: 72px; height: 72px; border-radius: var(--radius-sm); border: 2px solid var(--color-border); overflow: hidden; transition: all var(--transition-fast); }
-        .pdp-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .pdp-gallery { display: flex; flex-direction: column; gap: var(--space-4); }
+        .pdp-main-image { 
+          position: relative; aspect-ratio: 4/5; overflow: hidden; border-radius: var(--radius-md); 
+          background: #0a0a0a; border: 1px solid var(--color-border); cursor: crosshair;
+        }
+        .pdp-main-image__img { width: 100%; height: 100%; object-fit: contain; padding: 20px; transition: opacity 0.3s; }
+        .pdp-main-image__zoom {
+          position: absolute; inset: 0; opacity: 0; pointer-events: none;
+          background-position: var(--x, 50%) var(--y, 50%); background-size: 250%; background-repeat: no-repeat;
+          transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1); z-index: 10;
+        }
+        .pdp-main-image:hover .pdp-main-image__img { opacity: 0; }
+        .pdp-main-image:hover .pdp-main-image__zoom { opacity: 1; }
+        
+        .pdp-thumbnails { display: flex; gap: var(--space-3); flex-wrap: wrap; justify-content: center; }
+        .pdp-thumb { 
+          width: 80px; height: 100px; border-radius: var(--radius-sm); border: 2px solid transparent; 
+          overflow: hidden; transition: all var(--transition-fast); background: #111; padding: 4px; 
+        }
+        .pdp-thumb img { width: 100%; height: 100%; object-fit: contain; }
         .pdp-thumb.active, .pdp-thumb:hover { border-color: var(--color-gold); }
+        
         .pdp-brand { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-gold); margin-bottom: var(--space-2); }
         .pdp-name { font-family: var(--font-serif); font-size: 2.2rem; color: var(--color-ivory); margin-bottom: var(--space-4); line-height: 1.2; }
         .pdp-rating { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); }

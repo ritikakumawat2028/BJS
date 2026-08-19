@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { productsApi, adminApi, userApi, bannersApi } from "../services/api";
+import { productsApi, adminApi, userApi, bannersApi, campaignsApi } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
 import { Product, Banner, Campaign, StoreSettings, Review } from "../types";
 import toast from "react-hot-toast";
@@ -11,19 +11,7 @@ import toast from "react-hot-toast";
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } };
 const stagger = { visible: { transition: { staggerChildren: 0.1 } } };
 
-const DUMMY_BESTSELLERS: Product[] = [
-  { id: "dummy-1", name: "Royal Oud Essence", slug: "royal-oud-essence", description: "", price: 1499, comparePrice: 2141, category: { name: "Fragrance", slug: "fragrance" }, images: [{ id: "i1", url: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isBestseller: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.8, reviewCount: 45 } as unknown as Product,
-  { id: "dummy-2", name: "Velvet Rose Noir", slug: "velvet-rose-noir", description: "", price: 1999, comparePrice: 2665, category: { name: "Fragrance", slug: "fragrance" }, images: [{ id: "i2", url: "https://images.unsplash.com/photo-1629198688000-71f23e745b6e?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isBestseller: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.7, reviewCount: 32 } as unknown as Product,
-  { id: "dummy-3", name: "Sandalwood Gold", slug: "sandalwood-gold", description: "", price: 1299, comparePrice: 1665, category: { name: "Fragrance", slug: "fragrance" }, images: [{ id: "i3", url: "https://images.unsplash.com/photo-1541643600914-78b084683702?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isBestseller: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.6, reviewCount: 28 } as unknown as Product,
-  { id: "dummy-4", name: "Argan Gold Shampoo", slug: "argan-gold-shampoo", description: "", price: 349, comparePrice: 485, category: { name: "Hair Care", slug: "hair-care" }, images: [{ id: "i4", url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isBestseller: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.5, reviewCount: 89 } as unknown as Product,
-];
 
-const DUMMY_NEW_ARRIVALS: Product[] = [
-  { id: "na-1", name: "Sandalwood Gold", slug: "sandalwood-gold", description: "", price: 1299, comparePrice: 1699, category: { name: "Fragrance", slug: "fragrance" }, images: [{ id: "i1", url: "https://images.unsplash.com/photo-1541643600914-78b084683702?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isNewArrival: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.5, reviewCount: 12 } as unknown as Product,
-  { id: "na-2", name: "Rose Glow Toner", slug: "rose-glow-toner", description: "", price: 549, comparePrice: 749, category: { name: "Skin Care", slug: "skin-care" }, images: [{ id: "i2", url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isNewArrival: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.3, reviewCount: 8 } as unknown as Product,
-  { id: "na-3", name: "Exfoliating Body Scrub", slug: "exfoliating-body-scrub", description: "", price: 649, comparePrice: 849, category: { name: "Body Care", slug: "body-care" }, images: [{ id: "i3", url: "https://images.unsplash.com/photo-1556228578-6a0b1fcef94a?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isNewArrival: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.6, reviewCount: 21 } as unknown as Product,
-  { id: "na-4", name: "Natural Aloe Gel", slug: "natural-aloe-gel", description: "", price: 349, comparePrice: 449, category: { name: "Natural Care", slug: "natural-care" }, images: [{ id: "i4", url: "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400", altText: "", isThumbnail: true, sortOrder: 0 }], isNewArrival: true, inventory: { quantity: 10, lowStockThreshold: 3 }, avgRating: 4.7, reviewCount: 34 } as unknown as Product,
-];
 
 const FALLBACK_TESTIMONIALS = [
   { id: "f1", rating: 5, comment: "The Royal Oud Essence is absolutely divine. I receive compliments every time I wear it. The scent lasts all day and the packaging is so luxurious. This is my third purchase and I am officially obsessed.", user: { firstName: "Priya", lastName: "Sharma", avatar: "https://randomuser.me/api/portraits/women/44.jpg" }, productName: "Royal Oud Essence", location: "Mumbai, India" },
@@ -47,13 +35,13 @@ const HomePage: React.FC = () => {
   const { data: bestsellersData } = useQuery({ queryKey: ["bestsellers"], queryFn: () => productsApi.getBestsellers() });
   const { data: newArrivalsData } = useQuery({ queryKey: ["new-arrivals"], queryFn: () => productsApi.getNewArrivals() });
   const { data: bannersData } = useQuery({ queryKey: ["active-banners"], queryFn: () => bannersApi.getActive() });
-  const { data: campaignsData } = useQuery({ queryKey: ["campaigns"], queryFn: () => adminApi.getCampaigns() });
+  const { data: campaignsData } = useQuery({ queryKey: ["campaigns"], queryFn: () => campaignsApi.getActive() });
   const { data: settingsData } = useQuery({ queryKey: ["store-settings"], queryFn: () => adminApi.getSettings() });
   const { data: reviewsData } = useQuery({ queryKey: ["approved-reviews"], queryFn: () => adminApi.getReviews({ isApproved: true, limit: 10 }) });
 
   const featured: Product[] = featuredData?.data?.data || [];
-  const bestsellers: Product[] = (bestsellersData?.data?.data?.length ?? 0) > 0 ? bestsellersData!.data.data : DUMMY_BESTSELLERS;
-  const newArrivals: Product[] = (newArrivalsData?.data?.data?.length ?? 0) > 0 ? newArrivalsData!.data.data : DUMMY_NEW_ARRIVALS;
+  const bestsellers: Product[] = bestsellersData?.data?.data || [];
+  const newArrivals: Product[] = newArrivalsData?.data?.data || [];
   const allBanners: Banner[] = bannersData?.data?.data || [];
   const heroBanners = allBanners.filter(b => b.placement === "HERO");
   const promoBanners = allBanners.filter(b => b.placement === "PROMO");
@@ -134,6 +122,22 @@ const HomePage: React.FC = () => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Helmet>
       <main>
+        {/* ACTIVE CAMPAIGN BANNER */}
+        {campaigns.length > 0 && campaigns[0] && (
+          <section className="hp-campaign-banner" style={{ 
+            backgroundImage: `url('${window.innerWidth < 768 ? campaigns[0].mobileBanner || campaigns[0].desktopBanner : campaigns[0].desktopBanner}')`,
+            backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '300px', display: 'flex', alignItems: 'center', position: 'relative' 
+          }}>
+            <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)' }} />
+            <div className="container" style={{ position: 'relative', zIndex: 1, textAlign: 'center', color: '#fff', padding: '40px 20px' }}>
+              <h2 style={{ fontSize: '3rem', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '2px' }}>{campaigns[0].heading || campaigns[0].name}</h2>
+              {campaigns[0].subtitle && <p style={{ fontSize: '1.2rem', marginBottom: '20px' }}>{campaigns[0].subtitle}</p>}
+              {campaigns[0].discount && <p style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '20px' }}>Flat {campaigns[0].discount}% OFF</p>}
+              <Link to={campaigns[0].ctaUrl || "/shop"} className="btn btn-primary btn-lg">{campaigns[0].ctaText || "SHOP NOW"}</Link>
+            </div>
+          </section>
+        )}
+        
         {/* HERO */}
         <section className="hp-hero" style={{ backgroundImage: `url('${heroImg}')` }}>
           <div className="hp-hero__overlay" />
@@ -208,19 +212,21 @@ const HomePage: React.FC = () => {
         </section>
 
         {/* BESTSELLERS */}
-        <section className="section">
-          <div className="container">
-            <motion.div className="hp-section-head hp-section-head--row" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-              <div><p className="hp-label">MOST LOVED</p><h2 className="hp-title" style={{ marginBottom: 0 }}>Bestsellers</h2></div>
-              <Link to="/shop?bestseller=true" className="hp-view-all">View All &rarr;</Link>
-            </motion.div>
-            <motion.div key={bestsellers.length ? bestsellers[0].id : 'empty'} className="hp-products-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-              {bestsellers.slice(0, 4).map(product => (
-                <motion.div key={product.id} variants={fadeUp}><ProductCard product={product} /></motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
+        {bestsellers.length > 0 && (
+          <section className="section">
+            <div className="container">
+              <motion.div className="hp-section-head hp-section-head--row" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                <div><p className="hp-label">MOST LOVED</p><h2 className="hp-title" style={{ marginBottom: 0 }}>Bestsellers</h2></div>
+                <Link to="/shop?bestseller=true" className="hp-view-all">View All &rarr;</Link>
+              </motion.div>
+              <motion.div key={bestsellers.length ? bestsellers[0].id : 'empty'} className="hp-products-grid" variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                {bestsellers.slice(0, 4).map(product => (
+                  <motion.div key={product.id} variants={fadeUp}><ProductCard product={product} /></motion.div>
+                ))}
+              </motion.div>
+            </div>
+          </section>
+        )}
 
         {/* BANNERS */}
         {promoBanners && promoBanners.length > 0 && (
