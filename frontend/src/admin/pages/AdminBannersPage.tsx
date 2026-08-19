@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { bannersApi, uploadApi } from '../../services/api';
+import { bannersApi, adminApi } from '../../services/api';
 import { Banner } from '../../types';
 import toast from 'react-hot-toast';
 
@@ -70,7 +70,7 @@ const AdminBannersPage: React.FC = () => {
     const form = new FormData();
     form.append('image', file);
     try {
-      const { data } = await uploadApi.uploadImage(form);
+      const { data } = await adminApi.uploadImage(form);
       setFormData(prev => ({ ...prev, [field]: data.url }));
       toast.success('Image uploaded');
     } catch {

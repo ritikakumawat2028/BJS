@@ -19,6 +19,10 @@ const AdminOrdersPage: React.FC = () => {
   const [minAmount, setMinAmount] = useState('');
   const [maxAmount, setMaxAmount] = useState('');
 
+  React.useEffect(() => {
+    setPage(1);
+  }, [status, paymentStatus, search, startDate, endDate, minAmount, maxAmount]);
+
   const { data, isLoading } = useQuery({ 
     queryKey: ['admin-orders', page, status, paymentStatus, search, startDate, endDate, minAmount, maxAmount], 
     queryFn: () => ordersApi.adminGetAll({ 

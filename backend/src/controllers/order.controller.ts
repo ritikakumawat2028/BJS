@@ -433,7 +433,11 @@ export const adminGetOrders = asyncHandler(async (req: AuthRequest, res: Respons
   if (startDate || endDate) {
     where.createdAt = {};
     if (startDate) where.createdAt.gte = new Date(startDate);
-    if (endDate) where.createdAt.lte = new Date(endDate);
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setUTCHours(23, 59, 59, 999);
+      where.createdAt.lte = end;
+    }
   }
   if (minAmount || maxAmount) {
     where.total = {};
