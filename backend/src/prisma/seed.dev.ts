@@ -1,4 +1,4 @@
-﻿import 'dotenv/config';
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 
 // ============================================================
@@ -148,21 +148,31 @@ async function main() {
     },
   ];
 
-  let created = 0;
+  let createdOrUpdated = 0;
   for (const p of sampleProducts) {
     const { initialStock, ...productData } = p;
-    const existing = await prisma.product.findUnique({ where: { slug: productData.slug } });
-    if (!existing) {
-      await prisma.product.create({
-        data: {
-          ...productData,
-          inventory: { create: { quantity: initialStock, lowStockThreshold: 5 } },
-        },
-      });
-      created++;
-    }
+    
+    // Default demo image
+    const demoImageUrl = 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800';
+
+    await prisma.product.upsert({
+      where: { slug: productData.slug },
+      update: {
+        images: {
+          create: { url: demoImageUrl, isThumbnail: true, altText: productData.name }
+        }
+      },
+      create: {
+        ...productData,
+        inventory: { create: { quantity: initialStock, lowStockThreshold: 5 } },
+        images: {
+          create: { url: demoImageUrl, isThumbnail: true, altText: productData.name }
+        }
+      },
+    });
+    createdOrUpdated++;
   }
-  console.log(`✅ ${created} demo product(s) created`);
+  console.log(`✅ ${createdOrUpdated} demo product(s) created or updated with images`);
 
   // ===== DEMO BANNER =====
   const demoBanner = await prisma.banner.findFirst({ where: { title: 'Luxury, Naturally Crafted. [DEMO]' } });
