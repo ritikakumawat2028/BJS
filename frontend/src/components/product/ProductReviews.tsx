@@ -91,7 +91,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, reviews }) =
         style={{ color: i < count ? 'var(--color-gold)' : 'var(--color-border)', fontSize: '1.2rem', cursor: interactive ? 'pointer' : 'default' }} 
         onClick={() => interactive && setRating(i + 1)}
       >
-        ???
+        ★
       </span>
     ));
 
@@ -149,7 +149,7 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, reviews }) =
                   <p style={{ fontWeight: 500, color: 'var(--color-ivory)', marginBottom: '4px' }}>
                     {review.user?.firstName} {review.user?.lastName}
                   </p>
-                  {review.isVerifiedBuyer && <span style={{ fontSize: '0.75rem', color: 'var(--color-gold)' }}>??? Verified Purchase</span>}
+                  {review.isVerifiedBuyer && <span style={{ fontSize: '0.75rem', color: 'var(--color-gold)' }}>✔ Verified Purchase</span>}
                 </div>
                 <div>{renderStars(review.rating, false)}</div>
               </div>

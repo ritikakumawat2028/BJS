@@ -34,6 +34,16 @@ const ProductDetailPage: React.FC = () => {
 
   const product = data?.data?.data;
 
+  const { data: bestsellersData } = useQuery({
+    queryKey: ['products', 'bestsellers'],
+    queryFn: productsApi.getBestsellers,
+    enabled: !!product && (!product.related || product.related.length === 0),
+  });
+
+  const relatedProducts = (product?.related && product.related.length > 0) 
+    ? product.related 
+    : (bestsellersData?.data?.data || []).slice(0, 4);
+
   if (isLoading) {
     return (
       <div style={{ paddingTop: 'var(--nav-height)' }}>
@@ -98,13 +108,13 @@ const ProductDetailPage: React.FC = () => {
   const tabs = [
     { key: 'description', label: 'Description' },
     { key: 'ingredients', label: 'Ingredients' },
-    { key: 'how-to-use', label: 'How to Use' },
-    { key: 'reviews', label: `Reviews (${product.reviewCount})` },
+    { key: 'benefits', label: 'Benefits' },
+    { key: 'how-to-use', label: 'How to Use' }
   ];
 
   const renderStars = (rating: number) =>
     Array.from({ length: 5 }, (_, i) => (
-      <span key={i} style={{ color: i < Math.floor(rating) ? 'var(--color-gold)' : 'var(--color-border)', fontSize: '1.1rem' }}>???</span>
+      <span key={i} style={{ color: i < Math.floor(rating) ? 'var(--color-gold)' : 'var(--color-border)', fontSize: '1.1rem' }}>★</span>
     ));
 
   // JSON-LD Schema
@@ -163,17 +173,7 @@ const ProductDetailPage: React.FC = () => {
           <div className="pdp-grid">
             {/* Image Gallery */}
             <div className="pdp-gallery">
-              <div 
-                className="pdp-main-image"
-                onMouseMove={(e) => {
-                  const el = e.currentTarget;
-                  const { left, top, width, height } = el.getBoundingClientRect();
-                  const x = ((e.clientX - left) / width) * 100;
-                  const y = ((e.clientY - top) / height) * 100;
-                  el.style.setProperty('--x', `${x}%`);
-                  el.style.setProperty('--y', `${y}%`);
-                }}
-              >
+              <div className="pdp-main-image">
                 <motion.img
                   key={selectedImage}
                   src={optimizeImage(product.images[selectedImage]?.url) || 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=800'}
@@ -182,10 +182,6 @@ const ProductDetailPage: React.FC = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
                   className="pdp-main-image__img"
-                />
-                <div 
-                  className="pdp-main-image__zoom"
-                  style={{ backgroundImage: `url('${optimizeImage(product.images[selectedImage]?.url) || 'https://images.unsplash.com/photo-1541643600914-78b084683702?w=1600'}')` }}
                 />
                 {discount > 0 && <span className="product-card__badge badge-sale">{discount}% OFF</span>}
               </div>
@@ -217,11 +213,11 @@ const ProductDetailPage: React.FC = () => {
 
               {/* Price */}
               <div className="pdp-price">
-                <span className="price-current">???{Number(currentPrice).toLocaleString('en-IN')}</span>
+                <span className="price-current">₹{Number(currentPrice).toLocaleString('en-IN')}</span>
                 {currentComparePrice && (
-                  <span className="price-original">???{Number(currentComparePrice).toLocaleString('en-IN')}</span>
+                  <span className="price-original">₹{Number(currentComparePrice).toLocaleString('en-IN')}</span>
                 )}
-                {discount > 0 && <span className="price-discount">{discount}% off</span>}
+                {discount > 0 && <span className="price-discount">Save {discount}%</span>}
               </div>
 
               {/* Short description */}
@@ -243,7 +239,7 @@ const ProductDetailPage: React.FC = () => {
                       >
                         {variant.name}
                         {variant.price !== product.price && (
-                          <span className="pdp-variant-price"> ??? ???{Number(variant.price).toLocaleString('en-IN')}</span>
+                          <span className="pdp-variant-price"> (₹{Number(variant.price).toLocaleString('en-IN')})</span>
                         )}
                       </button>
                     ))}
@@ -266,35 +262,31 @@ const ProductDetailPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Quantity */}
-              {inStock && (
-                <div className="pdp-quantity">
-                  <p className="form-label">Quantity</p>
+              {/* Actions Row */}
+              <div className="pdp-actions-row">
+                {inStock && (
                   <div className="qty-selector">
-                    <button className="qty-btn" onClick={() => setQuantity((q) => Math.max(1, q - 1))}>???</button>
+                    <button className="qty-btn" onClick={() => setQuantity((q) => Math.max(1, q - 1))}>−</button>
                     <span className="qty-value">{quantity}</span>
                     <button className="qty-btn" onClick={() => setQuantity((q) => Math.min(stock, q + 1))}>+</button>
                   </div>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="pdp-actions">
+                )}
                 <button
                   className={`btn btn-primary btn-lg ${adding ? 'btn-loading' : ''}`}
                   onClick={handleAddToCart}
                   disabled={!inStock || adding}
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
                   {!adding && (inStock ? 'Add to Cart' : 'Out of Stock')}
-                </button>
-                <button className="btn btn-outline-gold btn-lg" onClick={handleBuyNow} disabled={!inStock} style={{ flex: 1 }}>
-                  Buy Now
                 </button>
                 <button
                   className={`btn btn-icon ${isWishlisted(product.id) ? 'btn-outline-gold' : 'btn-outline'}`}
                   onClick={handleWishlist}
                   aria-label="Wishlist"
+                  style={{ width: '48px', height: '48px', flexShrink: 0 }}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill={isWishlisted(product.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.5">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -303,10 +295,32 @@ const ProductDetailPage: React.FC = () => {
               </div>
 
               {/* Trust badges */}
-              <div className="pdp-trust">
-                {['Free shipping above ???999', 'Secure payment', '7-day returns'].map((t) => (
-                  <span key={t} className="pdp-trust-badge">??? {t}</span>
-                ))}
+              <hr className="divider" style={{ margin: '32px 0 24px' }} />
+              <div className="pdp-trust-grid">
+                <div className="pdp-trust-item">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="1.5">
+                    <path d="M11 20A7 7 0 0 1 14 6a7 7 0 0 1 7 7c0 3.866-3.134 7-7 7h-3v-7"></path>
+                  </svg>
+                  <span>100% Natural</span>
+                </div>
+                <div className="pdp-trust-item">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="1.5">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path>
+                  </svg>
+                  <span>Cruelty Free</span>
+                </div>
+                <div className="pdp-trust-item">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="1.5">
+                    <rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle>
+                  </svg>
+                  <span>Free Shipping</span>
+                </div>
+                <div className="pdp-trust-item">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="1.5">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>
+                  </svg>
+                  <span>Easy Returns</span>
+                </div>
               </div>
             </div>
           </div>
@@ -334,22 +348,24 @@ const ProductDetailPage: React.FC = () => {
                 product.howToUse ? <div style={{ color: 'var(--color-text-secondary)', lineHeight: 1.8 }}>{product.howToUse}</div>
                 : <p style={{ color: 'var(--color-text-muted)' }}>Usage instructions not available.</p>
               )}
-              {activeTab === 'reviews' && (
-                <ProductReviews productId={product.id} reviews={product.reviews || []} />
+              {activeTab === 'benefits' && (
+                product.benefits ? <div style={{ color: 'var(--color-text-secondary)', lineHeight: 1.8 }}>{product.benefits}</div>
+                : <p style={{ color: 'var(--color-text-muted)' }}>Benefits information not available.</p>
               )}
             </div>
           </div>
 
+          {/* Customer Reviews Section */}
+          <div style={{ marginTop: '80px', borderTop: '1px solid var(--color-border)', paddingTop: '60px' }}>
+             <ProductReviews productId={product.id} reviews={product.reviews || []} />
+          </div>
+
           {/* Related Products */}
-          {product.related && product.related.length > 0 && (
-            <div style={{ marginTop: '80px' }}>
-              <div className="section-header">
-                <p className="section-subtitle">You may also like</p>
-                <h2 className="section-title">Related Products</h2>
-                <div className="section-divider" />
-              </div>
+          {relatedProducts.length > 0 && (
+            <div style={{ marginTop: '60px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '40px' }}>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: 'var(--color-ivory)', marginBottom: '32px' }}>You May Also Like</h3>
               <div className="products-grid">
-                {product.related.slice(0, 4).map((p: any) => <ProductCard key={p.id} product={p} />)}
+                {relatedProducts.slice(0, 4).map((p: any) => <ProductCard key={p.id} product={p} />)}
               </div>
             </div>
           )}
@@ -357,20 +373,13 @@ const ProductDetailPage: React.FC = () => {
       </div>
 
       <style>{`
-        .pdp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-12); margin-bottom: var(--space-10); }
+        .pdp-grid { display: grid; grid-template-columns: 4.5fr 7fr; gap: var(--space-12); margin-bottom: var(--space-10); align-items: start; }
         .pdp-gallery { display: flex; flex-direction: column; gap: var(--space-4); }
         .pdp-main-image { 
-          position: relative; aspect-ratio: 4/5; overflow: hidden; border-radius: var(--radius-md); 
-          background: #0a0a0a; border: 1px solid var(--color-border); cursor: crosshair;
+          position: relative; aspect-ratio: 1 / 1; overflow: hidden; border-radius: var(--radius-md); 
+          background: #0a0a0a; border: 1px solid var(--color-border);
         }
         .pdp-main-image__img { width: 100%; height: 100%; object-fit: contain; padding: 20px; transition: opacity 0.3s; }
-        .pdp-main-image__zoom {
-          position: absolute; inset: 0; opacity: 0; pointer-events: none;
-          background-position: var(--x, 50%) var(--y, 50%); background-size: 250%; background-repeat: no-repeat;
-          transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1); z-index: 10;
-        }
-        .pdp-main-image:hover .pdp-main-image__img { opacity: 0; }
-        .pdp-main-image:hover .pdp-main-image__zoom { opacity: 1; }
         
         .pdp-thumbnails { display: flex; gap: var(--space-3); flex-wrap: wrap; justify-content: center; }
         .pdp-thumb { 
@@ -406,10 +415,12 @@ const ProductDetailPage: React.FC = () => {
         .pdp-stock-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .pdp-stock-dot--in { background: var(--color-success); }
         .pdp-stock-dot--out { background: var(--color-error); }
-        .pdp-quantity { margin-bottom: var(--space-6); }
-        .pdp-actions { display: flex; gap: var(--space-3); margin-bottom: var(--space-5); flex-wrap: wrap; }
-        .pdp-trust { display: flex; flex-wrap: wrap; gap: var(--space-3); }
-        .pdp-trust-badge { font-size: 0.75rem; color: var(--color-text-muted); }
+        .pdp-actions-row { display: flex; gap: var(--space-4); margin-bottom: var(--space-5); align-items: center; }
+        .price-discount { font-size: 0.75rem; background: #e53935; color: white; padding: 2px 8px; border-radius: 12px; font-weight: 500; }
+        .price-original { text-decoration: line-through; opacity: 0.6; }
+        .pdp-trust-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+        .pdp-trust-item { display: flex; align-items: center; gap: var(--space-3); font-size: 0.85rem; color: var(--color-text-secondary); }
+        .pdp-trust-item svg { flex-shrink: 0; }
         .pdp-tabs { margin-top: var(--space-10); border-top: 1px solid var(--color-border); }
         .pdp-tab-list { display: flex; border-bottom: 1px solid var(--color-border); margin-bottom: var(--space-8); }
         .pdp-tab {
