@@ -99,7 +99,7 @@ const RegisterPage: React.FC = () => {
 
           {step === 1 ? (
             <form onSubmit={handleSendOtp} className="auth-form">
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="register-name-grid">
                 <div className="form-group">
                   <label className="form-label">First Name</label>
                   <input type="text" name="firstName" className={`form-input ${errors.firstName ? 'error' : ''}`} placeholder="First name" value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} />
@@ -173,7 +173,11 @@ const RegisterPage: React.FC = () => {
         .auth-subtitle { font-size: 0.875rem; color: var(--color-text-muted); }
         .auth-form { display: flex; flex-direction: column; gap: var(--space-4); margin-bottom: var(--space-6); }
         .auth-footer { text-align: center; font-size: 0.875rem; color: var(--color-text-muted); }
-        @media (max-width: 480px) { .auth-card { padding: var(--space-6); } }
+        .register-name-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 480px) { 
+          .auth-card { padding: var(--space-6); } 
+          .register-name-grid { grid-template-columns: 1fr; }
+        }
       `}</style>
     </>
   );

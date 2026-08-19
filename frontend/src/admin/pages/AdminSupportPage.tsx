@@ -38,8 +38,8 @@ const AdminSupportPage: React.FC = () => {
       ) : isError ? (
         <div style={{ textAlign: 'center', padding: '40px', color: 'red' }}>Failed to load tickets.</div>
       ) : (
-        <div className="card" style={{ overflowX: 'auto' }}>
-          <table className="admin-table">
+        <div className="table-wrapper">
+          <table className="table">
             <thead>
               <tr>
                 <th>Date</th>

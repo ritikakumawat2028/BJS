@@ -66,11 +66,17 @@ const Navbar: React.FC = () => {
   };
 
   const navLinks = [
-    { label: 'Shop', to: '/shop' },
-    { label: 'Fragrance', to: '/shop?category=fragrance' },
-    { label: 'Hair Care', to: '/shop?category=hair-care' },
-    { label: 'Skin Care', to: '/shop?category=skin-care' },
-    { label: 'Natural Care', to: '/shop?category=natural-care' },
+    { label: 'Home', to: '/' },
+    { label: 'Categories', to: '#', children: [
+        { label: 'Fragrance', to: '/shop?category=fragrance' },
+        { label: 'Hair Care', to: '/shop?category=hair-care' },
+        { label: 'Skin Care', to: '/shop?category=skin-care' },
+        { label: 'Natural Care', to: '/shop?category=natural-care' }
+      ]
+    },
+    { label: 'About', to: '/about' },
+    { label: 'Contact', to: '/contact' },
+    { label: 'Shop', to: '/shop' }
   ];
 
   return (
@@ -87,7 +93,7 @@ const Navbar: React.FC = () => {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="navbar__logo" style={{ marginLeft: '64px' }}>
+          <Link to="/" className="navbar__logo">
             <img src="/logo.png" alt="BJ'S Nature Care Logo" style={{ height: '60px', width: 'auto', objectFit: 'contain' }} />
           </Link>
 
@@ -130,7 +136,7 @@ const Navbar: React.FC = () => {
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
-              {isAuthenticated && wishlistItems.length > 0 && <span className="navbar__badge">{wishlistItems.length}</span>}
+              {isAuthenticated && wishlistItems.length > 0 ? <span className="navbar__badge">{wishlistItems.length}</span> : null}
             </Link>
 
             <Link to={isAuthenticated ? '/account' : '/login'} className="navbar__action-btn" aria-label="Account">
@@ -145,7 +151,7 @@ const Navbar: React.FC = () => {
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
               </svg>
-              {itemCount() > 0 && <span className="navbar__badge">{itemCount()}</span>}
+              {itemCount() > 0 ? <span className="navbar__badge">{itemCount()}</span> : null}
             </button>
 
             {isAuthenticated && user?.role === 'ADMIN' && (
@@ -247,22 +253,22 @@ const Navbar: React.FC = () => {
             <div className="mobile-drawer__links-container">
               <div className="mobile-drawer__links">
                 {navLinks.map((link: any) => (
-                  <Link key={link.label} to={link.to} className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>
-                    {link.label}
-                    <span className="mobile-drawer__link-arrow">›</span>
-                  </Link>
+                  <React.Fragment key={link.label}>
+                    <Link to={link.to !== '#' ? link.to : '/shop'} className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>
+                      {link.label}
+                      <span className="mobile-drawer__link-arrow">›</span>
+                    </Link>
+                    {link.children && (
+                      <div className="mobile-drawer__sublinks">
+                        {link.children.map((child: any) => (
+                          <Link key={child.label} to={child.to} className="mobile-drawer__sublink" onClick={() => setMenuOpen(false)}>
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </React.Fragment>
                 ))}
-                
-                <hr className="mobile-drawer__divider" />
-                
-                <Link to="/about" className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>
-                  About Us
-                  <span className="mobile-drawer__link-arrow">›</span>
-                </Link>
-                <Link to="/contact" className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>
-                  Contact
-                  <span className="mobile-drawer__link-arrow">›</span>
-                </Link>
               </div>
 
               <div className="mobile-drawer__bottom">
@@ -314,18 +320,26 @@ const Navbar: React.FC = () => {
         .navbar__inner {
           max-width: var(--container-max);
           margin: 0 auto;
-          padding: 0 var(--space-6);
+          padding: 0 clamp(16px, 4vw, 32px);
           height: 100%;
           display: flex;
           align-items: center;
-          gap: var(--space-8);
+          justify-content: space-between;
         }
         .navbar__logo {
           display: flex;
           align-items: center;
-          gap: 12px;
           text-decoration: none;
           flex-shrink: 0;
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+        @media (min-width: 992px) {
+          .navbar__logo {
+            position: static;
+            transform: none;
+          }
         }
         .navbar__logo-circle {
           width: 38px;
@@ -542,6 +556,19 @@ const Navbar: React.FC = () => {
         }
         .mobile-drawer__link:hover { background: rgba(255,255,255,0.05); }
         .mobile-drawer__link-arrow { font-size: 1.25rem; color: rgba(255,255,255,0.3); font-weight: 300; }
+        .mobile-drawer__sublinks {
+          display: flex; flex-direction: column;
+          background: rgba(255,255,255,0.02);
+          border-left: 2px solid var(--color-gold);
+          margin-left: 24px;
+        }
+        .mobile-drawer__sublink {
+          padding: 12px 24px;
+          color: var(--color-text-secondary);
+          font-size: 0.95rem;
+          text-decoration: none;
+        }
+        .mobile-drawer__sublink:hover { color: var(--color-gold); }
         .mobile-drawer__divider { margin: 12px 24px; border: none; border-top: 1px solid rgba(255, 255, 255, 0.2); }
         .mobile-drawer__bottom { padding: 0 0 24px 0; }
         .mobile-drawer__actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px 24px; }

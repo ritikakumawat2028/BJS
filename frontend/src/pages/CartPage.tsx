@@ -307,9 +307,14 @@ const CartPage: React.FC = () => {
           .cart-page-grid { grid-template-columns: 1fr; } 
           .cart-summary-card { position: static; } 
         }
+        @media (max-width: 768px) {
+          .cart-page-grid { gap: 32px; }
+        }
         @media (max-width: 480px) {
-          .cart-card { flex-direction: column; }
+          .cart-card { flex-direction: column; padding: 12px; }
           .cart-card__img { width: 100%; height: auto; aspect-ratio: 1; }
+          .cart-card__bottom { margin-top: 16px; }
+          .summary-row { font-size: 0.85rem; }
         }
       `}</style>
     </>

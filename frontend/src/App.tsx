@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast';
 
 // Stores
 import { useAuthStore } from './store/auth.store';
+import { useWishlistStore } from './store/wishlist.store';
 
 // Layouts
 import MainLayout from './components/layout/MainLayout';
@@ -78,9 +79,14 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; requireAdmin?: boole
 const App: React.FC = () => {
   const { isAuthenticated, fetchMe } = useAuthStore();
 
+  const { fetchWishlist } = useWishlistStore();
+
   useEffect(() => {
-    if (isAuthenticated) fetchMe();
-  }, []);
+    if (isAuthenticated) {
+      fetchMe();
+      fetchWishlist();
+    }
+  }, [isAuthenticated]);
 
   return (
     <HelmetProvider>

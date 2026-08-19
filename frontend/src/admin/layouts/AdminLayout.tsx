@@ -156,6 +156,14 @@ const AdminLayout: React.FC = () => {
 
   return (
     <div className="admin-layout">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="admin-sidebar-overlay" 
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="admin-sidebar__logo">
@@ -192,7 +200,7 @@ const AdminLayout: React.FC = () => {
       {/* Main content */}
       <div className="admin-content">
         <header className="admin-topbar">
-          <button className="admin-hamburger" onClick={() => setSidebarOpen(!sidebarOpen)} style={{ color: 'var(--color-text-muted)', display: 'none' }}>
+          <button className="admin-hamburger" onClick={() => setSidebarOpen(!sidebarOpen)} style={{ color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
@@ -251,11 +259,13 @@ const AdminLayout: React.FC = () => {
           font-size: 0.8rem; font-weight: 600; color: var(--color-gold);
           flex-shrink: 0;
         }
+        .admin-sidebar-overlay { display: none; }
         .admin-hamburger { display: none; }
         @media (max-width: 768px) {
-          .admin-sidebar { position: fixed; top: 0; left: 0; height: 100%; z-index: var(--z-modal); transform: translateX(-100%); transition: transform var(--transition-base); }
+          .admin-sidebar { position: fixed; top: 0; left: 0; height: 100%; z-index: var(--z-modal); transform: translateX(-100%); transition: transform var(--transition-base); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
           .admin-sidebar.open { transform: translateX(0); }
-          .admin-sidebar__close { display: flex; }
+          .admin-sidebar-overlay { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: calc(var(--z-modal) - 1); backdrop-filter: blur(4px); }
+          .admin-sidebar__close { display: flex; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
           .admin-content { margin-left: 0; }
           .admin-hamburger { display: flex !important; }
         }

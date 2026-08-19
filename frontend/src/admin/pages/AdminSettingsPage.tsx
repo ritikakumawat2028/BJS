@@ -123,7 +123,7 @@ const AdminSettingsPage: React.FC = () => {
                 <label className="form-label">Working Hours</label>
                 <input type="text" className="form-input" placeholder="e.g. Mon-Fri, 9AM to 6PM" value={formData.contact_hours || ''} onChange={e => handleChange('contact_hours', e.target.value)} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+              <div className="admin-settings-grid">
                 <div>
                   <label className="form-label">Homepage Hero Heading</label>
                   <input type="text" className="form-input" value={formData.hero_heading || ''} onChange={e => handleChange('hero_heading', e.target.value)} />
@@ -133,7 +133,7 @@ const AdminSettingsPage: React.FC = () => {
                   <input type="text" className="form-input" value={formData.hero_subheading || ''} onChange={e => handleChange('hero_subheading', e.target.value)} />
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+              <div className="admin-settings-grid">
                 <div>
                   <label className="form-label">Announcement Text</label>
                   <input type="text" className="form-input" value={formData.announcement_text || ''} onChange={e => handleChange('announcement_text', e.target.value)} />
@@ -288,7 +288,7 @@ const AdminSettingsPage: React.FC = () => {
                 <label className="form-label">Footer Description (Short brand intro)</label>
                 <textarea className="form-input" rows={4} value={formData.footer_desc || ''} onChange={e => handleChange('footer_desc', e.target.value)} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+              <div className="admin-settings-grid">
                 <div>
                   <label className="form-label">Instagram Link</label>
                   <input type="url" className="form-input" placeholder="https://instagram.com/..." value={formData.instagram || ''} onChange={e => handleChange('instagram', e.target.value)} />
@@ -330,6 +330,13 @@ const AdminSettingsPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      <style>{`
+        .admin-settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 768px) {
+          .admin-settings-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
     </>
   );
 };

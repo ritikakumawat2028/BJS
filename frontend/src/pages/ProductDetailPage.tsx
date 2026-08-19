@@ -422,7 +422,8 @@ const ProductDetailPage: React.FC = () => {
         .pdp-trust-item { display: flex; align-items: center; gap: var(--space-3); font-size: 0.85rem; color: var(--color-text-secondary); }
         .pdp-trust-item svg { flex-shrink: 0; }
         .pdp-tabs { margin-top: var(--space-10); border-top: 1px solid var(--color-border); }
-        .pdp-tab-list { display: flex; border-bottom: 1px solid var(--color-border); margin-bottom: var(--space-8); }
+        .pdp-tab-list { display: flex; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; border-bottom: 1px solid var(--color-border); margin-bottom: var(--space-8); }
+        .pdp-tab-list::-webkit-scrollbar { display: none; }
         .pdp-tab {
           padding: var(--space-4) var(--space-6);
           font-size: 0.875rem;
@@ -449,8 +450,13 @@ const ProductDetailPage: React.FC = () => {
           .products-grid { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 768px) {
-          .pdp-actions { flex-direction: column; }
-          .products-grid { grid-template-columns: repeat(2, 1fr); }
+          .pdp-actions-row { flex-wrap: wrap; }
+          .pdp-actions-row .btn-primary { order: -1; width: 100%; flex: 1 1 100%; margin-bottom: 12px; }
+          .products-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+        }
+        @media (max-width: 480px) {
+          .pdp-trust-grid { grid-template-columns: 1fr; }
+          .pdp-tab { padding: var(--space-3) var(--space-4); }
         }
       `}</style>
     </>

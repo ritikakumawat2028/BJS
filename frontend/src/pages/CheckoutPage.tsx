@@ -271,7 +271,7 @@ const CheckoutPage: React.FC = () => {
                         <div className="new-address-form">
                           <h3 style={{ fontSize: '1.2rem', color: 'var(--color-ivory)', marginBottom: '20px', fontFamily: 'var(--font-serif)' }}>Enter Address Details</h3>
                           <form onSubmit={handleSaveAddress}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                            <div className="address-form-grid-2">
                               <div>
                                 <label className="form-label">First Name *</label>
                                 <input required className="form-input" value={newAddr.firstName} onChange={(e) => setNewAddr({ ...newAddr, firstName: e.target.value })} placeholder="John" />
@@ -293,7 +293,7 @@ const CheckoutPage: React.FC = () => {
                               <label className="form-label">Address Line 2 (Optional)</label>
                               <input className="form-input" value={newAddr.line2} onChange={(e) => setNewAddr({ ...newAddr, line2: e.target.value })} placeholder="Landmark, Area" />
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+                            <div className="address-form-grid-3">
                               <div>
                                 <label className="form-label">City *</label>
                                 <input required className="form-input" value={newAddr.city} onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })} />
@@ -568,6 +568,8 @@ const CheckoutPage: React.FC = () => {
         .checkout-item__meta { font-size: 0.85rem; color: var(--color-text-muted); }
         .checkout-item__price { font-size: 1.1rem; font-weight: 600; color: var(--color-gold); }
 
+        .address-form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .address-form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
         @media (max-width: 1024px) { 
           .review-grid { grid-template-columns: 1fr; } 
         }
@@ -579,7 +581,7 @@ const CheckoutPage: React.FC = () => {
         }
         @media (max-width: 480px) {
           .address-grid { grid-template-columns: 1fr; }
-          .new-address-form form > div[style] { grid-template-columns: 1fr !important; }
+          .address-form-grid-2, .address-form-grid-3 { grid-template-columns: 1fr; }
         }
       `}</style>
     </>

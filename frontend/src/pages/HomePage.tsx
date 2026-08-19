@@ -428,7 +428,7 @@ const HomePage: React.FC = () => {
         .hp-section-head--row { display: flex; justify-content: space-between; align-items: flex-end; }
         .hp-view-all { color: var(--color-gold); font-size: .88rem; font-weight: 500; transition: opacity .2s; white-space: nowrap; }
         .hp-view-all:hover { opacity: .75; }
-        .hp-cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-5); }
+        .hp-cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-5); }
         .hp-cat { display: block; position: relative; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); transition: all var(--transition-luxury); }
         .hp-cat:hover { border-color: var(--color-border-gold); transform: translateY(-4px); box-shadow: var(--shadow-gold); }
         .hp-cat__img-wrap { position: relative; aspect-ratio: 4/3; overflow: hidden; }
@@ -440,7 +440,7 @@ const HomePage: React.FC = () => {
         .hp-cat__desc { font-size: .78rem; color: var(--color-text-secondary); margin-bottom: var(--space-3); line-height: 1.5; }
         .hp-cat__arrow { color: var(--color-gold); font-size: .82rem; font-weight: 500; transition: transform var(--transition-fast); display: inline-block; }
         .hp-cat:hover .hp-cat__arrow { transform: translateX(4px); }
-        .hp-products-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-5); }
+        .hp-products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-5); width: 100%; }
         .hp-banners { padding: var(--space-10) 0; }
         .hp-banners__grid { display: flex; flex-direction: column; gap: var(--space-7); }
         .hp-banner { position: relative; border-radius: var(--radius-md); overflow: hidden; background-size: cover; background-position: center; min-height: 380px; display: flex; align-items: center; }
@@ -501,13 +501,14 @@ const HomePage: React.FC = () => {
         .hp-newsletter__btn { font-family: 'Inter', sans-serif; background: #DAA520; color: #000000; border: none; padding: 14px 32px; font-weight: 600; font-size: 0.95rem; border-radius: 4px; cursor: pointer; transition: background .2s; white-space: nowrap; }
         .hp-newsletter__btn:hover { background: #b8922a; }
         .hp-newsletter__legal { font-family: 'Inter', sans-serif; font-size: 0.8rem; color: #555555; }
-        @media (max-width: 1200px) { .hp-trust__grid { grid-template-columns: repeat(3, 1fr); } .hp-products-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 1024px) { .hp-cats { grid-template-columns: repeat(2, 1fr); } .hp-products-grid { grid-template-columns: repeat(2, 1fr); } .hp-section-head--row { flex-wrap: wrap; gap: var(--space-3); } }
+        @media (max-width: 1200px) { .hp-trust__grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 1024px) { .hp-section-head--row { flex-wrap: wrap; gap: var(--space-3); } }
         @media (max-width: 768px) {
           .hp-hero { background-attachment: scroll; min-height: 85vh; }
+          .hp-hero__heading { font-size: 2.8rem; }
           .hp-trust__grid { grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
-          .hp-cats { grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
-          .hp-products-grid { grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+          .hp-cats { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--space-3); }
+          .hp-products-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--space-3); }
           .hp-banner { min-height: auto; padding: var(--space-8) 0; background-position: right center; }
           .hp-banner__overlay { background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 100%); }
           .hp-banner__content { padding: var(--space-5) var(--space-5); text-align: center; margin: 0 auto; display: flex; flex-direction: column; align-items: center; max-width: 100%; }
@@ -519,15 +520,15 @@ const HomePage: React.FC = () => {
           .hp-newsletter__btn { width: 100%; }
         }
         @media (max-width: 480px) {
-          .hp-hero__ctas { flex-direction: column; }
+          .hp-hero__ctas { flex-direction: column; width: 100%; }
           .hp-hero__ctas .btn { width: 100%; text-align: center; }
           .hp-cats { grid-template-columns: 1fr; }
-          .hp-products-grid { grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+          .hp-products-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-2); }
           .hp-trust__grid { grid-template-columns: repeat(2, 1fr); }
           .hp-section-head--row { flex-direction: column; align-items: flex-start; }
           .hp-banner__content { padding: var(--space-5) var(--space-4); max-width: 100%; }
         }
-        @media (max-width: 360px) { .hp-products-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 360px) { .hp-products-grid { grid-template-columns: 1fr; } .hp-trust__grid { grid-template-columns: 1fr; } }
       `}</style>
     </>
   );

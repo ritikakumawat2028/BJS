@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { userApi } from '../services/api';
+import { useWishlistStore } from '../store/wishlist.store';
 import ProductCard from '../components/product/ProductCard';
 
 const WishlistPage: React.FC = () => {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const storeItems = useWishlistStore(state => state.items);
 
   useEffect(() => {
     userApi.getWishlist().then(({ data }) => {
@@ -14,6 +17,13 @@ const WishlistPage: React.FC = () => {
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    // Keep local items in sync with store (e.g. if user removes an item)
+    if (!loading) {
+      setItems(prev => prev.filter(item => storeItems.includes(item.productId)));
+    }
+  }, [storeItems, loading]);
 
   return (
     <>
@@ -25,7 +35,7 @@ const WishlistPage: React.FC = () => {
               &larr;
             </Link>
             <h1 className="section-title" style={{ marginBottom: 0, fontSize: '2rem' }}>
-              My Wishlist <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)', fontWeight: 400 }}>({items.length} items)</span>
+              My Wishlist {items.length > 0 ? <span style={{ fontSize: '1rem', color: 'var(--color-text-muted)', fontFamily: 'var(--font-sans)', fontWeight: 400 }}>({items.length} items)</span> : null}
             </h1>
           </div>
           {loading ? (
@@ -34,7 +44,7 @@ const WishlistPage: React.FC = () => {
             </div>
           ) : items.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-state__icon">??????</div>
+              <div className="empty-state__icon"></div>
               <h2 className="empty-state__title">Your wishlist is empty</h2>
               <p className="empty-state__text">Save items you love to view them later.</p>
               <Link to="/shop" className="btn btn-outline-gold">Explore Collection</Link>

@@ -184,9 +184,21 @@ const ShopPage: React.FC = () => {
 
         <div className="container">
           <div className={`shop-layout ${filters.category ? 'shop-layout--category' : ''}`}>
+            {/* Mobile Overlay */}
+            {sidebarOpen && (
+              <div 
+                className="shop-sidebar-overlay" 
+                onClick={() => setSidebarOpen(false)}
+              />
+            )}
+
             {/* Sidebar (Hide on category pages) */}
             {!filters.category && (
               <aside className={`shop-sidebar ${sidebarOpen ? 'shop-sidebar--open' : ''}`}>
+                <div className="shop-sidebar-header">
+                  <h2 className="shop-sidebar-header-title">Filters</h2>
+                  <button className="shop-sidebar-close" onClick={() => setSidebarOpen(false)}>✕</button>
+                </div>
                 <div className="shop-sidebar__inner">
                   <div className="shop-filter-group">
                     <h3 className="shop-filter-title">CATEGORIES</h3>
@@ -410,12 +422,24 @@ const ShopPage: React.FC = () => {
         }
         @media (max-width: 768px) {
           .shop-layout { grid-template-columns: 1fr; }
-          .shop-sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: var(--color-charcoal); z-index: var(--z-modal); transform: translateX(-100%); transition: transform 0.3s; padding: var(--space-6); border-right: 1px solid var(--color-border); }
-          .shop-sidebar--open { transform: translateX(0); }
+          .shop-sidebar { position: fixed; top: 0; left: 0; width: 300px; height: 100vh; background: var(--color-charcoal); z-index: var(--z-modal); transform: translateX(-100%); transition: transform 0.3s; padding: var(--space-6); border-right: 1px solid var(--color-border); }
+          .shop-sidebar--open { transform: translateX(0); box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+          .shop-sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: calc(var(--z-modal) - 1); backdrop-filter: blur(4px); }
+          .shop-sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-6); padding-bottom: var(--space-4); border-bottom: 1px solid rgba(255,255,255,0.1); }
+          .shop-sidebar-header-title { font-family: var(--font-serif); font-size: 1.25rem; color: var(--color-gold); margin: 0; }
+          .shop-sidebar-close { background: none; border: none; color: var(--color-ivory); font-size: 1.25rem; cursor: pointer; }
           .shop-mobile-filter-wrap { display: block; margin-right: auto; }
+          .shop-mobile-filter-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; }
           .products-grid { grid-template-columns: repeat(2, 1fr); }
           .shop-layout--category .products-grid { grid-template-columns: repeat(2, 1fr); }
         }
+        @media (max-width: 480px) {
+          .shop-toolbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+          .shop-mobile-filter-wrap { margin-right: 0; width: 100%; }
+          .shop-mobile-filter-btn { width: 100%; justify-content: center; }
+          .products-grid { grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+        }
+        @media (max-width: 360px) { .products-grid { grid-template-columns: 1fr; } }
       `}</style>
     </>
   );
