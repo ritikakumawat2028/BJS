@@ -132,20 +132,24 @@ const Navbar: React.FC = () => {
               </svg>
             </button>
 
-            <Link to="/wishlist" className="navbar__action-btn navbar__action-badge-wrap" aria-label="Wishlist">
+            <Link to="/wishlist" className="navbar__action-btn navbar__action-badge-wrap navbar__hide-on-mobile" aria-label="Wishlist">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
               {isAuthenticated && wishlistItems.length > 0 ? <span className="navbar__badge">{wishlistItems.length}</span> : null}
             </Link>
 
-            <Link to={isAuthenticated ? '/account' : '/login'} className="navbar__action-btn" aria-label="Account">
+            <Link to={isAuthenticated ? '/account' : '/login'} className="navbar__action-btn navbar__hide-on-mobile" aria-label="Account">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
               </svg>
             </Link>
 
-            {isAuthenticated && <NotificationDropdown />}
+            {isAuthenticated && (
+              <div className="navbar__hide-on-mobile">
+                <NotificationDropdown />
+              </div>
+            )}
 
             <button className="navbar__action-btn navbar__action-badge-wrap" onClick={openCart} aria-label="Cart">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -595,6 +599,13 @@ const Navbar: React.FC = () => {
         @media (max-width: 768px) {
           .navbar__inner { gap: var(--space-4); }
           .navbar__admin-btn { display: none; }
+          .navbar__hide-on-mobile { display: none !important; }
+          .navbar__actions { gap: var(--space-1); }
+          .navbar__logo {
+            transform: translateX(-50%);
+            left: 50%;
+          }
+          .navbar__logo img { height: 45px !important; }
         }
       `}</style>
     </>
