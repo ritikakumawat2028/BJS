@@ -15,7 +15,7 @@ const fadeInUp = {
 
 const ContactPage: React.FC = () => {
   const { data: settings } = useStoreSettings();
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -66,12 +66,12 @@ const ContactPage: React.FC = () => {
       {/* Main Content */}
       <section className="contact-main">
         <div className="container contact-main__inner">
-          
+
           {/* Left: Form */}
           <motion.div className="contact-form-section" {...fadeInUp}>
             <h2 className="contact-heading">Send Us a Message</h2>
             <p className="contact-desc">Fill out the form below and we will get back to you within 2 hours during business hours.</p>
-            
+
             <form className="contact-form" onSubmit={handleSubmit}>
               <div className="form-group-full">
                 <label className="contact-label">Full Name <span className="text-muted">(optional)</span></label>
@@ -114,12 +114,12 @@ const ContactPage: React.FC = () => {
 
           {/* Right: Info */}
           <motion.div className="contact-info-section" {...fadeInUp} transition={{ delay: 0.2 }}>
-            
+
             <div className="contact-info-card">
               <div className="contact-info-icon"><Mail size={20} strokeWidth={1.5} /></div>
               <div className="contact-info-content">
                 <h3>Email</h3>
-                <p>support@bjsnaturalcare.com<br/>corporate@bjsnaturalcare.com</p>
+                <p>support@bjsnaturalcare.com<br />corporate@bjsnaturalcare.com</p>
                 <a href="mailto:support@bjsnaturalcare.com" className="contact-link">Send Email &rarr;</a>
               </div>
             </div>
@@ -128,7 +128,7 @@ const ContactPage: React.FC = () => {
               <div className="contact-info-icon"><Phone size={20} strokeWidth={1.5} /></div>
               <div className="contact-info-content">
                 <h3>Phone</h3>
-                <p>+91 98765 43210<br/>Mon-Sat, 10 AM - 7 PM IST</p>
+                <p>+91 9825268872<br />Mon-Sat, 10 AM - 7 PM IST</p>
                 <a href="tel:+919876543210" className="contact-link">Call Us &rarr;</a>
               </div>
             </div>
@@ -137,7 +137,7 @@ const ContactPage: React.FC = () => {
               <div className="contact-info-icon"><MapPin size={20} strokeWidth={1.5} /></div>
               <div className="contact-info-content">
                 <h3>Visit Our Store</h3>
-                <p>Select Citywalk, Saket<br/>New Delhi - 110017, India</p>
+                <p>Select Citywalk, Saket<br />New Delhi - 110017, India</p>
                 <a href="https://maps.google.com" target="_blank" rel="noreferrer" className="contact-link">Get Directions &rarr;</a>
               </div>
             </div>
@@ -178,13 +178,13 @@ const ContactPage: React.FC = () => {
 
       {/* Map Section */}
       <section className="contact-map">
-        <iframe 
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3505.4194090251756!2d77.21666711508003!3d28.52711698245973!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce1f705555555%3A0x6a5ca8a4173167f!2sSelect%20CITYWALK!5e0!3m2!1sen!2sin!4v1680000000000!5m2!1sen!2sin" 
-          width="100%" 
-          height="450" 
-          style={{ border: 0, display: 'block' }} 
-          allowFullScreen={true} 
-          loading="lazy" 
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3505.4194090251756!2d77.21666711508003!3d28.52711698245973!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce1f705555555%3A0x6a5ca8a4173167f!2sSelect%20CITYWALK!5e0!3m2!1sen!2sin!4v1680000000000!5m2!1sen!2sin"
+          width="100%"
+          height="450"
+          style={{ border: 0, display: 'block' }}
+          allowFullScreen={true}
+          loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
           title="Store Location Map"
         ></iframe>
