@@ -19,6 +19,7 @@ import promotionRoutes from './routes/promotion.routes';
 import sitemapRoutes from './routes/sitemap.routes';
 import uploadRoutes from './routes/upload.routes';
 import bannerRoutes from './routes/banner.routes';
+import campaignRoutes from './routes/campaign.routes';
 import path from 'path';
 import { errorHandler } from './middleware/error';
 import prisma from './config/prisma';
@@ -66,6 +67,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/banners', bannerRoutes);
+app.use('/api/campaigns', campaignRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/admin', adminRoutes);
 

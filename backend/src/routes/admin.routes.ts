@@ -2,7 +2,6 @@ import { Router } from 'express';
 import {
   getDashboard, adminGetCustomers, adminToggleUserStatus,
   getBanners, adminCreateBanner, adminUpdateBanner, adminDeleteBanner,
-  getActiveCampaigns, adminCreateCampaign, adminUpdateCampaign,
   adminGetCoupons, adminCreateCoupon, adminUpdateCoupon, adminDeleteCoupon,
   getReviews, updateReviewStatus, deleteReview,
   getStoreSettings, adminUpdateSettings,
@@ -40,10 +39,7 @@ router.post('/banners', authenticate, requireAdmin, adminCreateBanner);
 router.put('/banners/:id', authenticate, requireAdmin, adminUpdateBanner);
 router.delete('/banners/:id', authenticate, requireAdmin, adminDeleteBanner);
 
-// Campaigns
-router.get('/campaigns', authenticate, requireAdmin, getActiveCampaigns);
-router.post('/campaigns', authenticate, requireAdmin, adminCreateCampaign);
-router.put('/campaigns/:id', authenticate, requireAdmin, adminUpdateCampaign);
+
 
 // Coupons
 router.get('/coupons', authenticate, requireAdmin, adminGetCoupons);

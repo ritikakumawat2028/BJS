@@ -109,6 +109,15 @@ export const bannersApi = {
   delete: (id: string) => api.delete(`/banners/${id}`),
 };
 
+export const campaignsApi = {
+  getActive: () => api.get('/campaigns'),
+  getAllAdmin: () => api.get('/campaigns/admin'),
+  getById: (id: string) => api.get(`/campaigns/${id}`),
+  create: (data: any) => api.post('/campaigns', data),
+  update: (id: string, data: any) => api.put(`/campaigns/${id}`, data),
+  delete: (id: string) => api.delete(`/campaigns/${id}`),
+};
+
 // ===== ORDERS =====
 export const ordersApi = {
   create: (data: any) => api.post('/orders', data),
@@ -159,10 +168,7 @@ export const adminApi = {
   createBanner: (data: any) => api.post('/admin/banners', data),
   updateBanner: (id: string, data: any) => api.put(`/admin/banners/${id}`, data),
   deleteBanner: (id: string) => api.delete(`/admin/banners/${id}`),
-  // Campaigns
-  getCampaigns: () => api.get('/admin/campaigns'),
-  createCampaign: (data: any) => api.post('/admin/campaigns', data),
-  updateCampaign: (id: string, data: any) => api.put(`/admin/campaigns/${id}`, data),
+
   // Coupons
   getCoupons: () => api.get('/admin/coupons'),
   createCoupon: (data: any) => api.post('/admin/coupons', data),

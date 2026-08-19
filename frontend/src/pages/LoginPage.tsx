@@ -66,6 +66,7 @@ const LoginPage: React.FC = () => {
               <label className="form-label">Email Address</label>
               <input
                 type="email"
+                name="email"
                 className={`form-input ${errors.email ? 'error' : ''}`}
                 placeholder="Enter your email"
                 value={form.email}
@@ -81,6 +82,7 @@ const LoginPage: React.FC = () => {
               </div>
               <input
                 type="password"
+                name="password"
                 className={`form-input ${errors.password ? 'error' : ''}`}
                 placeholder="Enter your password"
                 value={form.password}

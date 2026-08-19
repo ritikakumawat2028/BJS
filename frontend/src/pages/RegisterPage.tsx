@@ -63,37 +63,37 @@ const RegisterPage: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div className="form-group">
                 <label className="form-label">First Name</label>
-                <input type="text" className={`form-input ${errors.firstName ? 'error' : ''}`} placeholder="First name" value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} />
+                <input type="text" name="firstName" className={`form-input ${errors.firstName ? 'error' : ''}`} placeholder="First name" value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} />
                 {errors.firstName && <p className="form-error">{errors.firstName}</p>}
               </div>
               <div className="form-group">
                 <label className="form-label">Last Name</label>
-                <input type="text" className={`form-input ${errors.lastName ? 'error' : ''}`} placeholder="Last name" value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))} />
+                <input type="text" name="lastName" className={`form-input ${errors.lastName ? 'error' : ''}`} placeholder="Last name" value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))} />
                 {errors.lastName && <p className="form-error">{errors.lastName}</p>}
               </div>
             </div>
 
             <div className="form-group">
               <label className="form-label">Email Address</label>
-              <input type="email" className={`form-input ${errors.email ? 'error' : ''}`} placeholder="Enter your email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+              <input type="email" name="email" className={`form-input ${errors.email ? 'error' : ''}`} placeholder="Enter your email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
               {errors.email && <p className="form-error">{errors.email}</p>}
             </div>
 
             <div className="form-group">
               <label className="form-label">Phone (optional)</label>
-              <input type="tel" className={`form-input ${errors.phone ? 'error' : ''}`} placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+              <input type="tel" name="phone" className={`form-input ${errors.phone ? 'error' : ''}`} placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
               {errors.phone && <p className="form-error">{errors.phone}</p>}
             </div>
 
             <div className="form-group">
               <label className="form-label">Password</label>
-              <input type="password" className={`form-input ${errors.password ? 'error' : ''}`} placeholder="Min. 8 characters" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
+              <input type="password" name="password" className={`form-input ${errors.password ? 'error' : ''}`} placeholder="Min. 8 characters" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} />
               {errors.password && <p className="form-error">{errors.password}</p>}
             </div>
 
             <div className="form-group">
               <label className="form-label">Confirm Password</label>
-              <input type="password" className={`form-input ${errors.confirmPassword ? 'error' : ''}`} placeholder="Repeat your password" value={form.confirmPassword} onChange={e => setForm(f => ({ ...f, confirmPassword: e.target.value }))} />
+              <input type="password" name="confirmPassword" className={`form-input ${errors.confirmPassword ? 'error' : ''}`} placeholder="Repeat your password" value={form.confirmPassword} onChange={e => setForm(f => ({ ...f, confirmPassword: e.target.value }))} />
               {errors.confirmPassword && <p className="form-error">{errors.confirmPassword}</p>}
             </div>
 
