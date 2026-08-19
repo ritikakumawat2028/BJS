@@ -1,4 +1,4 @@
-// BJ'S Natural Care — Prisma Schema
+// BJS Natural Care - Prisma Schema (LOCAL DEV - SQLite)
 // Production-ready luxury e-commerce database design
 
 generator client {
@@ -6,10 +6,7 @@ generator client {
 }
 
 datasource db {
-  // LOCAL DEV: sqlite  |  PRODUCTION (Render): postgresql
-  // Switch to "postgresql" before deploying to Render.
-  // On Render the DATABASE_URL is automatically a PostgreSQL connection string.
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 

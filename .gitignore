@@ -8,3 +8,6 @@ build/
 backend/dev.db
 backend/dev.db-journal
 *.log
+
+backend/src/prisma/dev.db
+backend/dev.db
