@@ -19,7 +19,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
-  const emailVerifyToken = crypto.randomBytes(32).toString('hex');
+  const emailVerifyToken = Math.floor(100000 + Math.random() * 900000).toString();
   const user = await prisma.user.create({
     data: { email, passwordHash, firstName, lastName, phone, roleId: defaultRole.id, emailVerifyToken },
     select: { id: true, email: true, firstName: true, lastName: true, role: true },
@@ -34,11 +34,15 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   });
   
   // Send Verification Email
-  const verifyUrl = `${process.env.FRONTEND_URL}/verify-email?token=${emailVerifyToken}`;
   await sendEmail({
     to: email,
     subject: "Verify your email - BJ'S Natural Care",
-    html: `<p>Click <a href="${verifyUrl}">here</a> to verify your email address.</p>`,
+    html: `
+      <h2>Welcome to BJ'S Natural Care</h2>
+      <p>Your email verification OTP is:</p>
+      <h1 style="letter-spacing: 5px; color: #C9A227;">${emailVerifyToken}</h1>
+      <p>Please enter this code to verify your account.</p>
+    `,
   });
 
   res.cookie('bjs_refresh_token', refreshToken, {
@@ -52,9 +56,9 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
-  const { token } = req.body;
-  const user = await prisma.user.findFirst({ where: { emailVerifyToken: token } });
-  if (!user) throw createError('Invalid or expired verification token', 400);
+  const { email, otp } = req.body;
+  const user = await prisma.user.findFirst({ where: { email, emailVerifyToken: otp } });
+  if (!user) throw createError('Invalid or expired OTP', 400);
 
   await prisma.user.update({
     where: { id: user.id },
@@ -62,6 +66,34 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response) => {
   });
 
   res.json({ success: true, message: 'Email verified successfully' });
+});
+
+export const resendOtp = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.body;
+  const user = await prisma.user.findUnique({ where: { email } });
+  
+  if (!user) throw createError('User not found', 404);
+  if (user.isEmailVerified) throw createError('Email is already verified', 400);
+
+  const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { emailVerifyToken: newOtp },
+  });
+
+  await sendEmail({
+    to: email,
+    subject: "Your new OTP - BJ'S Natural Care",
+    html: `
+      <h2>Verify your account</h2>
+      <p>Your new email verification OTP is:</p>
+      <h1 style="letter-spacing: 5px; color: #C9A227;">${newOtp}</h1>
+      <p>Please enter this code to verify your account.</p>
+    `,
+  });
+
+  res.json({ success: true, message: 'A new OTP has been sent to your email.' });
 });
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
