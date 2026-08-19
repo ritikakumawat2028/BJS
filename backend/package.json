@@ -12,6 +12,7 @@
     "prisma:deploy": "prisma migrate deploy --schema=src/prisma/schema.prisma",
     "prisma:studio": "prisma studio --schema=src/prisma/schema.prisma",
     "seed": "ts-node --require dotenv/config src/prisma/seed.ts",
+    "seed:dev": "ts-node --require dotenv/config src/prisma/seed.dev.ts",
     "setup": "npm run prisma:generate && npm run prisma:migrate && npm run seed"
   },
   "prisma": {
