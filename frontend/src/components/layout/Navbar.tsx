@@ -6,6 +6,7 @@ import { useWishlistStore } from '../../store/wishlist.store';
 import { productsApi } from '../../services/api';
 import { Product } from '../../types';
 import { NotificationDropdown } from './NotificationDropdown';
+import { User, Heart, ShoppingBag, Search, Menu } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -237,44 +238,61 @@ const Navbar: React.FC = () => {
         <div className="mobile-drawer-overlay" onClick={() => setMenuOpen(false)}>
           <nav className="mobile-drawer animate-fade-left" onClick={(e) => e.stopPropagation()}>
             <div className="mobile-drawer__header">
-              <img src="/logo.png" alt="BJ'S Nature Care Logo" style={{ height: '40px', width: 'auto', objectFit: 'contain' }} />
-              <button onClick={() => setMenuOpen(false)} className="mobile-drawer__close">✕</button>
+              <div className="mobile-drawer__title" style={{ display: 'flex', alignItems: 'center' }}>
+                <img src="/logo.png" alt="BJ'S Nature Care Logo" style={{ height: '40px', width: 'auto', objectFit: 'contain' }} />
+              </div>
+              <button onClick={() => setMenuOpen(false)} className="mobile-drawer__close text-gold">✕</button>
             </div>
-            <div className="mobile-drawer__links">
-              {navLinks.map((link: any) => (
-                <div key={link.label}>
-                  <Link to={link.to} className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>
+            
+            <div className="mobile-drawer__links-container">
+              <div className="mobile-drawer__links">
+                {navLinks.map((link: any) => (
+                  <Link key={link.label} to={link.to} className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>
                     {link.label}
+                    <span className="mobile-drawer__link-arrow">›</span>
                   </Link>
-                  {link.children && (
-                    <div className="mobile-drawer__sublinks">
-                      {link.children.map((child: any) => (
-                        <Link key={child.label} to={child.to} className="mobile-drawer__sublink" onClick={() => setMenuOpen(false)}>
-                          {child.label}
-                        </Link>
-                      ))}
+                ))}
+                
+                <hr className="mobile-drawer__divider" />
+                
+                <Link to="/about" className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>
+                  About Us
+                  <span className="mobile-drawer__link-arrow">›</span>
+                </Link>
+                <Link to="/contact" className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>
+                  Contact
+                  <span className="mobile-drawer__link-arrow">›</span>
+                </Link>
+              </div>
+
+              <div className="mobile-drawer__bottom">
+                <hr className="mobile-drawer__divider" />
+                <div className={`mobile-drawer__actions ${isAuthenticated ? 'mobile-drawer__actions--auth' : ''}`}>
+                  <Link to={isAuthenticated ? '/account' : '/login'} className="mobile-drawer__action" onClick={() => setMenuOpen(false)}>
+                    <User size={24} strokeWidth={1.5} />
+                    <span>Account</span>
+                  </Link>
+                  <Link to="/wishlist" className="mobile-drawer__action" onClick={() => setMenuOpen(false)}>
+                    <Heart size={24} strokeWidth={1.5} />
+                    <span>Wishlist</span>
+                  </Link>
+                  <button className="mobile-drawer__action" onClick={() => { openCart(); setMenuOpen(false); }}>
+                    <ShoppingBag size={24} strokeWidth={1.5} />
+                    <span>Cart</span>
+                  </button>
+                  {isAuthenticated && (
+                    <div className="mobile-drawer__action mobile-drawer__notification">
+                      <NotificationDropdown />
+                      <span>Alerts</span>
                     </div>
                   )}
                 </div>
-              ))}
-              <hr className="divider" />
-              {isAuthenticated ? (
-                <>
-                  <Link to="/account" className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>My Account</Link>
-                  <Link to="/account/orders" className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>My Orders</Link>
-                  {user?.role === 'ADMIN' && <Link to="/admin" className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>Admin Panel</Link>}
-                  <button className="mobile-drawer__link" onClick={() => { logout(); setMenuOpen(false); }}>Sign Out</button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>Sign In</Link>
-                  <Link to="/register" className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>Create Account</Link>
-                </>
-              )}
+              </div>
             </div>
           </nav>
         </div>
       )}
+
 
       <style>{`
         .navbar {
@@ -488,8 +506,8 @@ const Navbar: React.FC = () => {
         .mobile-drawer {
           position: fixed; top: 0; left: 0;
           width: 300px; height: 100%;
-          background: var(--color-charcoal);
-          border-right: 1px solid var(--color-border-gold);
+          background: #000000;
+          border-right: 1px solid rgba(255, 255, 255, 0.1);
           z-index: var(--z-modal);
           display: flex; flex-direction: column;
           animation: fadeLeft 0.3s ease forwards;
@@ -497,26 +515,50 @@ const Navbar: React.FC = () => {
         @keyframes fadeLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
         .mobile-drawer__header {
           display: flex; align-items: center; justify-content: space-between;
-          padding: var(--space-6);
-          border-bottom: 1px solid var(--color-border);
+          padding: 24px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .mobile-drawer__close { font-size: 1.25rem; color: var(--color-text-muted); }
-        .mobile-drawer__links { display: flex; flex-direction: column; padding: var(--space-4); gap: var(--space-1); flex: 1; overflow-y: auto; }
-        .mobile-drawer__link {
-          padding: var(--space-3) var(--space-4);
-          color: var(--color-text-secondary);
-          font-size: 0.95rem;
-          font-family: var(--font-sans);
+        .mobile-drawer__title {
+          font-family: var(--font-serif);
+          font-size: 1.25rem;
+          font-weight: 600;
           letter-spacing: 0.05em;
-          border-radius: var(--radius-md);
-          transition: all var(--transition-fast);
-          display: block; text-align: left;
-          text-decoration: none;
         }
-        .mobile-drawer__link:hover { color: var(--color-ivory); background: var(--color-dark-gray); }
-        .mobile-drawer__sublinks { padding-left: 16px; display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-        .mobile-drawer__sublink {
-          padding: 4px 0; color: var(--color-text-secondary); text-decoration: none; font-size: 0.95rem;
+        .mobile-drawer__close { font-size: 1.25rem; cursor: pointer; background: transparent; border: none; font-weight: 300; }
+        .mobile-drawer__links-container {
+          display: flex; flex-direction: column; flex: 1; overflow-y: auto;
+          justify-content: space-between;
+        }
+        .mobile-drawer__links { display: flex; flex-direction: column; padding: 12px 0; }
+        .mobile-drawer__link {
+          padding: 16px 24px;
+          color: var(--color-gold);
+          font-size: 1.05rem;
+          font-weight: 500;
+          font-family: var(--font-sans);
+          display: flex; justify-content: space-between; align-items: center;
+          text-decoration: none;
+          transition: background 0.2s;
+        }
+        .mobile-drawer__link:hover { background: rgba(255,255,255,0.05); }
+        .mobile-drawer__link-arrow { font-size: 1.25rem; color: rgba(255,255,255,0.3); font-weight: 300; }
+        .mobile-drawer__divider { margin: 12px 24px; border: none; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+        .mobile-drawer__bottom { padding: 0 0 24px 0; }
+        .mobile-drawer__actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px 24px; }
+        .mobile-drawer__actions--auth { grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; padding: 12px 12px; }
+        .mobile-drawer__action {
+          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+          color: var(--color-gold);
+          text-decoration: none; font-size: 0.85rem; font-family: var(--font-sans);
+          background: transparent; border: none; cursor: pointer;
+        }
+        .mobile-drawer__action:hover { opacity: 0.8; }
+        .mobile-drawer__notification .navbar__action-btn { 
+          color: var(--color-gold); width: 24px; height: 24px; padding: 0; background: transparent; 
+        }
+        .mobile-drawer__notification .navbar__action-btn:hover { filter: none; }
+        .mobile-drawer__notification .navbar__badge {
+          top: -6px; right: -8px;
         }
 
         @media (max-width: 1024px) {

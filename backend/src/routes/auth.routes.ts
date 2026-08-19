@@ -2,7 +2,7 @@ import { Router } from 'express';
 import {
   register, login, logout, refreshToken, forgotPassword,
   resetPassword, getProfile, updateProfile, changePassword,
-  verifyEmail, resendOtp
+  resendOtp, sendRegisterOtp
 } from '../controllers/auth.controller';
 import { authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validate';
@@ -19,7 +19,7 @@ router.post('/logout', logout);
 router.post('/refresh', refreshToken);
 router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
 router.post('/reset-password', validate(resetPasswordSchema), resetPassword);
-router.post('/verify-email', verifyEmail);
+router.post('/send-register-otp', sendRegisterOtp);
 router.post('/resend-otp', resendOtp);
 
 router.get('/me', authenticate, getProfile);

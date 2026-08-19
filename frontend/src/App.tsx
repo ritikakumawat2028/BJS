@@ -34,6 +34,7 @@ const ReturnPolicyPage = lazy(() => import('./pages/ReturnPolicyPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const TrackOrderPage = lazy(() => import('./pages/TrackOrderPage'));
 
 // Admin (lazy loaded)
 const AdminLayout = lazy(() => import('./admin/layouts/AdminLayout'));
@@ -116,6 +117,7 @@ const App: React.FC = () => {
                 <Route path="return-policy" element={<ReturnPolicyPage />} />
                 <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="terms" element={<TermsPage />} />
+                <Route path="track-order" element={<TrackOrderPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
 

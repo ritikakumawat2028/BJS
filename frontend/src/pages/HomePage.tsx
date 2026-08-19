@@ -37,8 +37,6 @@ const HomePage: React.FC = () => {
   const { data: bannersData } = useQuery({ queryKey: ["active-banners"], queryFn: () => bannersApi.getActive() });
   const { data: campaignsData } = useQuery({ queryKey: ["campaigns"], queryFn: () => campaignsApi.getActive() });
   const { data: settingsData } = useQuery({ queryKey: ["store-settings"], queryFn: () => adminApi.getSettings() });
-  const { data: reviewsData } = useQuery({ queryKey: ["approved-reviews"], queryFn: () => adminApi.getReviews({ isApproved: true, limit: 10 }) });
-
   const featured: Product[] = featuredData?.data?.data || [];
   const bestsellers: Product[] = bestsellersData?.data?.data || [];
   const newArrivals: Product[] = newArrivalsData?.data?.data || [];
@@ -47,11 +45,9 @@ const HomePage: React.FC = () => {
   const promoBanners = allBanners.filter(b => b.placement === "PROMO");
   const campaigns: Campaign[] = campaignsData?.data?.data || [];
   const settings: StoreSettings = settingsData?.data?.data || {};
-  const approvedReviews: Review[] = reviewsData?.data?.data || [];
+  const approvedReviews: Review[] = [];
 
-  const displayTestimonials = approvedReviews.length > 0
-    ? approvedReviews.map((r: Review) => ({ id: r.id, rating: r.rating, comment: r.comment || "Great product!", user: r.user, productName: (r as any).productName || "BJ's Product", location: "" }))
-    : FALLBACK_TESTIMONIALS;
+  const displayTestimonials = FALLBACK_TESTIMONIALS;
 
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [newsletterEmail, setNewsletterEmail] = useState("");

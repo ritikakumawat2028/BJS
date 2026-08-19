@@ -9,7 +9,7 @@ interface AuthStore {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: { email: string; password: string; firstName: string; lastName: string; phone?: string }) => Promise<void>;
+  register: (data: { email: string; password: string; firstName: string; lastName: string; phone?: string; otp: string }) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User) => void;
   updateUser: (user: Partial<User>) => void;

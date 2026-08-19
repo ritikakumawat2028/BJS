@@ -26,15 +26,20 @@ const RegisterPage: React.FC = () => {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
     try {
-      await register({ firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone, password: form.password });
+      const { authApi } = await import('../services/api');
+      const res = await authApi.sendRegisterOtp(form.email);
       setRegisteredEmail(form.email);
       setStep(2);
-      toast.success('Account created! Please enter the OTP sent to your email.');
+      if (res.data.devOtp) {
+        toast.success(`OTP Sent! (Dev mode OTP: ${res.data.devOtp})`, { duration: 10000 });
+      } else {
+        toast.success('OTP sent to your email.');
+      }
     } catch (err: any) {
       if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
         const serverErrors: Record<string, string> = {};
@@ -45,24 +50,23 @@ const RegisterPage: React.FC = () => {
         setErrors(serverErrors);
         toast.error('Please fix the errors in the form.');
       } else {
-        toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
+        toast.error(err.response?.data?.message || 'Failed to send OTP.');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (otp.length < 6) return toast.error('OTP must be 6 digits');
     setLoading(true);
     try {
-      const { authApi } = await import('../services/api');
-      await authApi.verifyEmail(registeredEmail, otp);
-      toast.success('Email verified successfully!');
+      await register({ firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone, password: form.password, otp });
+      toast.success('Account created successfully!');
       navigate('/account');
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Verification failed');
+      toast.error(err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -71,8 +75,12 @@ const RegisterPage: React.FC = () => {
   const handleResendOtp = async () => {
     try {
       const { authApi } = await import('../services/api');
-      await authApi.resendOtp(registeredEmail);
-      toast.success('A new OTP has been sent to your email.');
+      const res = await authApi.sendRegisterOtp(registeredEmail);
+      if (res.data.devOtp) {
+        toast.success(`A new OTP has been sent! (Dev mode OTP: ${res.data.devOtp})`, { duration: 10000 });
+      } else {
+        toast.success('A new OTP has been sent to your email.');
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to resend OTP');
     }
@@ -90,7 +98,7 @@ const RegisterPage: React.FC = () => {
           </div>
 
           {step === 1 ? (
-            <form onSubmit={handleSubmit} className="auth-form">
+            <form onSubmit={handleSendOtp} className="auth-form">
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="form-group">
                   <label className="form-label">First Name</label>
@@ -129,20 +137,20 @@ const RegisterPage: React.FC = () => {
               </div>
 
               <button type="submit" className={`btn btn-primary btn-full btn-lg ${loading ? 'btn-loading' : ''}`} disabled={loading}>
-                {!loading && 'Create Account'}
+                {!loading && 'Verify Email'}
               </button>
             </form>
           ) : (
-            <form onSubmit={handleVerifyOtp} className="auth-form">
+            <form onSubmit={handleRegister} className="auth-form">
               <p style={{color:'var(--color-text-muted)', marginBottom:'1rem', textAlign:'center'}}>
                 We sent a 6-digit OTP to <strong>{registeredEmail}</strong>.
               </p>
               <div className="form-group">
                 <label className="form-label">Enter OTP</label>
-                <input type="text" maxLength={6} className="form-input" placeholder="123456" value={otp} onChange={e => setOtp(e.target.value)} style={{letterSpacing:'0.2em', textAlign:'center', fontSize:'1.5rem'}} />
+                <input type="text" maxLength={6} className="form-input" placeholder="------" value={otp} onChange={e => setOtp(e.target.value)} style={{letterSpacing:'0.2em', textAlign:'center', fontSize:'1.5rem'}} />
               </div>
               <button type="submit" className={`btn btn-primary btn-full btn-lg ${loading ? 'btn-loading' : ''}`} disabled={loading}>
-                {!loading && 'Verify Account'}
+                {!loading && 'Create Account'}
               </button>
               <button type="button" onClick={handleResendOtp} className="btn" style={{background:'transparent', color:'var(--color-gold)', width:'100%', marginTop:'8px'}}>
                 Resend OTP

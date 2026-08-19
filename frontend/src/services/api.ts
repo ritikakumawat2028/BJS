@@ -33,7 +33,10 @@ api.interceptors.response.use(
         return api(original);
       } catch {
         localStorage.removeItem('bjs_access_token');
-        window.location.href = '/login';
+        const protectedRoutes = ['/account', '/admin', '/checkout'];
+        if (protectedRoutes.some(route => window.location.pathname.startsWith(route))) {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);
@@ -51,7 +54,7 @@ export const authApi = {
   refresh: () => api.post('/auth/refresh'),
   forgotPassword: (email: string) => api.post('/auth/forgot-password', { email }),
   resetPassword: (token: string, password: string) => api.post('/auth/reset-password', { token, password }),
-  verifyEmail: (email: string, otp: string) => api.post('/auth/verify-email', { email, otp }),
+  sendRegisterOtp: (email: string) => api.post('/auth/send-register-otp', { email }),
   resendOtp: (email: string) => api.post('/auth/resend-otp', { email }),
   getMe: () => api.get('/auth/me'),
   updateMe: (data: Partial<{ firstName: string; lastName: string; phone: string }>) => api.put('/auth/me', data),

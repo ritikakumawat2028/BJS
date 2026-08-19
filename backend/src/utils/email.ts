@@ -15,7 +15,11 @@ export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<bo
   const emailFrom = await getSetting('email_from', 'EMAIL_FROM');
 
   if (!emailUser || emailUser === 'placeholder@gmail.com') {
-    console.log(`[EMAIL SKIPPED - NOT CONFIGURED] To: ${to} | Subject: ${subject}`);
+    console.log(`\n======================================================`);
+    console.log(`[EMAIL SKIPPED - NOT CONFIGURED]`);
+    console.log(`To: ${to} | Subject: ${subject}`);
+    console.log(`Message Content:\n${html}`);
+    console.log(`======================================================\n`);
     return false;
   }
 

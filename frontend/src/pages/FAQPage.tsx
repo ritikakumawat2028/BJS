@@ -8,7 +8,7 @@ const FAQPage: React.FC = () => {
 
   return (
     <>
-      <Helmet><title>Frequently Asked Questions ? {settings?.store_name || "BJ'S Natural Care"}</title></Helmet>
+      <Helmet><title>Frequently Asked Questions — {settings?.store_name || "BJ'S Natural Care"}</title></Helmet>
       <div style={{ paddingTop: 'var(--nav-height)', minHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
         <div className="container" style={{ flex: 1, padding: '60px 24px', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
           <p className="section-subtitle">{settings?.store_name || "BJ'S Natural Care"}</p>
