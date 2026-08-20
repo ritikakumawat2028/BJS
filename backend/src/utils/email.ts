@@ -1,4 +1,4 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import { getSetting } from './getSetting';
 
 interface EmailOptions {
@@ -8,42 +8,43 @@ interface EmailOptions {
 }
 
 export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<boolean> => {
-  const apiKey = await getSetting('resend_api_key', 'RESEND_API_KEY');
-  let emailFrom = await getSetting('email_from', 'EMAIL_FROM');
+  let emailFrom = await getSetting('email_from', 'EMAIL_FROM') || 'jay250576@gmail.com';
 
-  if (!apiKey || apiKey === 'placeholder_resend_key') {
+  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
+  const smtpUser = process.env.SMTP_USER || 'jay250576@gmail.com';
+  const smtpPass = process.env.SMTP_PASS;
+
+  if (!smtpPass) {
     console.log(`\n======================================================`);
-    console.log(`[EMAIL SKIPPED - RESEND NOT CONFIGURED]`);
+    console.log(`[EMAIL SKIPPED - SMTP_PASS NOT CONFIGURED]`);
     console.log(`To: ${to} | Subject: ${subject}`);
     console.log(`Message Content:\n${html}`);
     console.log(`======================================================\n`);
     return false;
   }
 
-  // If the user hasn't verified a custom domain on Resend yet, we fallback to their testing sandbox email
-  // Note: The sandbox email can ONLY send to the email address you signed up to Resend with!
-  if (!emailFrom || emailFrom.includes('placeholder') || emailFrom.includes('jay250576@gmail.com')) {
-    emailFrom = 'onboarding@resend.dev';
-  }
-
-  const resend = new Resend(apiKey);
-
   try {
-    const { data, error } = await resend.emails.send({
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+    });
+
+    await transporter.sendMail({
       from: emailFrom,
       to,
       subject,
       html,
     });
 
-    if (error) {
-      console.error(`[EMAIL ERROR] Resend failed to send email to ${to}:`, error);
-      return false;
-    }
-
     return true;
   } catch (error) {
-    console.error(`[EMAIL ERROR] Failed to execute email request to ${to}:`, error);
+    console.error(`[EMAIL ERROR] Failed to send email to ${to}:`, error);
     return false;
   }
 };

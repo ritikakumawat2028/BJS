@@ -95,6 +95,8 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, reviews }) =
       </span>
     ));
 
+  const visibleReviews = reviews.filter(r => r.isApproved || r.userId === (user as any)?.id || r.userId === (user as any)?.userId);
+
   return (
     <div className="product-reviews">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -140,9 +142,9 @@ const ProductReviews: React.FC<ProductReviewsProps> = ({ productId, reviews }) =
         </form>
       )}
 
-      {reviews.length > 0 ? (
+      {visibleReviews.length > 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {reviews.map((review: any) => (
+          {visibleReviews.map((review: any) => (
             <div key={review.id} className="review-card" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                 <div>
