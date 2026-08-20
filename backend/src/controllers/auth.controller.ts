@@ -39,14 +39,7 @@ export const sendRegisterOtp = asyncHandler(async (req: Request, res: Response) 
 });
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password, firstName, lastName, phone, otp } = req.body;
-
-  if (!otp) throw createError('OTP is required', 400);
-
-  const verification = await prisma.otpVerification.findUnique({ where: { email } });
-  if (!verification || verification.otp !== otp || verification.expiresAt < new Date()) {
-    throw createError('Invalid or expired OTP', 400);
-  }
+  const { email, password, firstName, lastName, phone } = req.body;
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) throw createError('Email already registered', 400);
@@ -58,12 +51,10 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await prisma.user.create({
+    // We set isEmailVerified to true since OTP is bypassed for now
     data: { email, passwordHash, firstName, lastName, phone, roleId: defaultRole.id, isEmailVerified: true },
     select: { id: true, email: true, firstName: true, lastName: true, role: true },
   });
-
-  // Delete OTP after successful registration
-  await prisma.otpVerification.delete({ where: { email } });
 
   const roleName = user.role?.name || 'CUSTOMER';
   const accessToken = generateAccessToken({ userId: user.id, role: roleName, email: user.email });
