@@ -56,6 +56,7 @@ const AdminInventoryPage = lazy(() => import('./admin/pages/AdminInventoryPage')
 const AdminSettingsPage = lazy(() => import('./admin/pages/AdminSettingsPage'));
 const AdminAuditLogsPage = lazy(() => import('./admin/pages/AdminAuditLogsPage'));
 const AdminSupportPage = lazy(() => import('./admin/pages/AdminSupportPage'));
+const AdminAnalyticsPage = lazy(() => import('./admin/pages/AdminAnalyticsPage'));
 
 import './styles/globals.css';
 
@@ -152,6 +153,7 @@ const App: React.FC = () => {
                 <Route path="support" element={<AdminSupportPage />} />
                 <Route path="settings" element={<AdminSettingsPage />} />
                 <Route path="audit-logs" element={<AdminAuditLogsPage />} />
+                <Route path="analytics" element={<AdminAnalyticsPage />} />
               </Route>
             </Routes>
           </Suspense>
