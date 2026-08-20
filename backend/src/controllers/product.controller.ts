@@ -258,7 +258,7 @@ export const adminUpdateProduct = asyncHandler(async (req: AuthRequest, res: Res
   const existing = await prisma.product.findUnique({ where: { id }, include: { variants: true } });
   if (!existing) throw createError('Product not found', 404);
 
-  const { image, variants, ...updateData } = req.body;
+  const { image, variants, stock, initialStock, ...updateData } = req.body;
 
   if (updateData.sku && updateData.sku !== existing.sku) {
     const existingSku = await prisma.product.findUnique({ where: { sku: updateData.sku } });
@@ -302,6 +302,14 @@ export const adminUpdateProduct = asyncHandler(async (req: AuthRequest, res: Res
     },
     include: { variants: true }
   });
+
+  if (stock !== undefined) {
+    await prisma.inventory.upsert({
+      where: { productId: id },
+      update: { quantity: parseInt(stock) },
+      create: { productId: id, quantity: parseInt(stock), lowStockThreshold: 5 }
+    });
+  }
 
   if (image) {
     const existingImage = await prisma.productImage.findFirst({ where: { productId: id, isThumbnail: true } });

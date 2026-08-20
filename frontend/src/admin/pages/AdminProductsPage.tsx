@@ -18,6 +18,7 @@ const AdminProductsPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '', sku: '', categoryId: '', 
     price: '' as string | number, comparePrice: '' as string | number,
+    stock: '' as string | number,
     description: '', image: '',
     isFeatured: false, isBestseller: false, isNewArrival: false, isActive: true,
     metaTitle: '', metaDesc: '', metaKeywords: '',
@@ -55,6 +56,7 @@ const AdminProductsPage: React.FC = () => {
       setFormData({
         name: product.name, sku: product.sku, categoryId: product.categoryId || '',
         price: product.price, comparePrice: product.comparePrice || '',
+        stock: product.inventory?.quantity ?? '',
         description: product.description || '', image: product.images?.[0]?.url || '',
         isFeatured: product.isFeatured, isBestseller: product.isBestseller, isNewArrival: product.isNewArrival, isActive: product.isActive,
         metaTitle: product.metaTitle || '', metaDesc: product.metaDesc || '', metaKeywords: product.metaKeywords || '',
@@ -64,7 +66,7 @@ const AdminProductsPage: React.FC = () => {
       setEditingProduct(null);
       setFormData({
         name: '', sku: '', categoryId: categories.length > 0 ? categories[0].id : '',
-        price: '', comparePrice: '', description: '', image: '',
+        price: '', comparePrice: '', stock: '', description: '', image: '',
         isFeatured: false, isBestseller: false, isNewArrival: false, isActive: true,
         metaTitle: '', metaDesc: '', metaKeywords: '', variants: [],
       });
@@ -107,6 +109,8 @@ const AdminProductsPage: React.FC = () => {
       ...formData,
       price: Number(formData.price),
       comparePrice: formData.comparePrice ? Number(formData.comparePrice) : null,
+      stock: formData.stock ? Number(formData.stock) : 0,
+      initialStock: formData.stock ? Number(formData.stock) : 0,
       variants: formData.variants.map((v: any) => ({
         ...v, price: Number(v.price), comparePrice: v.comparePrice ? Number(v.comparePrice) : null, stock: Number(v.stock)
       }))
@@ -191,7 +195,7 @@ const AdminProductsPage: React.FC = () => {
                   <div><label className="form-label">Name *</label><input type="text" className="form-input" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} /></div>
                   <div><label className="form-label">SKU *</label><input type="text" className="form-input" required value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} /></div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginTop: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px', marginTop: '16px' }}>
                   <div>
                     <label className="form-label">Category *</label>
                     <select className="form-select" required value={formData.categoryId} onChange={e => setFormData({...formData, categoryId: e.target.value})}>
@@ -200,7 +204,8 @@ const AdminProductsPage: React.FC = () => {
                     </select>
                   </div>
                   <div><label className="form-label">Price (₹) *</label><input type="number" min="0" step="0.01" className="form-input" required value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} /></div>
-                  <div><label className="form-label">Compare At Price (₹)</label><input type="number" min="0" step="0.01" className="form-input" placeholder="Discount Original Price" value={formData.comparePrice} onChange={e => setFormData({...formData, comparePrice: e.target.value})} /></div>
+                  <div><label className="form-label">Compare (₹)</label><input type="number" min="0" step="0.01" className="form-input" placeholder="Original Price" value={formData.comparePrice} onChange={e => setFormData({...formData, comparePrice: e.target.value})} /></div>
+                  <div><label className="form-label">Base Stock *</label><input type="number" min="0" className="form-input" required value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} /></div>
                 </div>
                 <div style={{ marginTop: '16px' }}><label className="form-label">Description</label><textarea className="form-textarea" rows={4} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}></textarea></div>
               </section>
