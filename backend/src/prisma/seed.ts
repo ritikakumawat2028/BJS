@@ -26,7 +26,7 @@ async function main() {
   }
 
   // ===== ADMIN USER =====
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@bjsluxe.com';
+  const adminEmail = process.env.ADMIN_EMAIL || 'jay250576@gmail.com';
   const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@BJS2024!';
   const adminHash = await bcrypt.hash(adminPassword, 12);
 
@@ -49,13 +49,13 @@ async function main() {
   const defaultSettings = [
     { key: 'store_name',               value: "BJ'S Natural Care",                              group: 'store',    label: 'Store Name' },
     { key: 'store_tagline',            value: 'Luxury, Naturally Crafted.',                     group: 'store',    label: 'Tagline' },
-    { key: 'store_email',              value: process.env.STORE_EMAIL    || 'info@bjsluxe.com', group: 'store', label: 'Contact Email' },
-    { key: 'store_phone',              value: process.env.STORE_PHONE    || '+91 98252 68872',  group: 'store',    label: 'Phone' },
+    { key: 'store_email',              value: process.env.STORE_EMAIL    || 'jay250576@gmail.com', group: 'store', label: 'Contact Email' },
+    { key: 'store_phone',              value: process.env.STORE_PHONE    || '+91 92745 96622', group: 'store', label: 'Contact Phone' },
     { key: 'store_address',            value: process.env.STORE_ADDRESS  || 'Surat, Gujarat, India', group: 'store', label: 'Address' },
     { key: 'default_shipping_charge',  value: '99',                                              group: 'shipping', label: 'Default Shipping Charge' },
     { key: 'free_shipping_threshold',  value: '999',                                             group: 'shipping', label: 'Free Shipping Above (₹)' },
     { key: 'cod_enabled',              value: 'true',                                            group: 'payment',  label: 'Cash on Delivery Enabled' },
-    { key: 'instagram',                value: process.env.STORE_INSTAGRAM || '',                group: 'social',   label: 'Instagram' },
+    { key: 'instagram',                value: process.env.INSTAGRAM      || 'https://www.instagram.com/bjs.essence?igsi=dWF1c3Uya3NlcHMz&utm_source=qr', group: 'social', label: 'Instagram' },
     { key: 'facebook',                 value: process.env.STORE_FACEBOOK  || '',                group: 'social',   label: 'Facebook' },
     { key: 'youtube',                  value: process.env.STORE_YOUTUBE   || '',                group: 'social',   label: 'YouTube' },
     { key: 'meta_title',               value: "BJ'S Natural Care — Premium Luxury Beauty & Fragrance", group: 'seo', label: 'SEO Title' },

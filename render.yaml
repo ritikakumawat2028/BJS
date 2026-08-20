@@ -45,7 +45,7 @@ services:
       - key: EMAIL_PASS
         sync: false
       - key: EMAIL_FROM
-        value: "BJ's Natural Care <noreply@bjsluxe.com>"
+        value: "BJ's Natural Care <jay250576@gmail.com>"
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD

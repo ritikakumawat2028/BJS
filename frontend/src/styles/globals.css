@@ -542,3 +542,30 @@ p { line-height: 1.75; color: var(--color-text-secondary); font-size: clamp(0.9r
   h2 { font-size: 1.6rem; }
   .section { padding: var(--space-10) 0; }
 }
+.floating-whatsapp {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 55px;
+  height: 55px;
+  background-color: #25d366;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+  z-index: 1000;
+  transition: transform 0.2s ease, background-color 0.2s;
+}
+
+.floating-whatsapp:hover {
+  transform: scale(1.1);
+  background-color: #128c7e;
+  color: white;
+}
+
+.floating-whatsapp svg {
+  width: 32px;
+  height: 32px;
+}

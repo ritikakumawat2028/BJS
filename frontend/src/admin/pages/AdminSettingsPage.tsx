@@ -212,7 +212,7 @@ const AdminSettingsPage: React.FC = () => {
               </div>
               <div>
                 <label className="form-label">Sender Email (From)</label>
-                <input type="text" className="form-input" placeholder="BJ's Natural Care <noreply@bjsluxe.com>" value={formData.email_from || ''} onChange={e => handleChange('email_from', e.target.value)} />
+                <input type="text" className="form-input" placeholder="BJ's Natural Care <jay250576@gmail.com>" value={formData.email_from || ''} onChange={e => handleChange('email_from', e.target.value)} />
               </div>
             </div>
           )}
