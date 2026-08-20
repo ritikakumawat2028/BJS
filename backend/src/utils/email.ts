@@ -10,10 +10,10 @@ interface EmailOptions {
 export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<boolean> => {
   let emailFrom = await getSetting('email_from', 'EMAIL_FROM') || 'jay250576@gmail.com';
 
-  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
-  const smtpUser = process.env.SMTP_USER || 'jay250576@gmail.com';
-  const smtpPass = process.env.SMTP_PASS;
+  const smtpHost = process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com';
+  const smtpPort = parseInt(process.env.SMTP_PORT || process.env.EMAIL_PORT || '465', 10);
+  const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER || 'jay250576@gmail.com';
+  const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
 
   if (!smtpPass) {
     console.log(`\n======================================================`);
