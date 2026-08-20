@@ -119,8 +119,8 @@ const ContactPage: React.FC = () => {
               <div className="contact-info-icon"><Mail size={20} strokeWidth={1.5} /></div>
               <div className="contact-info-content">
                 <h3>Email</h3>
-                <p>support@bjsnaturalcare.com<br />corporate@bjsnaturalcare.com</p>
-                <a href="mailto:support@bjsnaturalcare.com" className="contact-link">Send Email &rarr;</a>
+                <p>support@bjsluxe.com<br />corporate@bjsluxe.com</p>
+                <a href="mailto:support@bjsluxe.com" className="contact-link">Send Email &rarr;</a>
               </div>
             </div>
 

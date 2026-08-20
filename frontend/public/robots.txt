@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bjsnaturalcare.com/api/sitemap.xml
+Sitemap: https://bjsluxe.com/api/sitemap.xml

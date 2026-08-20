@@ -1,4 +1,4 @@
-﻿services:
+services:
   # Backend Web Service
   - type: web
     name: bjs-backend
@@ -45,7 +45,7 @@
       - key: EMAIL_PASS
         sync: false
       - key: EMAIL_FROM
-        value: "BJ's Natural Care <noreply@bjsnaturalcare.com>"
+        value: "BJ's Natural Care <noreply@bjsluxe.com>"
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD

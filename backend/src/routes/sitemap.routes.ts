@@ -5,7 +5,7 @@ import { asyncHandler } from '../middleware/error';
 const router = express.Router();
 
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
-  const frontendUrl = process.env.FRONTEND_URL || 'https://bjsnaturalcare.com';
+  const frontendUrl = process.env.FRONTEND_URL || 'https://bjsluxe.com';
 
   const products = await prisma.product.findMany({
     where: { isActive: true },

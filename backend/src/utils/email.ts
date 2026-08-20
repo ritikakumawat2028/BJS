@@ -22,7 +22,7 @@ export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<bo
 
   // If the user hasn't verified a custom domain on Resend yet, we fallback to their testing sandbox email
   // Note: The sandbox email can ONLY send to the email address you signed up to Resend with!
-  if (!emailFrom || emailFrom.includes('placeholder') || emailFrom.includes('noreply@bjsnaturalcare.com')) {
+  if (!emailFrom || emailFrom.includes('placeholder') || emailFrom.includes('noreply@bjsluxe.com')) {
     emailFrom = 'onboarding@resend.dev';
   }
 

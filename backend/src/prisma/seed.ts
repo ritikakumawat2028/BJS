@@ -1,4 +1,4 @@
-﻿import 'dotenv/config';
+import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
@@ -26,7 +26,7 @@ async function main() {
   }
 
   // ===== ADMIN USER =====
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@bjsnaturalcare.com';
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@bjsluxe.com';
   const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@BJS2024!';
   const adminHash = await bcrypt.hash(adminPassword, 12);
 
@@ -49,7 +49,7 @@ async function main() {
   const defaultSettings = [
     { key: 'store_name',               value: "BJ'S Natural Care",                              group: 'store',    label: 'Store Name' },
     { key: 'store_tagline',            value: 'Luxury, Naturally Crafted.',                     group: 'store',    label: 'Tagline' },
-    { key: 'store_email',              value: process.env.STORE_EMAIL    || 'info@bjsnaturalcare.com', group: 'store', label: 'Contact Email' },
+    { key: 'store_email',              value: process.env.STORE_EMAIL    || 'info@bjsluxe.com', group: 'store', label: 'Contact Email' },
     { key: 'store_phone',              value: process.env.STORE_PHONE    || '+91 98252 68872',  group: 'store',    label: 'Phone' },
     { key: 'store_address',            value: process.env.STORE_ADDRESS  || 'Surat, Gujarat, India', group: 'store', label: 'Address' },
     { key: 'default_shipping_charge',  value: '99',                                              group: 'shipping', label: 'Default Shipping Charge' },
