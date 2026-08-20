@@ -92,13 +92,14 @@ export const InvoiceTemplate = forwardRef<HTMLDivElement, InvoiceTemplateProps>(
           <h3 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: 600, color: colors.black }}>
             BJ'S NATURAL CARE
           </h3>
-          <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray, lineHeight: '1.6' }}>
-            {storeSettings?.storeAddress || 'Premium Beauty Store Ltd.'}<br/>
-            {storeSettings?.storeCity || 'Mumbai, Maharashtra'}<br/>
-            {storeSettings?.storeCountry || 'India'}
+          <p style={{ margin: 0, fontSize: '12px', color: colors.darkGray, lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+            {storeSettings?.storeAddress || 'Surat, Gujarat, India'}
           </p>
           <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: colors.darkGray }}>
-            Tel: {storeSettings?.contactPhone || '+91 99999 99999'}
+            Tel: {storeSettings?.contactPhone || '+91 92745 96622'}
+          </p>
+          <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: colors.darkGray }}>
+            Email: {storeSettings?.storeEmail || 'jay250576@gmail.com'}
           </p>
         </div>
       </div>
