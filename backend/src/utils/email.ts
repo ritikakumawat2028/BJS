@@ -78,3 +78,34 @@ export const orderConfirmationEmail = (orderNumber: string, customerName: string
 </body>
 </html>
 `;
+
+export const otpVerificationEmailTemplate = (otp: string): string => `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+  body { font-family: 'Georgia', serif; background: #080808; color: #F8F5EE; margin: 0; padding: 0; }
+  .container { max-width: 600px; margin: 0 auto; padding: 40px 24px; }
+  .logo { font-size: 24px; letter-spacing: 3px; color: #C9A227; text-align: center; margin-bottom: 32px; }
+  .heading { font-size: 28px; text-align: center; color: #F8F5EE; margin-bottom: 16px; }
+  .body { font-size: 16px; line-height: 1.8; color: #ccc; text-align: center; }
+  .otp-box { background: #1A1A1A; border: 1px solid #C9A227; padding: 24px; margin: 24px auto; border-radius: 4px; max-width: 300px; }
+  .otp { font-size: 36px; letter-spacing: 8px; color: #C9A227; margin: 0; font-weight: bold; }
+  .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; }
+</style></head>
+<body>
+<div class="container">
+  <div class="logo">BJ'S NATURAL CARE</div>
+  <div class="heading">Verify Your Email</div>
+  <div class="body">
+    <p>Welcome to BJ'S Natural Care.</p>
+    <p>Please use the following OTP to verify your email address and complete your registration:</p>
+    <div class="otp-box">
+      <p class="otp">${otp}</p>
+    </div>
+    <p>This code will expire in 10 minutes.</p>
+  </div>
+  <div class="footer">© BJ'S Natural Care. All rights reserved.</div>
+</div>
+</body>
+</html>
+`;

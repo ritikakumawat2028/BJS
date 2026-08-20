@@ -5,7 +5,7 @@ import prisma from '../config/prisma';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
 import { asyncHandler, createError } from '../middleware/error';
 import { AuthRequest } from '../middleware/auth';
-import { sendEmail } from '../utils/email';
+import { sendEmail, otpVerificationEmailTemplate } from '../utils/email';
 
 export const sendRegisterOtp = asyncHandler(async (req: Request, res: Response) => {
   const { email } = req.body;
@@ -27,12 +27,7 @@ export const sendRegisterOtp = asyncHandler(async (req: Request, res: Response) 
   await sendEmail({
     to: email,
     subject: "Verify your email - BJ'S Natural Care",
-    html: `
-      <h2>Welcome to BJ'S Natural Care</h2>
-      <p>Your email verification OTP is:</p>
-      <h1 style="letter-spacing: 5px; color: #C9A227;">${otp}</h1>
-      <p>Please enter this code to verify your account.</p>
-    `,
+    html: otpVerificationEmailTemplate(otp),
   });
 
   // For development convenience, return OTP in response body
