@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 // Stores
 import { useAuthStore } from './store/auth.store';
 import { useWishlistStore } from './store/wishlist.store';
+import { useCartStore } from './store/cart.store';
 
 // Layouts
 import MainLayout from './components/layout/MainLayout';
@@ -79,15 +80,18 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; requireAdmin?: boole
 
 const App: React.FC = () => {
   const { isAuthenticated, fetchMe } = useAuthStore();
-
   const { fetchWishlist } = useWishlistStore();
+  const { fetchCart } = useCartStore();
 
   useEffect(() => {
+    const sessionId = localStorage.getItem('bjs_session_id') || undefined;
+    fetchCart(sessionId);
+    
     if (isAuthenticated) {
       fetchMe();
       fetchWishlist();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, fetchCart]);
 
   return (
     <HelmetProvider>
