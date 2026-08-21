@@ -27,16 +27,29 @@ export const getCategoryBySlug = asyncHandler(async (req: Request, res: Response
 
 export const adminCreateCategory = asyncHandler(async (req: Request, res: Response) => {
   const { name, description, image, sortOrder, metaTitle, metaDesc } = req.body;
+  if (!name) throw createError('Category name is required', 400);
   const slug = slugify(name, { lower: true, strict: true });
   const category = await prisma.category.create({
-    data: { name, slug, description, image, sortOrder: sortOrder || 0, metaTitle, metaDesc },
+    data: { 
+      name, 
+      slug, 
+      description: description || null, 
+      image: image || null, 
+      sortOrder: sortOrder ? Number(sortOrder) : 0, 
+      metaTitle: metaTitle || null, 
+      metaDesc: metaDesc || null 
+    },
   });
   res.status(201).json({ success: true, message: 'Category created', data: category });
 });
 
 export const adminUpdateCategory = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const category = await prisma.category.update({ where: { id }, data: req.body });
+  const updateData = { ...req.body };
+  if (updateData.sortOrder !== undefined) updateData.sortOrder = Number(updateData.sortOrder);
+  if (updateData.name) updateData.slug = slugify(updateData.name, { lower: true, strict: true });
+  
+  const category = await prisma.category.update({ where: { id }, data: updateData });
   res.json({ success: true, message: 'Category updated', data: category });
 });
 
@@ -50,7 +63,17 @@ export const adminDeleteCategory = asyncHandler(async (req: Request, res: Respon
 
 export const adminCreateSubcategory = asyncHandler(async (req: Request, res: Response) => {
   const { name, categoryId, description, image, sortOrder } = req.body;
+  if (!name || !categoryId) throw createError('Name and Category are required', 400);
   const slug = slugify(name, { lower: true, strict: true });
-  const sub = await prisma.subcategory.create({ data: { name, slug, categoryId, description, image, sortOrder: sortOrder || 0 } });
+  const sub = await prisma.subcategory.create({ 
+    data: { 
+      name, 
+      slug, 
+      categoryId, 
+      description: description || null, 
+      image: image || null, 
+      sortOrder: sortOrder ? Number(sortOrder) : 0 
+    } 
+  });
   res.status(201).json({ success: true, data: sub });
 });

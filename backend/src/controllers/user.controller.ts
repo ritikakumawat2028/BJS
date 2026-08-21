@@ -111,7 +111,7 @@ export const addReview = asyncHandler(async (req: AuthRequest, res: Response) =>
   if (!hasOrdered) throw createError('Only verified buyers can review this product.', 403);
 
   const review = await prisma.review.create({
-    data: { productId, userId, rating, title, comment, images, isVerifiedBuyer: true, isApproved: false },
+    data: { productId, userId, rating: Number(rating), title, comment, images, isVerifiedBuyer: true, isApproved: false },
   });
 
   // Since it is pending, we don't update average rating yet.
@@ -129,7 +129,7 @@ export const updateReview = asyncHandler(async (req: AuthRequest, res: Response)
 
   const updatedReview = await prisma.review.update({
     where: { id },
-    data: { rating, title, comment, images, isApproved: false }, // Reset to pending approval
+    data: { rating: Number(rating), title, comment, images, isApproved: false }, // Reset to pending approval
   });
 
   // Re-calculate rating

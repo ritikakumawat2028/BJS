@@ -104,9 +104,8 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
         const couponCategories = await prisma.couponCategory.findMany({ where: { couponId: c.id }, select: { categoryId: true } });
         const validCategoryIds = couponCategories.map(cc => cc.categoryId);
         for (const item of cart.items) {
-           const productCategories = await prisma.productCategory.findMany({ where: { productId: item.productId } });
-           const hasValidCategory = productCategories.some(pc => validCategoryIds.includes(pc.categoryId));
-           if (hasValidCategory) {
+           const product = await prisma.product.findUnique({ where: { id: item.productId } });
+           if (product && validCategoryIds.includes(product.categoryId)) {
               const price = item.variant ? Number(item.variant.price) : Number(item.product.price);
               eligibleSubtotal += price * item.quantity;
            }

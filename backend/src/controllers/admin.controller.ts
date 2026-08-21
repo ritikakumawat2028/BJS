@@ -209,12 +209,22 @@ export const getBanners = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const adminCreateBanner = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const banner = await prisma.banner.create({ data: req.body });
+  const data = { ...req.body };
+  if (data.priority !== undefined) data.priority = Number(data.priority);
+  if (data.startDate) data.startDate = new Date(data.startDate);
+  if (data.endDate) data.endDate = new Date(data.endDate);
+  
+  const banner = await prisma.banner.create({ data });
   res.status(201).json({ success: true, data: banner });
 });
 
 export const adminUpdateBanner = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const banner = await prisma.banner.update({ where: { id: req.params.id }, data: req.body });
+  const data = { ...req.body };
+  if (data.priority !== undefined) data.priority = Number(data.priority);
+  if (data.startDate) data.startDate = new Date(data.startDate);
+  if (data.endDate) data.endDate = new Date(data.endDate);
+
+  const banner = await prisma.banner.update({ where: { id: req.params.id }, data });
   res.json({ success: true, data: banner });
 });
 
@@ -233,12 +243,24 @@ export const getActiveCampaigns = asyncHandler(async (_req: Request, res: Respon
 });
 
 export const adminCreateCampaign = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const campaign = await prisma.campaign.create({ data: req.body });
+  const data = { ...req.body };
+  if (data.priority !== undefined) data.priority = Number(data.priority);
+  if (data.discount !== undefined) data.discount = Number(data.discount);
+  if (data.startDate) data.startDate = new Date(data.startDate);
+  if (data.endDate) data.endDate = new Date(data.endDate);
+
+  const campaign = await prisma.campaign.create({ data });
   res.status(201).json({ success: true, data: campaign });
 });
 
 export const adminUpdateCampaign = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const campaign = await prisma.campaign.update({ where: { id: req.params.id }, data: req.body });
+  const data = { ...req.body };
+  if (data.priority !== undefined) data.priority = Number(data.priority);
+  if (data.discount !== undefined) data.discount = Number(data.discount);
+  if (data.startDate) data.startDate = new Date(data.startDate);
+  if (data.endDate) data.endDate = new Date(data.endDate);
+
+  const campaign = await prisma.campaign.update({ where: { id: req.params.id }, data });
   res.json({ success: true, data: campaign });
 });
 
@@ -498,12 +520,28 @@ export const adminGetPromotions = asyncHandler(async (_req: Request, res: Respon
 });
 
 export const adminCreatePromotion = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const promotion = await prisma.promotion.create({ data: req.body });
+  const data = { ...req.body };
+  if (data.discountValue !== undefined) data.discountValue = data.discountValue ? Number(data.discountValue) : null;
+  if (data.buyQuantity !== undefined) data.buyQuantity = data.buyQuantity ? Number(data.buyQuantity) : null;
+  if (data.getQuantity !== undefined) data.getQuantity = data.getQuantity ? Number(data.getQuantity) : null;
+  if (data.minOrderAmount !== undefined) data.minOrderAmount = data.minOrderAmount ? Number(data.minOrderAmount) : null;
+  if (data.startDate) data.startDate = new Date(data.startDate);
+  if (data.endDate) data.endDate = new Date(data.endDate);
+
+  const promotion = await prisma.promotion.create({ data });
   res.status(201).json({ success: true, data: promotion });
 });
 
 export const adminUpdatePromotion = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const promotion = await prisma.promotion.update({ where: { id: req.params.id }, data: req.body });
+  const data = { ...req.body };
+  if (data.discountValue !== undefined) data.discountValue = data.discountValue ? Number(data.discountValue) : null;
+  if (data.buyQuantity !== undefined) data.buyQuantity = data.buyQuantity ? Number(data.buyQuantity) : null;
+  if (data.getQuantity !== undefined) data.getQuantity = data.getQuantity ? Number(data.getQuantity) : null;
+  if (data.minOrderAmount !== undefined) data.minOrderAmount = data.minOrderAmount ? Number(data.minOrderAmount) : null;
+  if (data.startDate) data.startDate = new Date(data.startDate);
+  if (data.endDate) data.endDate = new Date(data.endDate);
+
+  const promotion = await prisma.promotion.update({ where: { id: req.params.id }, data });
   res.json({ success: true, data: promotion });
 });
 
@@ -561,12 +599,20 @@ export const adminGetShippingZones = asyncHandler(async (req: Request, res: Resp
 });
 
 export const adminCreateShippingZone = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const zone = await prisma.shippingZone.create({ data: req.body });
+  const data = { ...req.body };
+  if (data.baseRate !== undefined) data.baseRate = Number(data.baseRate);
+  if (data.freeShippingThreshold !== undefined) data.freeShippingThreshold = data.freeShippingThreshold ? Number(data.freeShippingThreshold) : null;
+
+  const zone = await prisma.shippingZone.create({ data });
   res.status(201).json({ success: true, data: zone });
 });
 
 export const adminUpdateShippingZone = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const zone = await prisma.shippingZone.update({ where: { id: req.params.id }, data: req.body });
+  const data = { ...req.body };
+  if (data.baseRate !== undefined) data.baseRate = Number(data.baseRate);
+  if (data.freeShippingThreshold !== undefined) data.freeShippingThreshold = data.freeShippingThreshold ? Number(data.freeShippingThreshold) : null;
+
+  const zone = await prisma.shippingZone.update({ where: { id: req.params.id }, data });
   res.json({ success: true, data: zone });
 });
 
