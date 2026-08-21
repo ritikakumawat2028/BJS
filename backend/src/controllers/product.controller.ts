@@ -215,6 +215,10 @@ export const adminCreateProduct = asyncHandler(async (req: AuthRequest, res: Res
     weight, gender, fragrance, tags, isFeatured, isBestseller, isNewArrival,
     metaTitle, metaDesc, metaKeywords, initialStock = 0, lowStockThreshold = 5, image, variants } = req.body;
 
+  if (!name || !sku || !categoryId || price === undefined || price === null || price === '') {
+    throw createError('Name, SKU, Category, and Price are required fields', 400);
+  }
+
   const slug = slugify(name, { lower: true, strict: true });
   const existingSlug = await prisma.product.findUnique({ where: { slug } });
   if (existingSlug) throw createError('A product with this name already exists', 400);
@@ -224,16 +228,29 @@ export const adminCreateProduct = asyncHandler(async (req: AuthRequest, res: Res
 
   const product = await prisma.product.create({
     data: {
-      name, sku, slug, categoryId, subcategoryId, description, shortDescription,
-      ingredients, benefits, howToUse, price, comparePrice, taxPercent,
-      weight, gender, fragrance, tags: tags ? JSON.stringify(tags) : "[]",
+      name, sku, slug, categoryId, 
+      subcategoryId: subcategoryId || null, 
+      description: description || '', 
+      shortDescription: shortDescription || null,
+      ingredients: ingredients || null, 
+      benefits: benefits || null, 
+      howToUse: howToUse || null, 
+      price: Number(price), 
+      comparePrice: comparePrice ? Number(comparePrice) : null, 
+      taxPercent: taxPercent ? Number(taxPercent) : 0,
+      weight: weight || null, 
+      gender: gender || null, 
+      fragrance: fragrance || null, 
+      tags: tags ? JSON.stringify(tags) : "[]",
       isFeatured: Boolean(isFeatured), isBestseller: Boolean(isBestseller), isNewArrival: Boolean(isNewArrival),
-      metaTitle, metaDesc, metaKeywords,
+      metaTitle: metaTitle || null, 
+      metaDesc: metaDesc || null, 
+      metaKeywords: metaKeywords || null,
       images: image ? { create: [{ url: image, isThumbnail: true }] } : undefined,
-      inventory: { create: { quantity: parseInt(initialStock), lowStockThreshold: parseInt(lowStockThreshold) } },
+      inventory: { create: { quantity: parseInt(initialStock || '0'), lowStockThreshold: parseInt(lowStockThreshold || '5') } },
       variants: variants?.length > 0 ? {
         create: variants.map((v: any) => ({
-          name: v.name, sku: v.sku, price: v.price, comparePrice: v.comparePrice, stock: parseInt(v.stock || 0)
+          name: v.name, sku: v.sku, price: Number(v.price), comparePrice: v.comparePrice ? Number(v.comparePrice) : null, stock: parseInt(v.stock || 0)
         }))
       } : undefined,
     },
@@ -258,7 +275,18 @@ export const adminUpdateProduct = asyncHandler(async (req: AuthRequest, res: Res
   const existing = await prisma.product.findUnique({ where: { id }, include: { variants: true } });
   if (!existing) throw createError('Product not found', 404);
 
-  const { image, variants, stock, initialStock, ...updateData } = req.body;
+  const { image, variants, stock, initialStock, ...rawUpdateData } = req.body;
+  const updateData = { ...rawUpdateData };
+
+  // Convert empty strings to null for relations
+  if (updateData.subcategoryId === '') updateData.subcategoryId = null;
+  if (updateData.categoryId === '') throw createError('Category cannot be empty', 400);
+
+  // Parse decimals
+  if (updateData.price !== undefined) updateData.price = Number(updateData.price);
+  if (updateData.comparePrice === '') updateData.comparePrice = null;
+  else if (updateData.comparePrice !== undefined) updateData.comparePrice = Number(updateData.comparePrice);
+  if (updateData.taxPercent !== undefined) updateData.taxPercent = Number(updateData.taxPercent);
 
   if (updateData.sku && updateData.sku !== existing.sku) {
     const existingSku = await prisma.product.findUnique({ where: { sku: updateData.sku } });
