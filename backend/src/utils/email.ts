@@ -26,7 +26,7 @@ export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<bo
   try {
     const { data, error } = await resend.emails.send({
       from: emailFrom,
-      reply_to: 'jay250576@gmail.com',
+      replyTo: 'jay250576@gmail.com',
       to,
       subject,
       html,
