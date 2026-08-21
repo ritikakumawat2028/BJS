@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { PrismaClient } from '@prisma/client';
-import { logActivity } from '../utils/audit';
+import { logAdminAction } from '../utils/audit';
 
 const prisma = new PrismaClient();
 
@@ -40,7 +40,7 @@ export const campaignController = {
   getById: async (req: Request, res: Response) => {
     try {
       const campaign = await prisma.campaign.findUnique({
-        where: { id: req.params.id }
+        where: { id: req.params.id as string }
       });
       if (!campaign) {
         return res.status(404).json({ success: false, message: 'Campaign not found' });
@@ -76,7 +76,7 @@ export const campaignController = {
       });
 
       if (req.user) {
-        await logActivity(req.user.userId, 'CREATE', 'Campaign', campaign.id, null, JSON.stringify(campaign), req.ip || '');
+        await logAdminAction({ adminId: req.user.userId, action: 'CREATE', entity: 'Campaign', entityId: campaign.id, newValue: JSON.stringify(campaign), ipAddress: req.ip || '' });
       }
 
       res.status(201).json({ success: true, data: campaign });
@@ -90,13 +90,13 @@ export const campaignController = {
     try {
       const { name, desktopBanner, mobileBanner, heading, subtitle, description, ctaText, ctaUrl, discount, couponCode, startDate, endDate, priority, isActive } = req.body;
       
-      const oldCampaign = await prisma.campaign.findUnique({ where: { id: req.params.id } });
+      const oldCampaign = await prisma.campaign.findUnique({ where: { id: req.params.id as string } });
       if (!oldCampaign) {
         return res.status(404).json({ success: false, message: 'Campaign not found' });
       }
 
       const campaign = await prisma.campaign.update({
-        where: { id: req.params.id },
+        where: { id: req.params.id as string },
         data: {
           name: name !== undefined ? name : oldCampaign.name,
           desktopBanner: desktopBanner !== undefined ? desktopBanner : oldCampaign.desktopBanner,
@@ -116,7 +116,7 @@ export const campaignController = {
       });
 
       if (req.user) {
-        await logActivity(req.user.userId, 'UPDATE', 'Campaign', campaign.id, JSON.stringify(oldCampaign), JSON.stringify(campaign), req.ip || '');
+        await logAdminAction({ adminId: req.user.userId, action: 'UPDATE', entity: 'Campaign', entityId: campaign.id, previousValue: JSON.stringify(oldCampaign), newValue: JSON.stringify(campaign), ipAddress: req.ip || '' });
       }
 
       res.json({ success: true, data: campaign });
@@ -128,17 +128,17 @@ export const campaignController = {
 
   delete: async (req: AuthRequest, res: Response) => {
     try {
-      const campaign = await prisma.campaign.findUnique({ where: { id: req.params.id } });
+      const campaign = await prisma.campaign.findUnique({ where: { id: req.params.id as string } });
       if (!campaign) {
         return res.status(404).json({ success: false, message: 'Campaign not found' });
       }
 
       await prisma.campaign.delete({
-        where: { id: req.params.id }
+        where: { id: req.params.id as string }
       });
 
       if (req.user) {
-        await logActivity(req.user.userId, 'DELETE', 'Campaign', req.params.id, JSON.stringify(campaign), null, req.ip || '');
+        await logAdminAction({ adminId: req.user.userId, action: 'DELETE', entity: 'Campaign', entityId: req.params.id as string, previousValue: JSON.stringify(campaign), ipAddress: req.ip || '' });
       }
 
       res.json({ success: true, message: 'Campaign deleted successfully' });

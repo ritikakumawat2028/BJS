@@ -51,7 +51,7 @@ export const createBanner = async (req: Request, res: Response) => {
 
 export const updateBanner = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as any;
     const banner = await prisma.banner.update({
       where: { id },
       data: req.body
@@ -64,7 +64,7 @@ export const updateBanner = async (req: Request, res: Response) => {
 
 export const deleteBanner = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params as any;
     await prisma.banner.delete({ where: { id } });
     res.json({ success: true, message: 'Banner deleted successfully' });
   } catch (error) {

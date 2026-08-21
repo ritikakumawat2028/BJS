@@ -16,7 +16,7 @@ export const getCategories = asyncHandler(async (_req: Request, res: Response) =
 });
 
 export const getCategoryBySlug = asyncHandler(async (req: Request, res: Response) => {
-  const { slug } = req.params;
+  const slug = req.params.slug as string;
   const category = await prisma.category.findUnique({
     where: { slug },
     include: { subcategories: { where: { isActive: true } } },
@@ -44,7 +44,7 @@ export const adminCreateCategory = asyncHandler(async (req: Request, res: Respon
 });
 
 export const adminUpdateCategory = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const updateData = { ...req.body };
   if (updateData.sortOrder !== undefined) updateData.sortOrder = Number(updateData.sortOrder);
   if (updateData.name) updateData.slug = slugify(updateData.name, { lower: true, strict: true });
@@ -54,7 +54,7 @@ export const adminUpdateCategory = asyncHandler(async (req: Request, res: Respon
 });
 
 export const adminDeleteCategory = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const count = await prisma.product.count({ where: { categoryId: id, isActive: true } });
   if (count > 0) throw createError(`Cannot delete: ${count} active products exist in this category`, 400);
   await prisma.category.update({ where: { id }, data: { isActive: false } });

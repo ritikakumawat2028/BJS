@@ -205,7 +205,7 @@ export const addToCart = asyncHandler(async (req: AuthRequest, res: Response) =>
 });
 
 export const updateCartItem = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { itemId } = req.params;
+  const { itemId } = req.params as any;
   const { quantity } = req.body;
 
   const item = await prisma.cartItem.findUnique({
@@ -228,7 +228,7 @@ export const updateCartItem = asyncHandler(async (req: AuthRequest, res: Respons
 });
 
 export const removeCartItem = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { itemId } = req.params;
+  const { itemId } = req.params as any;
   const item = await prisma.cartItem.findUnique({ where: { id: itemId } });
   if (!item) throw createError('Cart item not found', 404);
   await prisma.cartItem.delete({ where: { id: itemId } });

@@ -18,7 +18,7 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
     include: {
       items: {
         include: {
-          product: { include: { inventory: true } },
+          product: { include: { inventory: true, images: { where: { isThumbnail: true }, take: 1 } } },
           variant: true,
         },
       },
@@ -33,7 +33,7 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
       include: {
         items: {
           include: {
-            product: { include: { inventory: true } },
+            product: { include: { inventory: true, images: { where: { isThumbnail: true }, take: 1 } } },
             variant: true,
           },
         },
@@ -404,7 +404,7 @@ export const getUserOrders = asyncHandler(async (req: AuthRequest, res: Response
 });
 
 export const getOrderById = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const order = await prisma.order.findFirst({
     where: { id, userId: req.user!.userId },
     include: {
@@ -461,7 +461,7 @@ export const adminGetOrders = asyncHandler(async (req: AuthRequest, res: Respons
 });
 
 export const adminGetOrderById = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
@@ -478,7 +478,7 @@ export const adminGetOrderById = asyncHandler(async (req: AuthRequest, res: Resp
 });
 
 export const adminUpdateOrderStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const { status, paymentStatus, trackingNumber, deliveryPartner, message } = req.body;
 
   const existingOrder = await prisma.order.findUnique({ where: { id }, include: { items: true } });

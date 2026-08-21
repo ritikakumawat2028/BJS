@@ -182,7 +182,7 @@ export const adminGetCustomers = asyncHandler(async (req: Request, res: Response
 });
 
 export const adminToggleUserStatus = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const user = await prisma.user.findUnique({ where: { id }, include: { role: true } });
   if (!user || user.role?.name === 'ADMIN') throw createError('Cannot modify this user', 400);
 
@@ -224,12 +224,12 @@ export const adminUpdateBanner = asyncHandler(async (req: AuthRequest, res: Resp
   if (data.startDate) data.startDate = new Date(data.startDate);
   if (data.endDate) data.endDate = new Date(data.endDate);
 
-  const banner = await prisma.banner.update({ where: { id: req.params.id }, data });
+  const banner = await prisma.banner.update({ where: { id: req.params.id as string }, data });
   res.json({ success: true, data: banner });
 });
 
 export const adminDeleteBanner = asyncHandler(async (req: AuthRequest, res: Response) => {
-  await prisma.banner.delete({ where: { id: req.params.id } });
+  await prisma.banner.delete({ where: { id: req.params.id as string } });
   res.json({ success: true, message: 'Banner deleted' });
 });
 
@@ -260,7 +260,7 @@ export const adminUpdateCampaign = asyncHandler(async (req: AuthRequest, res: Re
   if (data.startDate) data.startDate = new Date(data.startDate);
   if (data.endDate) data.endDate = new Date(data.endDate);
 
-  const campaign = await prisma.campaign.update({ where: { id: req.params.id }, data });
+  const campaign = await prisma.campaign.update({ where: { id: req.params.id as string }, data });
   res.json({ success: true, data: campaign });
 });
 
@@ -290,7 +290,7 @@ export const adminCreateCoupon = asyncHandler(async (req: AuthRequest, res: Resp
 
 export const adminUpdateCoupon = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { products, categories, ...rest } = req.body;
-  const couponId = req.params.id;
+  const couponId = req.params.id as string;
   
   const coupon = await prisma.$transaction(async (tx) => {
     const updated = await tx.coupon.update({ where: { id: couponId }, data: rest });
@@ -309,7 +309,7 @@ export const adminUpdateCoupon = asyncHandler(async (req: AuthRequest, res: Resp
 });
 
 export const adminDeleteCoupon = asyncHandler(async (req: AuthRequest, res: Response) => {
-  await prisma.coupon.delete({ where: { id: req.params.id } });
+  await prisma.coupon.delete({ where: { id: req.params.id as string } });
   res.json({ success: true, message: 'Coupon deleted' });
 });
 
@@ -332,7 +332,7 @@ export const adminGetReviews = asyncHandler(async (req: Request, res: Response) 
 });
 
 export const adminApproveReview = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const review = await prisma.review.update({ where: { id: req.params.id }, data: { isApproved: true } });
+  const review = await prisma.review.update({ where: { id: req.params.id as string }, data: { isApproved: true } });
 
   // Update product avg rating
   const stats = await prisma.review.aggregate({
@@ -348,7 +348,7 @@ export const adminApproveReview = asyncHandler(async (req: AuthRequest, res: Res
 });
 
 export const adminDeleteReview = asyncHandler(async (req: AuthRequest, res: Response) => {
-  await prisma.review.delete({ where: { id: req.params.id } });
+  await prisma.review.delete({ where: { id: req.params.id as string } });
   res.json({ success: true, message: 'Review deleted' });
 });
 
@@ -427,7 +427,7 @@ export const subscribeNewsletter = asyncHandler(async (req: Request, res: Respon
 // ========== INVENTORY OVERVIEW ==========
 export const getCustomers = asyncHandler(async (req: Request, res: Response) => {
   const customers = await prisma.user.findMany({
-    where: { role: 'CUSTOMER' },
+    where: { role: { name: 'CUSTOMER' } },
     select: { id: true, firstName: true, lastName: true, email: true, phone: true, createdAt: true,
       orders: { select: { id: true } }
     },
@@ -460,7 +460,7 @@ export const getReviews = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const updateReviewStatus = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const { isApproved, adminReply } = req.body;
 
   const review = await prisma.review.findUnique({ where: { id } });
@@ -490,7 +490,7 @@ export const updateReviewStatus = asyncHandler(async (req: Request, res: Respons
 });
 
 export const deleteReview = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
 
   const review = await prisma.review.findUnique({ where: { id } });
   if (!review) throw createError('Review not found', 404);
@@ -541,7 +541,7 @@ export const adminUpdatePromotion = asyncHandler(async (req: AuthRequest, res: R
   if (data.startDate) data.startDate = new Date(data.startDate);
   if (data.endDate) data.endDate = new Date(data.endDate);
 
-  const promotion = await prisma.promotion.update({ where: { id: req.params.id }, data });
+  const promotion = await prisma.promotion.update({ where: { id: req.params.id as string }, data });
   res.json({ success: true, data: promotion });
 });
 
@@ -594,30 +594,30 @@ export const adminGetPayments = asyncHandler(async (req: Request, res: Response)
 
 // ========== SHIPPING ZONES ==========
 export const adminGetShippingZones = asyncHandler(async (req: Request, res: Response) => {
-  const zones = await prisma.shippingZone.findMany({ orderBy: { createdAt: 'desc' } });
+  const zones = await prisma.shipping.findMany({ orderBy: { createdAt: 'desc' } });
   res.json({ success: true, data: zones });
 });
 
 export const adminCreateShippingZone = asyncHandler(async (req: AuthRequest, res: Response) => {
   const data = { ...req.body };
-  if (data.baseRate !== undefined) data.baseRate = Number(data.baseRate);
-  if (data.freeShippingThreshold !== undefined) data.freeShippingThreshold = data.freeShippingThreshold ? Number(data.freeShippingThreshold) : null;
+  if (data.shippingCharge !== undefined) data.shippingCharge = Number(data.shippingCharge);
+  if (data.freeAbove !== undefined) data.freeAbove = data.freeAbove ? Number(data.freeAbove) : null;
 
-  const zone = await prisma.shippingZone.create({ data });
+  const zone = await prisma.shipping.create({ data });
   res.status(201).json({ success: true, data: zone });
 });
 
 export const adminUpdateShippingZone = asyncHandler(async (req: AuthRequest, res: Response) => {
   const data = { ...req.body };
-  if (data.baseRate !== undefined) data.baseRate = Number(data.baseRate);
-  if (data.freeShippingThreshold !== undefined) data.freeShippingThreshold = data.freeShippingThreshold ? Number(data.freeShippingThreshold) : null;
+  if (data.shippingCharge !== undefined) data.shippingCharge = Number(data.shippingCharge);
+  if (data.freeAbove !== undefined) data.freeAbove = data.freeAbove ? Number(data.freeAbove) : null;
 
-  const zone = await prisma.shippingZone.update({ where: { id: req.params.id }, data });
+  const zone = await prisma.shipping.update({ where: { id: req.params.id as string }, data });
   res.json({ success: true, data: zone });
 });
 
 export const adminDeleteShippingZone = asyncHandler(async (req: AuthRequest, res: Response) => {
-  await prisma.shippingZone.delete({ where: { id: req.params.id } });
+  await prisma.shipping.delete({ where: { id: req.params.id as string } });
   res.json({ success: true, message: 'Shipping zone deleted' });
 });
 
