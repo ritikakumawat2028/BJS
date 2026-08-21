@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { getSetting } from './getSetting';
 
 interface EmailOptions {
@@ -8,43 +8,38 @@ interface EmailOptions {
 }
 
 export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<boolean> => {
-  let emailFrom = await getSetting('email_from', 'EMAIL_FROM') || 'jay250576@gmail.com';
+  let emailFrom = await getSetting('email_from', 'EMAIL_FROM') || 'onboarding@resend.dev';
+  
+  const resendApiKey = process.env.RESEND_API_KEY;
 
-  const smtpHost = process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com';
-  const smtpPort = parseInt(process.env.SMTP_PORT || process.env.EMAIL_PORT || '465', 10);
-  const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER || 'jay250576@gmail.com';
-  const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
-
-  if (!smtpPass) {
+  if (!resendApiKey) {
     console.log(`\n======================================================`);
-    console.log(`[EMAIL SKIPPED - SMTP_PASS NOT CONFIGURED]`);
+    console.log(`[EMAIL SKIPPED - RESEND_API_KEY NOT CONFIGURED]`);
     console.log(`To: ${to} | Subject: ${subject}`);
     console.log(`Message Content:\n${html}`);
     console.log(`======================================================\n`);
     return false;
   }
 
-  try {
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: smtpPort === 465,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-    });
+  const resend = new Resend(resendApiKey);
 
-    await transporter.sendMail({
+  try {
+    const { data, error } = await resend.emails.send({
       from: emailFrom,
+      reply_to: 'jay250576@gmail.com',
       to,
       subject,
       html,
     });
 
+    if (error) {
+      console.error(`[EMAIL ERROR] Failed to send email to ${to}:`, error);
+      return false;
+    }
+
     return true;
   } catch (error) {
-    console.error(`[EMAIL ERROR] Failed to send email to ${to}:`, error);
+    console.error(`[EMAIL ERROR] Unexpected error sending email to ${to}:`, error);
     return false;
   }
 };
