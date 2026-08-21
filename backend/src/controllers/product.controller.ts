@@ -89,7 +89,7 @@ export const getProducts = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getProductBySlug = asyncHandler(async (req: Request, res: Response) => {
-  const { slug } = req.params;
+  const { slug } = req.params as any;
   const product = await prisma.product.findUnique({
     where: { slug, isActive: true },
     include: {
@@ -254,7 +254,7 @@ export const adminCreateProduct = asyncHandler(async (req: AuthRequest, res: Res
 });
 
 export const adminUpdateProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const existing = await prisma.product.findUnique({ where: { id }, include: { variants: true } });
   if (!existing) throw createError('Product not found', 404);
 
@@ -335,7 +335,7 @@ export const adminUpdateProduct = asyncHandler(async (req: AuthRequest, res: Res
 });
 
 export const adminDeleteProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   // Soft delete: deactivate instead of deleting
   await prisma.product.update({ where: { id }, data: { isActive: false } });
   await prisma.adminActivityLog.create({
@@ -345,7 +345,7 @@ export const adminDeleteProduct = asyncHandler(async (req: AuthRequest, res: Res
 });
 
 export const adminUpdateInventory = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const { type, quantity, note } = req.body;
 
   const inventory = await prisma.inventory.findUnique({ where: { productId: id } });
@@ -367,7 +367,7 @@ export const adminUpdateInventory = asyncHandler(async (req: AuthRequest, res: R
 });
 
 export const adminUploadProductImages = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const { images } = req.body; // Array of { url, altText, isThumbnail, sortOrder }
 
   const created = await prisma.productImage.createMany({
@@ -376,4 +376,4 @@ export const adminUploadProductImages = asyncHandler(async (req: AuthRequest, re
 
   res.json({ success: true, message: 'Images uploaded', data: created });
 });
-export const getProductReviews = asyncHandler(async (req: Request, res: Response) => { const { id } = req.params; const reviews = await prisma.review.findMany({ where: { productId: id, isApproved: true }, include: { user: { select: { firstName: true, lastName: true } } }, orderBy: { createdAt: 'desc' } }); res.json({ success: true, data: reviews }); });
+export const getProductReviews = asyncHandler(async (req: Request, res: Response) => { const { id } = req.params as any; const reviews = await prisma.review.findMany({ where: { productId: id, isApproved: true }, include: { user: { select: { firstName: true, lastName: true } } }, orderBy: { createdAt: 'desc' } }); res.json({ success: true, data: reviews }); });

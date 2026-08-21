@@ -45,7 +45,7 @@ export const addToWishlist = asyncHandler(async (req: AuthRequest, res: Response
 });
 
 export const removeFromWishlist = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { productId } = req.params;
+  const { productId } = req.params as any;
   const wishlist = await prisma.wishlist.findUnique({ where: { userId: req.user!.userId } });
   if (!wishlist) throw createError('Wishlist not found', 404);
   await prisma.wishlistItem.deleteMany({ where: { wishlistId: wishlist.id, productId } });
@@ -73,7 +73,7 @@ export const addAddress = asyncHandler(async (req: AuthRequest, res: Response) =
 });
 
 export const updateAddress = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const userId = req.user!.userId;
 
   const address = await prisma.address.findFirst({ where: { id, userId } });
@@ -88,7 +88,7 @@ export const updateAddress = asyncHandler(async (req: AuthRequest, res: Response
 });
 
 export const deleteAddress = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   await prisma.address.deleteMany({ where: { id, userId: req.user!.userId } });
   res.json({ success: true, message: 'Address deleted' });
 });
@@ -120,7 +120,7 @@ export const addReview = asyncHandler(async (req: AuthRequest, res: Response) =>
 });
 
 export const updateReview = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const { rating, title, comment, images } = req.body;
   const userId = req.user!.userId;
 
@@ -148,7 +148,7 @@ export const updateReview = asyncHandler(async (req: AuthRequest, res: Response)
 });
 
 export const deleteReview = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const userId = req.user!.userId;
 
   const review = await prisma.review.findFirst({ where: { id, userId } });
@@ -182,7 +182,7 @@ export const getNotifications = asyncHandler(async (req: AuthRequest, res: Respo
 });
 
 export const markNotificationRead = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   await prisma.notification.update({ where: { id, userId: req.user!.userId }, data: { isRead: true } });
   res.json({ success: true, message: 'Notification marked as read' });
 });

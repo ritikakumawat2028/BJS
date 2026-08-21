@@ -30,7 +30,7 @@ export const getActivePromotions = asyncHandler(async (_req: Request, res: Respo
 });
 
 export const getPromotionById = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const promotion = await prisma.promotion.findUnique({
     where: { id },
     include: {
@@ -69,7 +69,7 @@ export const createPromotion = asyncHandler(async (req: Request, res: Response) 
 });
 
 export const updatePromotion = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   const { productIds, categoryIds, startDate, endDate, ...rest } = req.body;
 
   const data: any = { ...rest };
@@ -114,7 +114,7 @@ export const updatePromotion = asyncHandler(async (req: Request, res: Response) 
 });
 
 export const deletePromotion = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as any;
   
   await prisma.$transaction([
     prisma.promotionProduct.deleteMany({ where: { promotionId: id } }),
