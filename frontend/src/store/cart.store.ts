@@ -73,8 +73,16 @@ export const useCartStore = create<CartStore>()(
             const { data } = await cartApi.removeItem(itemId);
             set({ cart: data.data, isLoading: false });
             toast.success('Item removed');
-          } catch {
+          } catch (err: any) {
             set({ isLoading: false });
+            if (err.response?.status === 404) {
+              const currentCart = get().cart;
+              if (currentCart) {
+                set({ cart: { ...currentCart, items: currentCart.items.filter((i: any) => i.id !== itemId) } });
+              }
+            } else {
+              toast.error('Failed to remove item');
+            }
           }
         },
 
