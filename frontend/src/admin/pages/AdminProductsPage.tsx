@@ -46,8 +46,8 @@ const AdminProductsPage: React.FC = () => {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => productsApi.delete(id),
-    onSuccess: () => { toast.success('Product deactivated'); qc.invalidateQueries({ queryKey: ['admin-products'] }); setDeleteId(null); },
-    onError: () => toast.error('Failed to deactivate product'),
+    onSuccess: () => { toast.success('Product deleted'); qc.invalidateQueries({ queryKey: ['admin-products'] }); setDeleteId(null); },
+    onError: () => toast.error('Failed to delete product'),
   });
 
   const openForm = (product?: any) => {
@@ -159,7 +159,7 @@ const AdminProductsPage: React.FC = () => {
                 <td>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="btn btn-outline btn-sm" onClick={() => openForm(p)}>Edit</button>
-                    <button className="btn btn-sm" style={{ borderColor: 'var(--color-error)', color: 'var(--color-error)', background: 'transparent', border: '1px solid' }} onClick={() => setDeleteId(p.id)}>Deactivate</button>
+                    <button className="btn btn-sm" style={{ borderColor: 'var(--color-error)', color: 'var(--color-error)', background: 'transparent', border: '1px solid' }} onClick={() => setDeleteId(p.id)}>Delete</button>
                   </div>
                 </td>
               </tr>
@@ -287,11 +287,11 @@ const AdminProductsPage: React.FC = () => {
       {deleteId && (
         <div className="modal-overlay">
           <div className="modal animate-scale-in">
-            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: 'var(--color-ivory)', marginBottom: '16px' }}>Confirm Deactivation</h3>
-            <p style={{ color: 'var(--color-text-muted)', marginBottom: '24px' }}>Are you sure you want to deactivate this product? It will no longer be visible to customers.</p>
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+            <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: 'var(--color-ivory)', marginBottom: '16px' }}>Confirm Deletion</h3>
+            <p style={{ color: 'var(--color-text-muted)', marginBottom: '24px' }}>Are you sure you want to delete this product? It will no longer be visible to customers.</p>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
               <button className="btn btn-outline" onClick={() => setDeleteId(null)}>Cancel</button>
-              <button className="btn" style={{ background: 'var(--color-error)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '4px', cursor: 'pointer' }} onClick={() => deleteMutation.mutate(deleteId)}>Deactivate</button>
+              <button className="btn" style={{ background: 'var(--color-error)', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '4px', cursor: 'pointer' }} onClick={() => deleteMutation.mutate(deleteId)}>Delete</button>
             </div>
           </div>
         </div>
