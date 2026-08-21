@@ -336,12 +336,29 @@ export const adminUpdateProduct = asyncHandler(async (req: AuthRequest, res: Res
 
 export const adminDeleteProduct = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { id } = req.params as any;
-  // Soft delete: deactivate instead of deleting
-  await prisma.product.update({ where: { id }, data: { isActive: false } });
-  await prisma.adminActivityLog.create({
-    data: { adminId: req.user!.userId, action: 'DEACTIVATE_PRODUCT', entity: 'Product', entityId: id },
+  
+  await prisma.$transaction(async (tx) => {
+    const orderCount = await tx.orderItem.count({ where: { productId: id } });
+    if (orderCount > 0) {
+      throw createError('Cannot delete product because it is part of existing orders. Please deactivate it instead.', 400);
+    }
+    
+    // Clean up relations that don't cascade automatically
+    await tx.cartItem.deleteMany({ where: { productId: id } });
+    await tx.wishlistItem.deleteMany({ where: { productId: id } });
+    await tx.review.deleteMany({ where: { productId: id } });
+    await tx.couponProduct.deleteMany({ where: { productId: id } });
+    await tx.promotionProduct.deleteMany({ where: { productId: id } });
+    
+    // InventoryTransaction might point to this if variant is deleted, but Inventory has cascade?
+    // Let's rely on Prisma schema cascades for ProductVariant, Inventory, ProductImage.
+    await tx.product.delete({ where: { id } });
   });
-  res.json({ success: true, message: 'Product deactivated' });
+
+  await prisma.adminActivityLog.create({
+    data: { adminId: req.user!.userId, action: 'DELETE_PRODUCT', entity: 'Product', entityId: id },
+  });
+  res.json({ success: true, message: 'Product deleted permanently' });
 });
 
 export const adminUpdateInventory = asyncHandler(async (req: AuthRequest, res: Response) => {
