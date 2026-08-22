@@ -192,20 +192,20 @@ const AdminProductsPage: React.FC = () => {
               <section>
                 <h4 style={{ color: 'var(--color-gold)', marginBottom: '16px', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Basic Information</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div><label className="form-label">Name *</label><input type="text" className="form-input" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} /></div>
-                  <div><label className="form-label">SKU *</label><input type="text" className="form-input" required value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} /></div>
+                  <div><label className="form-label">Name *</label><input type="text" name="name" className="form-input" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} /></div>
+                  <div><label className="form-label">SKU *</label><input type="text" name="sku" className="form-input" required value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} /></div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px', marginTop: '16px' }}>
                   <div>
                     <label className="form-label">Category *</label>
-                    <select className="form-select" required value={formData.categoryId} onChange={e => setFormData({...formData, categoryId: e.target.value})}>
+                    <select className="form-select" name="categoryId" required value={formData.categoryId} onChange={e => setFormData({...formData, categoryId: e.target.value})}>
                       <option value="" disabled>Select Category</option>
                       {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                     </select>
                   </div>
-                  <div><label className="form-label">Price (₹) *</label><input type="number" min="0" step="0.01" className="form-input" required value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} /></div>
+                  <div><label className="form-label">Price (₹) *</label><input type="number" name="price" min="0" step="0.01" className="form-input" required value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} /></div>
                   <div><label className="form-label">Compare (₹)</label><input type="number" min="0" step="0.01" className="form-input" placeholder="Original Price" value={formData.comparePrice} onChange={e => setFormData({...formData, comparePrice: e.target.value})} /></div>
-                  <div><label className="form-label">Base Stock *</label><input type="number" min="0" className="form-input" required value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} /></div>
+                  <div><label className="form-label">Base Stock *</label><input type="number" name="stock" min="0" className="form-input" required value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} /></div>
                 </div>
                 <div style={{ marginTop: '16px' }}><label className="form-label">Description</label><textarea className="form-textarea" rows={4} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}></textarea></div>
               </section>

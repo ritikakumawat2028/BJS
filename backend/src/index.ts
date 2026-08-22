@@ -50,13 +50,13 @@ app.use(cors({
 
 app.use(cookieParser());
 
-// Rate limiting
-const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200, message: { success: false, message: 'Too many requests' } });
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { success: false, message: 'Too many authentication attempts' } });
-
-app.use('/api/', apiLimiter);
-app.use('/api/auth/login', authLimiter);
-app.use('/api/auth/register', authLimiter);
+// Apply rate limiting (only in production)
+if (process.env.NODE_ENV === 'production') {
+  const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200, message: { success: false, message: 'Too many requests' } });
+  const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { success: false, message: 'Too many authentication attempts' } });
+  app.use('/api/', apiLimiter);
+  app.use('/api/auth/', authLimiter);
+}
 
 // ===== BODY PARSING =====
 // Raw body for Razorpay webhook

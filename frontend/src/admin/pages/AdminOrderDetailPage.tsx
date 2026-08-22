@@ -159,7 +159,7 @@ const AdminOrderDetailPage: React.FC = () => {
             
             <div className="form-group">
               <label className="form-label">Update Order Status</label>
-              <select className="form-select" value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+              <select className="form-select" name="orderStatus" value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
                 {statusOptions.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>

@@ -173,11 +173,15 @@ export const addToCart = asyncHandler(async (req: AuthRequest, res: Response) =>
   // Get or create cart
   let cart;
   if (userId) {
-    cart = await prisma.cart.upsert({ where: { userId }, update: {}, create: { userId } });
+    cart = await prisma.cart.upsert({ 
+      where: { userId }, 
+      update: {}, 
+      create: { userId, sessionId: sessionId || `mock-${Date.now()}-${Math.random()}` } 
+    });
     // Merge session cart if exists
     if (sessionId) {
       const sessionCart = await prisma.cart.findUnique({ where: { sessionId } });
-      if (sessionCart) {
+      if (sessionCart && sessionCart.id !== cart.id) {
         await prisma.cartItem.updateMany({ where: { cartId: sessionCart.id }, data: { cartId: cart.id } });
         await prisma.cart.delete({ where: { id: sessionCart.id } });
       }

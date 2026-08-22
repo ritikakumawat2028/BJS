@@ -183,7 +183,7 @@ const AdminCampaignsPage: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="form-group">
                   <label className="form-label">Campaign Name (Internal) *</label>
-                  <input className="form-input" type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                  <input className="form-input" type="text" name="name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Priority (Higher = Displayed First)</label>
@@ -264,11 +264,11 @@ const AdminCampaignsPage: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="form-group">
                   <label className="form-label">Discount Percentage (%)</label>
-                  <input className="form-input" type="number" min="0" max="100" value={formData.discount || ''} onChange={e => setFormData({...formData, discount: e.target.value})} />
+                  <input className="form-input" type="number" name="discount" min="0" max="100" value={formData.discount || ''} onChange={e => setFormData({...formData, discount: e.target.value})} />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Linked Coupon Code (Optional)</label>
-                  <input className="form-input" type="text" value={formData.couponCode || ''} onChange={e => setFormData({...formData, couponCode: e.target.value})} />
+                  <input className="form-input" type="text" name="couponCode" value={formData.couponCode || ''} onChange={e => setFormData({...formData, couponCode: e.target.value})} />
                 </div>
               </div>
 

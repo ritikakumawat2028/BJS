@@ -8,6 +8,8 @@ const cache = apicache.middleware;
 export const apiCache = (duration: string = '5 minutes') => {
   return cache(duration, (req: Request, res: Response) => {
     // Only cache successful GET responses
+    // Disable cache for authenticated users to ensure admin always gets fresh data
+    if (req.headers.authorization) return false;
     return req.method === 'GET' && res.statusCode === 200;
   });
 };

@@ -224,7 +224,7 @@ const AdminCategoriesPage: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
                 <div className="form-group">
                   <label className="form-label">Category Name *</label>
-                  <input className="form-input" type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+                  <input className="form-input" type="text" name="name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Sort Order</label>

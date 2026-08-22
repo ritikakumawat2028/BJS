@@ -274,37 +274,37 @@ const CheckoutPage: React.FC = () => {
                             <div className="address-form-grid-2">
                               <div>
                                 <label className="form-label">First Name *</label>
-                                <input required className="form-input" value={newAddr.firstName} onChange={(e) => setNewAddr({ ...newAddr, firstName: e.target.value })} placeholder="John" />
+                                <input required name="firstName" className="form-input" value={newAddr.firstName} onChange={(e) => setNewAddr({ ...newAddr, firstName: e.target.value })} placeholder="John" />
                               </div>
                               <div>
                                 <label className="form-label">Last Name *</label>
-                                <input required className="form-input" value={newAddr.lastName} onChange={(e) => setNewAddr({ ...newAddr, lastName: e.target.value })} placeholder="Doe" />
+                                <input required name="lastName" className="form-input" value={newAddr.lastName} onChange={(e) => setNewAddr({ ...newAddr, lastName: e.target.value })} placeholder="Doe" />
                               </div>
                             </div>
                             <div className="form-group" style={{ marginBottom: '20px' }}>
                               <label className="form-label">Phone Number *</label>
-                              <input required type="tel" className="form-input" value={newAddr.phone} onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value })} placeholder="+91 9876543210" />
+                              <input required type="tel" name="phone" className="form-input" value={newAddr.phone} onChange={(e) => setNewAddr({ ...newAddr, phone: e.target.value })} placeholder="+91 9876543210" />
                             </div>
                             <div className="form-group" style={{ marginBottom: '20px' }}>
                               <label className="form-label">Address Line 1 *</label>
-                              <input required className="form-input" value={newAddr.line1} onChange={(e) => setNewAddr({ ...newAddr, line1: e.target.value })} placeholder="House/Flat No., Building Name, Street" />
+                              <input required name="line1" className="form-input" value={newAddr.line1} onChange={(e) => setNewAddr({ ...newAddr, line1: e.target.value })} placeholder="House/Flat No., Building Name, Street" />
                             </div>
                             <div className="form-group" style={{ marginBottom: '20px' }}>
                               <label className="form-label">Address Line 2 (Optional)</label>
-                              <input className="form-input" value={newAddr.line2} onChange={(e) => setNewAddr({ ...newAddr, line2: e.target.value })} placeholder="Landmark, Area" />
+                              <input name="line2" className="form-input" value={newAddr.line2} onChange={(e) => setNewAddr({ ...newAddr, line2: e.target.value })} placeholder="Landmark, Area" />
                             </div>
                             <div className="address-form-grid-3">
                               <div>
                                 <label className="form-label">City *</label>
-                                <input required className="form-input" value={newAddr.city} onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })} />
+                                <input required name="city" className="form-input" value={newAddr.city} onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })} />
                               </div>
                               <div>
                                 <label className="form-label">State *</label>
-                                <input required className="form-input" value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} />
+                                <input required name="state" className="form-input" value={newAddr.state} onChange={(e) => setNewAddr({ ...newAddr, state: e.target.value })} />
                               </div>
                               <div>
                                 <label className="form-label">Pincode *</label>
-                                <input required className="form-input" value={newAddr.pincode} onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })} />
+                                <input required name="pincode" className="form-input" value={newAddr.pincode} onChange={(e) => setNewAddr({ ...newAddr, pincode: e.target.value })} />
                               </div>
                             </div>
                             <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
