@@ -84,8 +84,17 @@ export const useAuthStore = create<AuthStore>()(
           try {
             const { data } = await authApi.getMe();
             set({ user: data.data, isAuthenticated: true });
-          } catch {
-            set({ user: null, isAuthenticated: false, accessToken: null });
+          } catch (err: any) {
+            // Only clear auth state on an explicit 401 Unauthorized.
+            // Network errors, timeouts, or server cold-starts should NOT
+            // sign the user out — their persisted token is still valid.
+            const status = err?.response?.status;
+            if (status === 401) {
+              localStorage.removeItem('bjs_access_token');
+              set({ user: null, isAuthenticated: false, accessToken: null });
+            }
+            // For all other errors (network offline, 500, timeout, etc.)
+            // we leave the persisted auth state intact so the user stays logged in.
           }
         },
       }),
