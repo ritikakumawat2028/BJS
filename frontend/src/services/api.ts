@@ -47,7 +47,7 @@ export default api;
 
 // ===== AUTH =====
 export const authApi = {
-  register: (data: { email: string; password: string; firstName: string; lastName: string; phone?: string }) =>
+  register: (data: { email: string; password: string; firstName: string; lastName: string; phone?: string; otp: string }) =>
     api.post('/auth/register', data),
   login: (data: { email: string; password: string }) => api.post('/auth/login', data),
   logout: () => api.post('/auth/logout'),

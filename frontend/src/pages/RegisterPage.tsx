@@ -16,11 +16,21 @@ const RegisterPage: React.FC = () => {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.firstName.trim()) e.firstName = 'First name is required';
-    if (!form.lastName.trim()) e.lastName = 'Last name is required';
+    if (!form.firstName.trim() || form.firstName.trim().length < 2) e.firstName = 'First name must be at least 2 characters';
+    if (!form.lastName.trim() || form.lastName.trim().length < 2) e.lastName = 'Last name must be at least 2 characters';
     if (!form.email) e.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Invalid email';
-    if (!form.password || form.password.length < 8) e.password = 'Password must be at least 8 characters';
+    if (!form.password) {
+      e.password = 'Password is required';
+    } else if (form.password.length < 8) {
+      e.password = 'Password must be at least 8 characters';
+    } else if (!/[A-Z]/.test(form.password)) {
+      e.password = 'Password must contain at least one uppercase letter';
+    } else if (!/[0-9]/.test(form.password)) {
+      e.password = 'Password must contain at least one number';
+    } else if (!/[\W_]/.test(form.password)) {
+      e.password = 'Password must contain at least one special character (e.g. @, #, !)';
+    }
     if (form.password !== form.confirmPassword) e.confirmPassword = 'Passwords do not match';
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -66,7 +76,13 @@ const RegisterPage: React.FC = () => {
       toast.success('Account created successfully!');
       navigate('/account');
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Registration failed');
+      // Show specific field validation errors if present
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        const firstError = err.response.data.errors[0];
+        toast.error(firstError?.message || 'Validation failed. Please check your details.');
+      } else {
+        toast.error(err.response?.data?.message || 'Registration failed');
+      }
     } finally {
       setLoading(false);
     }
