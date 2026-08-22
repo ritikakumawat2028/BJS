@@ -17,13 +17,7 @@ export const sendRegisterOtp = asyncHandler(async (req: Request, res: Response) 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-  // Upsert OtpVerification
-  await prisma.otpVerification.upsert({
-    where: { email },
-    update: { otp, expiresAt },
-    create: { email, otp, expiresAt },
-  });
-
+  // Send email FIRST before saving OTP, so DB is only updated if email succeeds
   const emailSent = await sendEmail({
     to: email,
     subject: "Verify your email - BJ'S Natural Care",
@@ -31,8 +25,15 @@ export const sendRegisterOtp = asyncHandler(async (req: Request, res: Response) 
   });
 
   if (!emailSent) {
-    throw createError('Failed to send OTP email. Please check server email credentials.', 500);
+    throw createError('Failed to send OTP email. Please try again.', 500);
   }
+
+  // Only save OTP to DB after email was sent successfully
+  await prisma.otpVerification.upsert({
+    where: { email },
+    update: { otp, expiresAt },
+    create: { email, otp, expiresAt },
+  });
 
   // For development convenience, return OTP in response body
   if (process.env.NODE_ENV !== 'production') {
