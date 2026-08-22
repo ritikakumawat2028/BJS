@@ -87,7 +87,7 @@ export const getDashboard = asyncHandler(async (req: AuthRequest, res: Response)
     prisma.user.count({ where: { role: { name: 'CUSTOMER' }, createdAt: dateFilter } }),
     prisma.user.count({ where: { role: { name: 'CUSTOMER' } } }),
     prisma.product.count({ where: { isActive: true } }),
-    prisma.inventory.count({ where: { quantity: { lte: prisma.inventory.fields.lowStockThreshold } } }),
+    prisma.inventory.findMany().then(inv => inv.filter(i => i.quantity <= i.lowStockThreshold).length),
     prisma.orderItem.groupBy({
       by: ['productName'], 
       where: { order: { paymentStatus: 'PAID', createdAt: dateFilter } },

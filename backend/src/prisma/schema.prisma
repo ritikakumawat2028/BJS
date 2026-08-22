@@ -6,17 +6,14 @@ generator client {
 }
 
 datasource db {
-  // LOCAL DEV: sqlite  |  PRODUCTION (Render): postgresql
-  // Switch to "postgresql" before deploying to Render.
-  // On Render the DATABASE_URL is automatically a PostgreSQL connection string.
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 // ========== USER & AUTH ==========
 
 model Role {
-  id          String   @id @default(uuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String   @unique // e.g. "CUSTOMER", "ADMIN", "STAFF"
   description String?
   createdAt   DateTime @default(now())
@@ -26,7 +23,7 @@ model Role {
 }
 
 model OtpVerification {
-  id        String   @id @default(uuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
   otp       String
   expiresAt DateTime
@@ -34,13 +31,13 @@ model OtpVerification {
 }
 
 model User {
-  id              String    @id @default(uuid())
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
   email           String    @unique
   phone           String?
   firstName       String
   lastName        String
   passwordHash    String
-  roleId          String?
+  roleId          String?   @db.ObjectId
   role            Role?     @relation(fields: [roleId], references: [id])
   isActive        Boolean   @default(true)
   isEmailVerified Boolean   @default(false)
@@ -61,26 +58,24 @@ model User {
   activityLogs    AdminActivityLog[]
   refreshTokens   RefreshToken[]
 
-  @@index([email])
   @@index([roleId])
 }
 
 model RefreshToken {
-  id        String   @id @default(uuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   token     String   @unique
-  userId    String
+  userId    String   @db.ObjectId
   expiresAt DateTime
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([token])
 }
 
 // ========== CATEGORIES ==========
 
 model Category {
-  id          String        @id @default(uuid())
+  id          String        @id @default(auto()) @map("_id") @db.ObjectId
   name        String        @unique
   slug        String        @unique
   description String?
@@ -95,47 +90,45 @@ model Category {
   subcategories Subcategory[]
   products      Product[]
   promotions    PromotionCategory[]
-
-  @@index([slug])
+  coupons       CouponCategory[]
 }
 
 model Subcategory {
-  id          String    @id @default(uuid())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   slug        String    @unique
   description String?
   image       String?
   isActive    Boolean   @default(true)
   sortOrder   Int       @default(0)
-  categoryId  String
+  categoryId  String    @db.ObjectId
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   category    Category  @relation(fields: [categoryId], references: [id])
   products    Product[]
 
-  @@index([slug])
   @@index([categoryId])
 }
 
 // ========== PRODUCTS ==========
 
 model Product {
-  id               String    @id @default(uuid())
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
   sku              String    @unique
   name             String
   slug             String    @unique
   brand            String    @default("BJ'S Natural Care")
-  categoryId       String
-  subcategoryId    String?
+  categoryId       String    @db.ObjectId
+  subcategoryId    String?   @db.ObjectId
   description      String
   shortDescription String?
   ingredients      String?
   benefits         String?
   howToUse         String?
-  price            Decimal   
-  comparePrice     Decimal?  
-  taxPercent       Decimal   @default(0) 
+  price            Float   
+  comparePrice     Float?  
+  taxPercent       Float     @default(0) 
   weight           String?
   gender           String?
   fragrance        String?
@@ -148,7 +141,7 @@ model Product {
   metaDesc         String?
   metaKeywords     String?
   totalSold        Int       @default(0)
-  avgRating        Decimal   @default(0) 
+  avgRating        Float     @default(0) 
   reviewCount      Int       @default(0)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
@@ -163,8 +156,8 @@ model Product {
   wishlistItems WishlistItem[]
   orderItems    OrderItem[]
   promotions    PromotionProduct[]
+  coupons       CouponProduct[]
 
-  @@index([slug])
   @@index([categoryId])
   @@index([isActive])
   @@index([isFeatured])
@@ -173,8 +166,8 @@ model Product {
 }
 
 model ProductImage {
-  id        String   @id @default(uuid())
-  productId String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId String   @db.ObjectId
   url       String
   altText   String?
   isThumbnail Boolean @default(false)
@@ -187,12 +180,12 @@ model ProductImage {
 }
 
 model ProductVariant {
-  id          String   @id @default(uuid())
-  productId   String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String   @db.ObjectId
   name        String
   sku         String   @unique
-  price       Decimal  
-  comparePrice Decimal? 
+  price       Float  
+  comparePrice Float? 
   stock       Int      @default(0)
   weight      String?
   image       String?
@@ -206,14 +199,13 @@ model ProductVariant {
   inventoryTx InventoryTransaction[]
 
   @@index([productId])
-  @@index([sku])
 }
 
 // ========== INVENTORY ==========
 
 model Inventory {
-  id                String   @id @default(uuid())
-  productId         String   @unique
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId         String   @unique @db.ObjectId
   quantity          Int      @default(0)
   lowStockThreshold Int      @default(5)
   createdAt         DateTime @default(now())
@@ -223,17 +215,15 @@ model Inventory {
   transactions  InventoryTransaction[]
 }
 
-
-
 model InventoryTransaction {
-  id          String          @id @default(uuid())
-  inventoryId String?
-  variantId   String?
-  type String
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  inventoryId String?         @db.ObjectId
+  variantId   String?         @db.ObjectId
+  type        String
   quantity    Int
   note        String?
-  orderId     String?
-  adminId     String?
+  orderId     String?         @db.ObjectId
+  adminId     String?         @db.ObjectId
   createdAt   DateTime        @default(now())
 
   inventory   Inventory?      @relation(fields: [inventoryId], references: [id])
@@ -245,26 +235,23 @@ model InventoryTransaction {
 // ========== CART ==========
 
 model Cart {
-  id        String     @id @default(uuid())
-  userId    String?    @unique
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?    @unique @db.ObjectId
   sessionId String?    @unique
-  couponId  String?
+  couponId  String?    @db.ObjectId
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
   user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   coupon    Coupon?    @relation(fields: [couponId], references: [id])
   items     CartItem[]
-
-  @@index([userId])
-  @@index([sessionId])
 }
 
 model CartItem {
-  id        String   @id @default(uuid())
-  cartId    String
-  productId String
-  variantId String?
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  cartId    String   @db.ObjectId
+  productId String   @db.ObjectId
+  variantId String?  @db.ObjectId
   quantity  Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -280,8 +267,8 @@ model CartItem {
 // ========== WISHLIST ==========
 
 model Wishlist {
-  id        String         @id @default(uuid())
-  userId    String         @unique
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String         @unique @db.ObjectId
   createdAt DateTime       @default(now())
 
   user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -289,9 +276,9 @@ model Wishlist {
 }
 
 model WishlistItem {
-  id         String   @id @default(uuid())
-  wishlistId String
-  productId  String
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  wishlistId String   @db.ObjectId
+  productId  String   @db.ObjectId
   createdAt  DateTime @default(now())
 
   wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
@@ -304,8 +291,8 @@ model WishlistItem {
 // ========== ADDRESS ==========
 
 model Address {
-  id          String   @id @default(uuid())
-  userId      String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
   label       String?  // Home, Work, etc.
   firstName   String
   lastName    String
@@ -329,28 +316,22 @@ model Address {
 
 // ========== ORDERS ==========
 
-
-
-
-
-
-
 model Order {
-  id                String        @id @default(uuid())
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
   orderNumber       String        @unique
-  userId            String
-  status String @default("PENDING")
-  paymentStatus String @default("PENDING")
-  paymentMethod String
-  shippingAddressId String
-  billingAddressId  String?
-  subtotal          Decimal       
-  discount          Decimal       @default(0) 
-  tax               Decimal       @default(0) 
-  shippingCharge    Decimal       @default(0) 
-  total             Decimal       
+  userId            String        @db.ObjectId
+  status            String        @default("PENDING")
+  paymentStatus     String        @default("PENDING")
+  paymentMethod     String
+  shippingAddressId String        @db.ObjectId
+  billingAddressId  String?       @db.ObjectId
+  subtotal          Float       
+  discount          Float       @default(0) 
+  tax               Float       @default(0) 
+  shippingCharge    Float       @default(0) 
+  total             Float       
   couponCode        String?
-  couponDiscount    Decimal       @default(0) 
+  couponDiscount    Float       @default(0) 
   trackingNumber    String?
   deliveryPartner   String?
   notes             String?
@@ -367,24 +348,23 @@ model Order {
   return            Return?
 
   @@index([userId])
-  @@index([orderNumber])
   @@index([status])
   @@index([createdAt])
 }
 
 model OrderItem {
-  id          String   @id @default(uuid())
-  orderId     String
-  productId   String
-  variantId   String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId     String   @db.ObjectId
+  productId   String   @db.ObjectId
+  variantId   String?  @db.ObjectId
   productName String
   variantName String?
   sku         String
   quantity    Int
-  unitPrice   Decimal  
-  discount    Decimal  @default(0) 
-  tax         Decimal  @default(0) 
-  total       Decimal  
+  unitPrice   Float  
+  discount    Float  @default(0) 
+  tax         Float  @default(0) 
+  total       Float  
   image       String?
 
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -395,12 +375,12 @@ model OrderItem {
 }
 
 model OrderTimeline {
-  id        String      @id @default(uuid())
-  orderId   String
-  status String
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  orderId   String      @db.ObjectId
+  status    String
   message   String?
   createdAt DateTime    @default(now())
-  createdBy String?
+  createdBy String?     @db.ObjectId
 
   order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -410,15 +390,15 @@ model OrderTimeline {
 // ========== PAYMENT ==========
 
 model Payment {
-  id                  String        @id @default(uuid())
-  orderId             String        @unique
+  id                  String        @id @default(auto()) @map("_id") @db.ObjectId
+  orderId             String        @unique @db.ObjectId
   razorpayOrderId     String?
   razorpayPaymentId   String?
   razorpaySignature   String?
-  amount              Decimal       
+  amount              Float       
   currency            String        @default("INR")
-  method String
-  status String @default("PENDING")
+  method              String
+  status              String        @default("PENDING")
   failureReason       String?
   webhookData         String?
   createdAt           DateTime      @default(now())
@@ -434,9 +414,9 @@ model Payment {
 // ========== REFUND & RETURN ==========
 
 model Refund {
-  id                String   @id @default(uuid())
-  orderId           String   @unique
-  amount            Decimal  
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId           String   @unique @db.ObjectId
+  amount            Float  
   razorpayRefundId  String?
   reason            String?
   status            String   @default("PENDING")
@@ -447,8 +427,8 @@ model Refund {
 }
 
 model Return {
-  id          String   @id @default(uuid())
-  orderId     String   @unique
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  orderId     String   @unique @db.ObjectId
   reason      String
   description String?
   images      String?
@@ -461,16 +441,14 @@ model Return {
 
 // ========== COUPONS ==========
 
-
-
 model Coupon {
-  id               String       @id @default(uuid())
+  id               String       @id @default(auto()) @map("_id") @db.ObjectId
   code             String       @unique
   description      String?
-  discountType String
-  discountValue    Decimal      
-  minOrderAmount   Decimal?     
-  maxDiscount      Decimal?     
+  discountType     String
+  discountValue    Float      
+  minOrderAmount   Float?     
+  maxDiscount      Float?     
   usageLimit       Int?
   usedCount        Int          @default(0)
   perUserLimit     Int?
@@ -485,40 +463,41 @@ model Coupon {
   products         CouponProduct[]
   categories       CouponCategory[]
 
-  @@index([code])
   @@index([isActive])
 }
 
 model CouponProduct {
-  couponId  String
-  productId String
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  couponId  String  @db.ObjectId
+  productId String  @db.ObjectId
   coupon    Coupon  @relation(fields: [couponId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
 
-  @@id([couponId, productId])
+  @@unique([couponId, productId])
 }
 
 model CouponCategory {
-  couponId   String
-  categoryId String
-  coupon     Coupon @relation(fields: [couponId], references: [id])
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  couponId   String   @db.ObjectId
+  categoryId String   @db.ObjectId
+  coupon     Coupon   @relation(fields: [couponId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
 
-  @@id([couponId, categoryId])
+  @@unique([couponId, categoryId])
 }
 
 // ========== PROMOTIONS ==========
 
-
-
 model Promotion {
-  id            String        @id @default(uuid())
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   type          String
   description   String?
   discountType  String?
-  discountValue Decimal?      
+  discountValue Float?      
   buyQuantity   Int?
   getQuantity   Int?
-  minOrderAmount Decimal?     
+  minOrderAmount Float?     
   startDate     DateTime
   endDate       DateTime
   isActive      Boolean       @default(true)
@@ -534,27 +513,29 @@ model Promotion {
 }
 
 model PromotionProduct {
-  promotionId String
-  productId   String
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  promotionId String    @db.ObjectId
+  productId   String    @db.ObjectId
   promotion   Promotion @relation(fields: [promotionId], references: [id])
   product     Product   @relation(fields: [productId], references: [id])
 
-  @@id([promotionId, productId])
+  @@unique([promotionId, productId])
 }
 
 model PromotionCategory {
-  promotionId String
-  categoryId  String
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  promotionId String    @db.ObjectId
+  categoryId  String    @db.ObjectId
   promotion   Promotion @relation(fields: [promotionId], references: [id])
   category    Category  @relation(fields: [categoryId], references: [id])
 
-  @@id([promotionId, categoryId])
+  @@unique([promotionId, categoryId])
 }
 
 // ========== BANNERS & CAMPAIGNS ==========
 
 model Banner {
-  id             String    @id @default(uuid())
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
   title          String
   subtitle       String?
   description    String?
@@ -577,7 +558,7 @@ model Banner {
 }
 
 model Campaign {
-  id             String    @id @default(uuid())
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
   name           String
   desktopBanner  String?
   mobileBanner   String?
@@ -586,7 +567,7 @@ model Campaign {
   description    String?
   ctaText        String?
   ctaUrl         String?
-  discount       Decimal?  
+  discount       Float?  
   couponCode     String?
   startDate      DateTime
   endDate        DateTime
@@ -602,9 +583,9 @@ model Campaign {
 // ========== REVIEWS ==========
 
 model Review {
-  id              String   @id @default(uuid())
-  productId       String
-  userId          String
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  productId       String   @db.ObjectId
+  userId          String   @db.ObjectId
   rating          Int
   title           String?
   comment         String?
@@ -625,12 +606,10 @@ model Review {
 
 // ========== NOTIFICATIONS ==========
 
-
-
 model Notification {
-  id        String           @id @default(uuid())
-  userId    String
-  type String
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String           @db.ObjectId
+  type      String
   title     String
   message   String
   isRead    Boolean          @default(false)
@@ -646,11 +625,11 @@ model Notification {
 // ========== SHIPPING ==========
 
 model Shipping {
-  id              String   @id @default(uuid())
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
   name            String
   states          String?
-  shippingCharge  Decimal  
-  freeAbove       Decimal? 
+  shippingCharge  Float  
+  freeAbove       Float? 
   estimatedDays   String?
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
@@ -660,8 +639,8 @@ model Shipping {
 // ========== SUPPORT ==========
 
 model SupportTicket {
-  id          String   @id @default(uuid())
-  userId      String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String?  @db.ObjectId
   name        String
   email       String
   phone       String?
@@ -681,7 +660,7 @@ model SupportTicket {
 // ========== STORE SETTINGS / CMS ==========
 
 model StoreSettings {
-  id                String   @id @default(uuid())
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
   key               String   @unique
   value             String
   type              String   @default("text") // text, json, boolean, number
@@ -693,8 +672,8 @@ model StoreSettings {
 // ========== AUDIT LOG ==========
 
 model AdminActivityLog {
-  id            String   @id @default(uuid())
-  adminId       String
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  adminId       String   @db.ObjectId
   action        String
   entity        String
   entityId      String?
@@ -712,9 +691,8 @@ model AdminActivityLog {
 // ========== NEWSLETTER ==========
 
 model NewsletterSubscriber {
-  id          String   @id @default(uuid())
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
   email       String   @unique
   isActive    Boolean  @default(true)
   subscribedAt DateTime @default(now())
 }
-
