@@ -8,16 +8,20 @@ interface EmailOptions {
 }
 
 export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<boolean> => {
-  let emailFrom = await getSetting('email_from', 'EMAIL_FROM') || 'onboarding@resend.dev';
-  
   const resendApiKey = process.env.RESEND_API_KEY;
 
   if (!resendApiKey) {
     console.log(`\n======================================================`);
     console.log(`[EMAIL SKIPPED - RESEND_API_KEY NOT CONFIGURED]`);
     console.log(`To: ${to} | Subject: ${subject}`);
-    console.log(`Message Content:\n${html}`);
     console.log(`======================================================\n`);
+    return false;
+  }
+
+  // Get from address — must use a verified domain on Resend
+  const emailFrom = await getSetting('email_from', 'EMAIL_FROM');
+  if (!emailFrom) {
+    console.error(`[EMAIL ERROR] EMAIL_FROM is not configured. Set EMAIL_FROM env variable to an address using your verified Resend domain (e.g. noreply@bjsluxe.com).`);
     return false;
   }
 
@@ -43,6 +47,7 @@ export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<bo
     return false;
   }
 };
+
 
 export const orderConfirmationEmail = (orderNumber: string, customerName: string, total: string): string => `
 <!DOCTYPE html>
