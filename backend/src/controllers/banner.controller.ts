@@ -52,9 +52,10 @@ export const createBanner = async (req: Request, res: Response) => {
 export const updateBanner = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as any;
+    const { id: _id, createdAt, updatedAt, ...updateData } = req.body;
     const banner = await prisma.banner.update({
       where: { id },
-      data: req.body
+      data: updateData
     });
     res.json({ success: true, data: banner });
   } catch (error) {
