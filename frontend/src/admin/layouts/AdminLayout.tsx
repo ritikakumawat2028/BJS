@@ -60,17 +60,7 @@ const adminSidebarGroups: NavGroup[] = [
       { label: 'Analytics', to: '/admin/analytics', icon: '📈' },
     ]
   },
-  {
-    label: 'Content',
-    icon: '✎',
-    isCollapsible: true,
-    items: [
-      { label: 'Homepage', to: '/admin/content/homepage' },
-      { label: 'About', to: '/admin/content/about' },
-      { label: 'FAQ', to: '/admin/content/faq' },
-      { label: 'Policies', to: '/admin/content/policies' },
-    ]
-  },
+
   {
     items: [
       { label: 'Settings', to: '/admin/settings', icon: '⚙' },

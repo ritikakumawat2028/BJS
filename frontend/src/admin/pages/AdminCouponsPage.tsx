@@ -18,10 +18,10 @@ const AdminCouponsPage: React.FC = () => {
   const { data } = useQuery({ queryKey: ['admin-coupons'], queryFn: () => adminApi.getCoupons() });
   const coupons = data?.data?.data || [];
 
-  const { data: prodData } = useQuery({ queryKey: ['admin-products'], queryFn: () => productsApi.getProducts({ limit: 100 }) });
+  const { data: prodData } = useQuery({ queryKey: ['admin-products-list'], queryFn: () => productsApi.getAll({ limit: 100 }) });
   const products = prodData?.data?.data || [];
   
-  const { data: catData } = useQuery({ queryKey: ['admin-categories'], queryFn: () => categoriesApi.getCategories() });
+  const { data: catData } = useQuery({ queryKey: ['admin-categories-list'], queryFn: () => categoriesApi.getAll() });
   const categories = catData?.data?.data || [];
 
   const createMutation = useMutation({ 

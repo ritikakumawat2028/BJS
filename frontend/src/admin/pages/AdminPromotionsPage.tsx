@@ -24,10 +24,10 @@ const AdminPromotionsPage: React.FC = () => {
   const { data } = useQuery({ queryKey: ['admin-promotions'], queryFn: () => adminApi.getPromotions() });
   const promotions = data?.data?.data || [];
 
-  const { data: prodData } = useQuery({ queryKey: ['admin-products'], queryFn: () => productsApi.getProducts({ limit: 100 }) });
+  const { data: prodData } = useQuery({ queryKey: ['admin-products-list'], queryFn: () => productsApi.getAll({ limit: 100 }) });
   const products = prodData?.data?.data || [];
   
-  const { data: catData } = useQuery({ queryKey: ['admin-categories'], queryFn: () => categoriesApi.getCategories() });
+  const { data: catData } = useQuery({ queryKey: ['admin-categories-list'], queryFn: () => categoriesApi.getAll() });
   const categories = catData?.data?.data || [];
 
   const createMutation = useMutation({ 
@@ -128,34 +128,34 @@ const AdminPromotionsPage: React.FC = () => {
             <form onSubmit={handleCreate} style={{display:'flex', flexDirection:'column', gap:'24px'}}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="form-group">
-                  <label>Promotion Name</label>
-                  <input type="text" className="form-control" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
+                  <label className="form-label">Promotion Name</label>
+                  <input type="text" className="form-input" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
                 </div>
                 <div className="form-group">
-                  <label>Type</label>
-                  <select className="form-control" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
+                  <label className="form-label">Type</label>
+                  <select className="form-select" value={form.type} onChange={e => setForm({...form, type: e.target.value})}>
                     {PROMOTION_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
                   </select>
                 </div>
               </div>
 
               <div className="form-group">
-                <label>Description</label>
-                <textarea className="form-control" rows={2} value={form.description} onChange={e => setForm({...form, description: e.target.value})}></textarea>
+                <label className="form-label">Description</label>
+                <textarea className="form-input" rows={2} value={form.description} onChange={e => setForm({...form, description: e.target.value})}></textarea>
               </div>
 
               {form.type !== 'FREE_SHIPPING' && form.type !== 'BUY_X_GET_Y' && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div className="form-group">
-                    <label>Discount Type</label>
-                    <select className="form-control" value={form.discountType} onChange={e => setForm({...form, discountType: e.target.value})}>
+                    <label className="form-label">Discount Type</label>
+                    <select className="form-select" value={form.discountType} onChange={e => setForm({...form, discountType: e.target.value})}>
                       <option value="PERCENTAGE">Percentage (%)</option>
                       <option value="FIXED">Fixed Amount (₹)</option>
                     </select>
                   </div>
                   <div className="form-group">
-                    <label>Discount Value</label>
-                    <input type="number" step="0.01" className="form-control" required value={form.discountValue} onChange={e => setForm({...form, discountValue: e.target.value})} />
+                    <label className="form-label">Discount Value</label>
+                    <input type="number" step="0.01" className="form-input" required value={form.discountValue} onChange={e => setForm({...form, discountValue: e.target.value})} />
                   </div>
                 </div>
               )}
@@ -163,30 +163,30 @@ const AdminPromotionsPage: React.FC = () => {
               {form.type === 'BUY_X_GET_Y' && (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div className="form-group">
-                    <label>Buy Quantity</label>
-                    <input type="number" min="1" className="form-control" required value={form.buyQuantity} onChange={e => setForm({...form, buyQuantity: e.target.value})} />
+                    <label className="form-label">Buy Quantity</label>
+                    <input type="number" min="1" className="form-input" required value={form.buyQuantity} onChange={e => setForm({...form, buyQuantity: e.target.value})} />
                   </div>
                   <div className="form-group">
-                    <label>Get Quantity</label>
-                    <input type="number" min="1" className="form-control" required value={form.getQuantity} onChange={e => setForm({...form, getQuantity: e.target.value})} />
+                    <label className="form-label">Get Quantity</label>
+                    <input type="number" min="1" className="form-input" required value={form.getQuantity} onChange={e => setForm({...form, getQuantity: e.target.value})} />
                   </div>
                 </div>
               )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="form-group">
-                  <label>Start Date & Time</label>
-                  <input type="datetime-local" className="form-control" required value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})} />
+                  <label className="form-label">Start Date & Time</label>
+                  <input type="datetime-local" className="form-input" required value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})} />
                 </div>
                 <div className="form-group">
-                  <label>End Date & Time</label>
-                  <input type="datetime-local" className="form-control" required value={form.endDate} onChange={e => setForm({...form, endDate: e.target.value})} />
+                  <label className="form-label">End Date & Time</label>
+                  <input type="datetime-local" className="form-input" required value={form.endDate} onChange={e => setForm({...form, endDate: e.target.value})} />
                 </div>
               </div>
 
               <div className="form-group">
-                <label>Minimum Order Amount (Optional)</label>
-                <input type="number" className="form-control" placeholder="0" value={form.minOrderAmount} onChange={e => setForm({...form, minOrderAmount: e.target.value})} />
+                <label className="form-label">Minimum Order Amount (Optional)</label>
+                <input type="number" className="form-input" placeholder="0" value={form.minOrderAmount} onChange={e => setForm({...form, minOrderAmount: e.target.value})} />
               </div>
 
               {['PRODUCT_DISCOUNT', 'BUY_X_GET_Y', 'BUNDLE_OFFER', 'FLASH_SALE', 'LIMITED_TIME'].includes(form.type) && (

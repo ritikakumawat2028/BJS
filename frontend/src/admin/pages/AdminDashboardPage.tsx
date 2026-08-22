@@ -112,10 +112,10 @@ const AdminDashboardPage: React.FC = () => {
           </div>
           <div className="dash-stat-body">
             <div>
-              <p className="dash-stat-label">Total Sales</p>
-              <h2 className="dash-stat-value">{formatCurrency(s?.totalRevenue || 0)}</h2>
+              <p className="dash-stat-label">Total Revenue</p>
+              <h2 className="dash-stat-value">{formatCurrency(s?.totalRevenue ?? 0)}</h2>
             </div>
-            <div className="dash-stat-trend positive">↑ 16.24%</div>
+            {(s?.totalRevenue ?? 0) > 0 && <div className="dash-stat-trend positive">Live Data</div>}
           </div>
         </div>
         <div className="dash-stat-card">
@@ -125,9 +125,9 @@ const AdminDashboardPage: React.FC = () => {
           <div className="dash-stat-body">
             <div>
               <p className="dash-stat-label">Total Orders</p>
-              <h2 className="dash-stat-value">{s?.totalOrders || 0}</h2>
+              <h2 className="dash-stat-value">{s?.totalOrders ?? 0}</h2>
             </div>
-            <div className="dash-stat-trend negative">↓ 3.00%</div>
+            {(s?.pendingOrders ?? 0) > 0 && <div className="dash-stat-trend negative">{s?.pendingOrders} pending</div>}
           </div>
         </div>
         <div className="dash-stat-card">
@@ -136,10 +136,10 @@ const AdminDashboardPage: React.FC = () => {
           </div>
           <div className="dash-stat-body">
             <div>
-              <p className="dash-stat-label">Daily Visitors</p>
-              <h2 className="dash-stat-value">{s?.totalCustomers || 124}</h2>
+              <p className="dash-stat-label">Total Customers</p>
+              <h2 className="dash-stat-value">{s?.totalCustomers ?? 0}</h2>
             </div>
-            <div className="dash-stat-trend positive">↑ 8.00%</div>
+            {(s?.newCustomers ?? 0) > 0 && <div className="dash-stat-trend positive">+{s?.newCustomers} new</div>}
           </div>
         </div>
         <div className="dash-stat-card">
@@ -148,10 +148,10 @@ const AdminDashboardPage: React.FC = () => {
           </div>
           <div className="dash-stat-body">
             <div>
-              <p className="dash-stat-label">Active Users</p>
-              <h2 className="dash-stat-value">{s?.newCustomers || 42}</h2>
+              <p className="dash-stat-label">New Customers</p>
+              <h2 className="dash-stat-value">{s?.newCustomers ?? 0}</h2>
             </div>
-            <div className="dash-stat-trend positive">↑ 12.50%</div>
+            {(s?.totalProducts ?? 0) > 0 && <div className="dash-stat-trend positive">{s?.totalProducts} products</div>}
           </div>
         </div>
       </div>

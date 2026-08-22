@@ -71,7 +71,7 @@ const AdminBannersPage: React.FC = () => {
     form.append('image', file);
     try {
       const { data } = await adminApi.uploadImage(form);
-      setFormData(prev => ({ ...prev, [field]: data.url }));
+      setFormData(prev => ({ ...prev, [field]: data.data?.url || data.url }));
       toast.success('Image uploaded');
     } catch {
       toast.error('Image upload failed');
