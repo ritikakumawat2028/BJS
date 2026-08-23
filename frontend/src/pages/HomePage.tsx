@@ -63,7 +63,7 @@ const HomePage: React.FC = () => {
   }, [displayTestimonials.length]);
 
   const submitReviewMutation = useMutation({
-    mutationFn: (data: any) => userApi.addReview(data),
+    mutationFn: (data: any) => productsApi.addGuestReview(data),
     onSuccess: () => {
       setReviewSubmitted(true);
       setReviewForm({ name: "", email: "", rating: 5, comment: "", product: "" });

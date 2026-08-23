@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProductReviews = exports.adminUploadProductImages = exports.adminUpdateInventory = exports.adminDeleteProduct = exports.adminUpdateProduct = exports.adminCreateProduct = exports.adminGetProducts = exports.searchProducts = exports.getNewArrivals = exports.getBestsellerProducts = exports.getFeaturedProducts = exports.getProductBySlug = exports.getProducts = void 0;
+exports.getProductReviews = exports.adminUploadProductImages = exports.adminUpdateInventory = exports.adminDeleteProduct = exports.adminUpdateProduct = exports.adminCreateProduct = exports.adminGetProducts = exports.addGuestReview = exports.searchProducts = exports.getNewArrivals = exports.getBestsellerProducts = exports.getFeaturedProducts = exports.getProductBySlug = exports.getProducts = void 0;
 const slugify_1 = __importDefault(require("slugify"));
 const prisma_1 = __importDefault(require("../config/prisma"));
 const error_1 = require("../middleware/error");
@@ -183,6 +183,46 @@ exports.searchProducts = (0, error_1.asyncHandler)(async (req, res) => {
         },
     });
     res.json({ success: true, data: products });
+});
+exports.addGuestReview = (0, error_1.asyncHandler)(async (req, res) => {
+    let { productId, rating, title, comment, images, productName } = req.body;
+    if (!productId && productName) {
+        const p = await prisma_1.default.product.findFirst({
+            where: { name: { contains: productName, mode: 'insensitive' } }
+        });
+        if (p)
+            productId = p.id;
+    }
+    if (!productId)
+        throw (0, error_1.createError)('Product not found. Please provide a valid product name.', 404);
+    const product = await prisma_1.default.product.findUnique({ where: { id: productId } });
+    if (!product)
+        throw (0, error_1.createError)('Product not found', 404);
+    const review = await prisma_1.default.review.create({
+        data: {
+            productId,
+            rating: Number(rating) || 5,
+            title,
+            comment,
+            images: images || null,
+            isVerifiedBuyer: false, // Guest reviews are inherently unverified
+            isApproved: false, // Requires admin approval
+        },
+    });
+    // Re-calculate average rating for product
+    const agg = await prisma_1.default.review.aggregate({
+        where: { productId, isApproved: true },
+        _avg: { rating: true },
+        _count: { rating: true },
+    });
+    await prisma_1.default.product.update({
+        where: { id: productId },
+        data: {
+            avgRating: agg._avg.rating || 0,
+            reviewCount: agg._count.rating || 0,
+        },
+    });
+    res.status(201).json({ success: true, data: review });
 });
 // ===================== ADMIN =====================
 exports.adminGetProducts = (0, error_1.asyncHandler)(async (req, res) => {

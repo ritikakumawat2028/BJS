@@ -585,7 +585,7 @@ model Campaign {
 model Review {
   id              String   @id @default(auto()) @map("_id") @db.ObjectId
   productId       String   @db.ObjectId
-  userId          String   @db.ObjectId
+  userId          String?  @db.ObjectId
   rating          Int
   title           String?
   comment         String?
@@ -597,9 +597,8 @@ model Review {
   updatedAt       DateTime @updatedAt
 
   product         Product  @relation(fields: [productId], references: [id])
-  user            User     @relation(fields: [userId], references: [id])
+  user            User?    @relation(fields: [userId], references: [id])
 
-  @@unique([productId, userId])
   @@index([productId])
   @@index([isApproved])
 }

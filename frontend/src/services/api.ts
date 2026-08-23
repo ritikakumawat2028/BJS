@@ -77,6 +77,7 @@ export const productsApi = {
   updateInventory: (id: string, data: { type: string; quantity: number; note?: string }) =>
     api.put(`/products/${id}/inventory`, data),
   uploadImages: (id: string, images: any[]) => api.post(`/products/${id}/images`, { images }),
+  addGuestReview: (data: any) => api.post('/products/reviews/guest', data).then(res => res.data),
 };
 
 // ===== CATEGORIES =====

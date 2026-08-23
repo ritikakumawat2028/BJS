@@ -5,6 +5,7 @@ export declare const getFeaturedProducts: (req: Request, res: Response, next: im
 export declare const getBestsellerProducts: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const getNewArrivals: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const searchProducts: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const addGuestReview: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const adminGetProducts: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const adminCreateProduct: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const adminUpdateProduct: (req: Request, res: Response, next: import("express").NextFunction) => void;

@@ -110,7 +110,7 @@ export const addReview = asyncHandler(async (req: AuthRequest, res: Response) =>
   const product = await prisma.product.findUnique({ where: { id: productId } });
   if (!product) throw createError('Product not found', 404);
 
-  const existingReview = await prisma.review.findUnique({ where: { productId_userId: { productId, userId } } });
+  const existingReview = await prisma.review.findFirst({ where: { productId, userId } });
   if (existingReview) throw createError('You have already reviewed this product', 400);
 
   const hasOrdered = await prisma.orderItem.findFirst({

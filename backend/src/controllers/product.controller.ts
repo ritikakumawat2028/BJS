@@ -188,6 +188,51 @@ export const searchProducts = asyncHandler(async (req: Request, res: Response) =
   res.json({ success: true, data: products });
 });
 
+export const addGuestReview = asyncHandler(async (req: Request, res: Response) => {
+  let { productId, rating, title, comment, images, productName } = req.body;
+
+  if (!productId && productName) {
+    const p = await prisma.product.findFirst({
+      where: { name: { contains: productName, mode: 'insensitive' } }
+    });
+    if (p) productId = p.id;
+  }
+
+  if (!productId) throw createError('Product not found. Please provide a valid product name.', 404);
+
+  const product = await prisma.product.findUnique({ where: { id: productId } });
+  if (!product) throw createError('Product not found', 404);
+
+  const review = await prisma.review.create({
+    data: {
+      productId,
+      rating: Number(rating) || 5,
+      title,
+      comment,
+      images: images || null,
+      isVerifiedBuyer: false, // Guest reviews are inherently unverified
+      isApproved: false,      // Requires admin approval
+    },
+  });
+
+  // Re-calculate average rating for product
+  const agg = await prisma.review.aggregate({
+    where: { productId, isApproved: true },
+    _avg: { rating: true },
+    _count: { rating: true },
+  });
+
+  await prisma.product.update({
+    where: { id: productId },
+    data: {
+      avgRating: agg._avg.rating || 0,
+      reviewCount: agg._count.rating || 0,
+    },
+  });
+
+  res.status(201).json({ success: true, data: review });
+});
+
 // ===================== ADMIN =====================
 
 export const adminGetProducts = asyncHandler(async (req: Request, res: Response) => {
