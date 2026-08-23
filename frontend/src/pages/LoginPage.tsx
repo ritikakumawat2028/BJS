@@ -100,17 +100,18 @@ const LoginPage: React.FC = () => {
                     right: '12px',
                     top: '50%',
                     transform: 'translateY(-50%)',
-                    background: 'none',
+                    background: 'transparent',
                     border: 'none',
-                    color: 'var(--color-text-muted)',
+                    color: '#ffffff',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    zIndex: 10
                   }}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
               {errors.password && <p className="form-error">{errors.password}</p>}
