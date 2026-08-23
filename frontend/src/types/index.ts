@@ -360,6 +360,7 @@ export interface ProductFilters {
   minPrice?: number;
   maxPrice?: number;
   brand?: string;
+  gender?: string;
   rating?: number;
   inStock?: boolean;
   sort?: string;

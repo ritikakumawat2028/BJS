@@ -70,6 +70,7 @@ const Navbar: React.FC = () => {
 
   const navLinks = [
     { label: 'Home', to: '/' },
+    { label: 'Shop', to: '/shop' },
     { label: 'Categories', to: '#', children: [
         { label: 'Fragrance', to: '/shop?category=fragrance' },
         { label: 'Hair Care', to: '/shop?category=hair-care' },
@@ -78,8 +79,7 @@ const Navbar: React.FC = () => {
       ]
     },
     { label: 'About', to: '/about' },
-    { label: 'Contact', to: '/contact' },
-    { label: 'Shop', to: '/shop' }
+    { label: 'Contact', to: '/contact' }
   ];
 
   return (
@@ -96,9 +96,9 @@ const Navbar: React.FC = () => {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="navbar__logo">
+          <a href="/" className="navbar__logo">
             <img src="/logo.png" alt="BJ'S Nature Care Logo" style={{ height: '60px', width: 'auto', objectFit: 'contain' }} />
-          </Link>
+          </a>
 
           {/* Desktop Navigation */}
           <nav className="navbar__nav">

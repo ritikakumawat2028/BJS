@@ -76,7 +76,12 @@ const HomePage: React.FC = () => {
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewForm.comment.trim() || !reviewForm.name.trim()) return;
-    submitReviewMutation.mutate({ rating: reviewForm.rating, comment: reviewForm.comment, title: "Review by " + reviewForm.name });
+    submitReviewMutation.mutate({ 
+      rating: reviewForm.rating, 
+      comment: reviewForm.comment, 
+      title: "Review by " + reviewForm.name,
+      productName: reviewForm.product 
+    });
   };
 
   const handleNewsletter = async (e: React.FormEvent) => {

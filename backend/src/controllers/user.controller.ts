@@ -95,8 +95,17 @@ export const deleteAddress = asyncHandler(async (req: AuthRequest, res: Response
 
 // ========== REVIEWS ==========
 export const addReview = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { productId, rating, title, comment, images } = req.body;
+  let { productId, rating, title, comment, images, productName } = req.body;
   const userId = req.user!.userId;
+
+  if (!productId && productName) {
+    const p = await prisma.product.findFirst({
+      where: { name: { contains: productName, mode: 'insensitive' } }
+    });
+    if (p) productId = p.id;
+  }
+
+  if (!productId) throw createError('Product not found. Please provide a valid product name.', 404);
 
   const product = await prisma.product.findUnique({ where: { id: productId } });
   if (!product) throw createError('Product not found', 404);
@@ -105,10 +114,10 @@ export const addReview = asyncHandler(async (req: AuthRequest, res: Response) =>
   if (existingReview) throw createError('You have already reviewed this product', 400);
 
   const hasOrdered = await prisma.orderItem.findFirst({
-    where: { productId, order: { userId, paymentStatus: 'PAID' } },
+    where: { productId, order: { userId } }, // removed paymentStatus: 'PAID' requirement to allow COD orders
   });
 
-  if (!hasOrdered) throw createError('Only verified buyers can review this product.', 403);
+  if (!hasOrdered) throw createError('Only buyers who have ordered this product can review it.', 403);
 
   const review = await prisma.review.create({
     data: { productId, userId, rating: Number(rating), title, comment, images, isVerifiedBuyer: true, isApproved: false },

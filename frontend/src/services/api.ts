@@ -202,7 +202,7 @@ export const adminApi = {
   updatePromotion: (id: string, data: any) => api.put(`/admin/promotions/${id}`, data),
   deletePromotion: (id: string) => api.delete(`/admin/promotions/${id}`),
   // Newsletter
-  subscribeNewsletter: (email: string) => api.post('/newsletter/subscribe', { email }),
+  subscribeNewsletter: (email: string) => api.post('/admin/newsletter/subscribe', { email }),
   // Upload
   uploadImage: (formData: FormData) => api.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
 };

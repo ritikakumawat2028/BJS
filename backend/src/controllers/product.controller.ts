@@ -9,7 +9,7 @@ import { AuthRequest } from '../middleware/auth';
 export const getProducts = asyncHandler(async (req: Request, res: Response) => {
   const {
     page = '1', limit = '12', category, subcategory, search,
-    minPrice, maxPrice, brand, rating, inStock, sort = 'createdAt',
+    minPrice, maxPrice, brand, gender, rating, inStock, sort = 'createdAt',
     featured, bestseller, newArrival,
   } = req.query as Record<string, string>;
 
@@ -41,6 +41,7 @@ export const getProducts = asyncHandler(async (req: Request, res: Response) => {
     if (maxPrice) where.price.lte = parseFloat(maxPrice);
   }
   if (brand) where.brand = { equals: brand, mode: 'insensitive' };
+  if (gender) where.gender = { equals: gender, mode: 'insensitive' };
   if (rating) where.avgRating = { gte: parseFloat(rating) };
   if (inStock === 'true') where.inventory = { quantity: { gt: 0 } };
   if (featured === 'true') where.isFeatured = true;

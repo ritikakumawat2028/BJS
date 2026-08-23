@@ -19,6 +19,7 @@ const AdminProductsPage: React.FC = () => {
     name: '', sku: '', categoryId: '', 
     price: '' as string | number, comparePrice: '' as string | number,
     stock: '' as string | number,
+    gender: 'Unisex',
     description: '', image: '',
     isFeatured: false, isBestseller: false, isNewArrival: false, isActive: true,
     metaTitle: '', metaDesc: '', metaKeywords: '',
@@ -57,6 +58,7 @@ const AdminProductsPage: React.FC = () => {
         name: product.name, sku: product.sku, categoryId: product.categoryId || '',
         price: product.price, comparePrice: product.comparePrice || '',
         stock: product.inventory?.quantity ?? '',
+        gender: product.gender || 'Unisex',
         description: product.description || '', image: product.images?.[0]?.url || '',
         isFeatured: product.isFeatured, isBestseller: product.isBestseller, isNewArrival: product.isNewArrival, isActive: product.isActive,
         metaTitle: product.metaTitle || '', metaDesc: product.metaDesc || '', metaKeywords: product.metaKeywords || '',
@@ -66,7 +68,7 @@ const AdminProductsPage: React.FC = () => {
       setEditingProduct(null);
       setFormData({
         name: '', sku: '', categoryId: categories.length > 0 ? categories[0].id : '',
-        price: '', comparePrice: '', stock: '', description: '', image: '',
+        price: '', comparePrice: '', stock: '', gender: 'Unisex', description: '', image: '',
         isFeatured: false, isBestseller: false, isNewArrival: false, isActive: true,
         metaTitle: '', metaDesc: '', metaKeywords: '', variants: [],
       });
@@ -201,6 +203,14 @@ const AdminProductsPage: React.FC = () => {
                     <select className="form-select" name="categoryId" required value={formData.categoryId} onChange={e => setFormData({...formData, categoryId: e.target.value})}>
                       <option value="" disabled>Select Category</option>
                       {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="form-label">Gender</label>
+                    <select className="form-select" name="gender" value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})}>
+                      <option value="Unisex">Unisex</option>
+                      <option value="Men">Men</option>
+                      <option value="Women">Women</option>
                     </select>
                   </div>
                   <div><label className="form-label">Price (₹) *</label><input type="number" name="price" min="0" step="0.01" className="form-input" required value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} /></div>

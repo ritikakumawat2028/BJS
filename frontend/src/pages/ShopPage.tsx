@@ -27,6 +27,7 @@ const ShopPage: React.FC = () => {
     category: searchParams.get('category') || undefined,
     subcategory: searchParams.get('subcategory') || undefined,
     search: searchParams.get('search') || undefined,
+    gender: searchParams.get('gender') || undefined,
     sort: searchParams.get('sort') || 'newest',
     featured: searchParams.get('featured') === 'true',
     bestseller: searchParams.get('bestseller') === 'true',
@@ -242,7 +243,12 @@ const ShopPage: React.FC = () => {
                     <h3 className="shop-filter-title">FOR</h3>
                     {['Unisex', 'Men', 'Women'].map((gender) => (
                       <label key={gender} className="shop-checkbox-label">
-                        <input type="radio" name="gender" />
+                        <input 
+                          type="radio" 
+                          name="gender" 
+                          checked={filters.gender === gender || (gender === 'Unisex' && !filters.gender)} 
+                          onChange={() => handleFilterChange('gender', gender === 'Unisex' ? undefined : gender)}
+                        />
                         {gender}
                       </label>
                     ))}
