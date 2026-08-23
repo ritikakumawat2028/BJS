@@ -84,6 +84,7 @@ const HomePage: React.FC = () => {
     if (!newsletterEmail) return;
     try {
       await adminApi.subscribeNewsletter(newsletterEmail);
+      toast.success("Successfully subscribed to newsletter!");
       setNewsletterStatus("success");
       setNewsletterEmail("");
       setTimeout(() => setNewsletterStatus("idle"), 5000);

@@ -161,6 +161,11 @@ const CheckoutPage: React.FC = () => {
         theme: { color: '#C9A227' },
       };
 
+      if (!(window as any).Razorpay) {
+        toast.error('Payment gateway failed to load. Please check your connection.');
+        setLoading(false);
+        return;
+      }
       const rzp = new (window as any).Razorpay(options);
       rzp.on('payment.failed', () => {
         toast.error('Payment failed');
