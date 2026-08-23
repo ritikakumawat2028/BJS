@@ -69,7 +69,8 @@ const queryClient = new QueryClient({
 
 // Protected Route
 const ProtectedRoute: React.FC<{ children: React.ReactNode; requireAdmin?: boolean }> = ({ children, requireAdmin }) => {
-  const { isAuthenticated, user } = useAuthStore();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const user = useAuthStore(state => state.user);
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (requireAdmin) {
     const roleName = typeof user?.role === 'string' ? user.role : (user?.role as any)?.name;
@@ -79,9 +80,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; requireAdmin?: boole
 };
 
 const App: React.FC = () => {
-  const { isAuthenticated, fetchMe } = useAuthStore();
-  const { fetchWishlist } = useWishlistStore();
-  const { fetchCart } = useCartStore();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const fetchMe = useAuthStore(state => state.fetchMe);
+  const fetchWishlist = useWishlistStore(state => state.fetchWishlist);
+  const fetchCart = useCartStore(state => state.fetchCart);
 
   useEffect(() => {
     const sessionId = localStorage.getItem('bjs_session_id') || undefined;

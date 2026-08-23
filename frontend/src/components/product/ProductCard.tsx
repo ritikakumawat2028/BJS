@@ -13,9 +13,10 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, isWishlistPage }) => {
-  const { addItem } = useCartStore();
-  const { toggle, isWishlisted } = useWishlistStore();
-  const { isAuthenticated } = useAuthStore();
+  const addItem = useCartStore(state => state.addItem);
+  const toggle = useWishlistStore(state => state.toggle);
+  const isWishlisted = useWishlistStore(state => state.isWishlisted);
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const navigate = useNavigate();
 
   const discount = product.comparePrice

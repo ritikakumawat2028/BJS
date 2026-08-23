@@ -4,7 +4,12 @@ import { Link } from 'react-router-dom';
 import { useCartStore } from '../../store/cart.store';
 
 const CartDrawer: React.FC = () => {
-  const { cart, isOpen, closeCart, removeItem, updateItem, isLoading } = useCartStore();
+  const cart = useCartStore(state => state.cart);
+  const isOpen = useCartStore(state => state.isOpen);
+  const closeCart = useCartStore(state => state.closeCart);
+  const removeItem = useCartStore(state => state.removeItem);
+  const updateItem = useCartStore(state => state.updateItem);
+  const isLoading = useCartStore(state => state.isLoading);
 
   const formatPrice = (price: number) => `₹${price.toLocaleString('en-IN')}`;
 

@@ -16,9 +16,12 @@ const Navbar: React.FC = () => {
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const { isAuthenticated, user, logout } = useAuthStore();
-  const { itemCount, openCart } = useCartStore();
-  const { items: wishlistItems } = useWishlistStore();
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const user = useAuthStore(state => state.user);
+  const logout = useAuthStore(state => state.logout);
+  const itemCount = useCartStore(state => state.itemCount);
+  const openCart = useCartStore(state => state.openCart);
+  const wishlistItems = useWishlistStore(state => state.items);
   const navigate = useNavigate();
 
   useEffect(() => {
