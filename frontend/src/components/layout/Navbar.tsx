@@ -104,12 +104,18 @@ const Navbar: React.FC = () => {
           <nav className="navbar__nav">
             {navLinks.map((link: any) => (
               <div key={link.label} className="navbar__item">
-                <Link
-                  to={link.to}
-                  className="navbar__link"
-                >
-                  {link.label} {link.children && <span className="navbar__caret">▼</span>}
-                </Link>
+                {link.label === 'Home' ? (
+                  <a href={link.to} className="navbar__link">
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    to={link.to}
+                    className="navbar__link"
+                  >
+                    {link.label} {link.children && <span className="navbar__caret">▼</span>}
+                  </Link>
+                )}
                 {link.children && (
                   <div className="navbar__dropdown">
                     {link.children.map((child: any) => (
@@ -261,10 +267,17 @@ const Navbar: React.FC = () => {
               <div className="mobile-drawer__links">
                 {navLinks.map((link: any) => (
                   <React.Fragment key={link.label}>
-                    <Link to={link.to !== '#' ? link.to : '/shop'} className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>
-                      {link.label}
-                      <span className="mobile-drawer__link-arrow">›</span>
-                    </Link>
+                    {link.label === 'Home' ? (
+                      <a href={link.to} className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>
+                        {link.label}
+                        <span className="mobile-drawer__link-arrow">›</span>
+                      </a>
+                    ) : (
+                      <Link to={link.to !== '#' ? link.to : '/shop'} className="mobile-drawer__link" onClick={() => setMenuOpen(false)}>
+                        {link.label}
+                        <span className="mobile-drawer__link-arrow">›</span>
+                      </Link>
+                    )}
                     {link.children && (
                       <div className="mobile-drawer__sublinks">
                         {link.children.map((child: any) => (
