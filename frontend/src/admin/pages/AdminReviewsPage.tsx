@@ -62,7 +62,7 @@ const AdminReviewsPage: React.FC = () => {
   return (
     <>
       <Helmet><title>Reviews | Admin | BJS Natural Care</title></Helmet>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="admin-flex-header">
         <h1 className="admin-page-title" style={{ margin: 0 }}>Reviews Management</h1>
       </div>
 
@@ -73,8 +73,8 @@ const AdminReviewsPage: React.FC = () => {
           <div style={{ display: 'grid', gap: '24px' }}>
             {reviews.map((review: any) => (
               <div key={review.id} style={{ border: '1px solid var(--color-border)', borderRadius: '8px', padding: '20px', background: 'var(--color-rich-black)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                  <div style={{ display: 'flex', gap: '16px' }}>
+                <div className="admin-flex-header" style={{ alignItems: 'flex-start', marginBottom: '16px' }}>
+                  <div className="admin-flex-row">
                     <img src={review.product.images?.[0]?.url || 'https://via.placeholder.com/60'} alt={review.product.name} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }} />
                     <div>
                       <p style={{ color: 'var(--color-ivory)', fontWeight: 600, fontSize: '1.1rem' }}>{review.product.name}</p>

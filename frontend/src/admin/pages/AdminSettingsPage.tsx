@@ -58,13 +58,9 @@ const AdminSettingsPage: React.FC = () => {
     <>
       <Helmet><title>CMS & Settings ? Admin | BJS Natural Care</title></Helmet>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 className="admin-page-title" style={{ margin: 0 }}>Content Management (CMS)</h1>
-        <button 
-          className="btn btn-primary" 
-          onClick={handleSave} 
-          disabled={updateMutation.isPending}
-        >
+      <div className="admin-flex-header">
+        <h1 className="admin-page-title" style={{ marginBottom: 0 }}>Store Settings</h1>
+        <button className="btn btn-primary" onClick={handleSave} disabled={updateMutation.isPending}>
           {updateMutation.isPending ? 'Saving...' : 'Save All Changes'}
         </button>
       </div>

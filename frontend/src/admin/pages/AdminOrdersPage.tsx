@@ -42,7 +42,7 @@ const AdminOrdersPage: React.FC = () => {
       <h1 className="admin-page-title">Order Management</h1>
       
       {/* Filters Bar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px', background: 'var(--color-surface)', padding: '16px', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
+      <div className="admin-grid-auto" style={{ marginBottom: '24px', background: 'var(--color-surface)', padding: '16px', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
         <div>
           <label className="form-label" style={{ fontSize: '0.7rem' }}>Search (Order # / Customer)</label>
           <input type="text" className="form-input" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -61,7 +61,7 @@ const AdminOrdersPage: React.FC = () => {
             {paymentStatusOptions.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="admin-grid-2" style={{ gap: '8px' }}>
           <div style={{ flex: 1 }}>
             <label className="form-label" style={{ fontSize: '0.7rem' }}>From Date</label>
             <input type="date" className="form-input" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
@@ -71,7 +71,7 @@ const AdminOrdersPage: React.FC = () => {
             <input type="date" className="form-input" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div className="admin-grid-2" style={{ gap: '8px' }}>
           <div style={{ flex: 1 }}>
             <label className="form-label" style={{ fontSize: '0.7rem' }}>Min Amount (₹)</label>
             <input type="number" className="form-input" value={minAmount} onChange={(e) => setMinAmount(e.target.value)} />

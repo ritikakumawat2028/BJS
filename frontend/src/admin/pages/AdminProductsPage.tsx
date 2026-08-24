@@ -124,12 +124,12 @@ const AdminProductsPage: React.FC = () => {
   return (
     <>
       <Helmet><title>Products | Admin | BJS Natural Care</title></Helmet>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="admin-flex-header">
         <h1 className="admin-page-title" style={{ marginBottom: 0 }}>Products</h1>
         <button className="btn btn-primary" onClick={() => openForm()}>+ Add Product</button>
       </div>
 
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+      <div className="admin-flex-row" style={{ marginBottom: '24px' }}>
         <input type="text" className="form-input" placeholder="Search products..." style={{ flex: 1, maxWidth: '320px' }} value={search} onChange={(e) => setSearch(e.target.value)} />
         <select className="form-select" style={{ width: 'auto' }} value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option>
@@ -181,7 +181,7 @@ const AdminProductsPage: React.FC = () => {
       {showForm && (
         <div className="modal-overlay" style={{ zIndex: 1000, padding: '20px' }}>
           <div className="modal animate-scale-in" style={{ maxWidth: '900px', width: '100%', maxHeight: '90vh', overflowY: 'auto', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)' }}>
-            <div style={{ position: 'sticky', top: 0, background: 'var(--color-surface)', padding: '24px', borderBottom: '1px solid var(--color-border)', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="admin-flex-header" style={{ position: 'sticky', top: 0, background: 'var(--color-surface)', padding: '24px', borderBottom: '1px solid var(--color-border)', zIndex: 10, margin: 0 }}>
               <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', color: 'var(--color-ivory)', margin: 0 }}>
                 {editingProduct ? 'Edit Product' : 'Create Product'}
               </h3>
@@ -193,11 +193,11 @@ const AdminProductsPage: React.FC = () => {
               {/* Basic Info Section */}
               <section>
                 <h4 style={{ color: 'var(--color-gold)', marginBottom: '16px', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Basic Information</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="admin-grid-2">
                   <div><label className="form-label">Name *</label><input type="text" name="name" className="form-input" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} /></div>
                   <div><label className="form-label">SKU *</label><input type="text" name="sku" className="form-input" required value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} /></div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '16px', marginTop: '16px' }}>
+                <div className="admin-grid-4" style={{ marginTop: '16px' }}>
                   <div>
                     <label className="form-label">Category *</label>
                     <select className="form-select" name="categoryId" required value={formData.categoryId} onChange={e => setFormData({...formData, categoryId: e.target.value})}>
@@ -223,7 +223,7 @@ const AdminProductsPage: React.FC = () => {
               {/* Media Section */}
               <section>
                 <h4 style={{ color: 'var(--color-gold)', marginBottom: '16px', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Media</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="admin-grid-2">
                   <div>
                     <label className="form-label">Image URL</label>
                     <input type="text" className="form-input" placeholder="https://..." value={formData.image} onChange={e => setFormData({...formData, image: e.target.value})} />
@@ -239,7 +239,7 @@ const AdminProductsPage: React.FC = () => {
 
               {/* Variants Section */}
               <section>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div className="admin-flex-header" style={{ marginBottom: '16px' }}>
                   <h4 style={{ color: 'var(--color-gold)', margin: 0, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Variants</h4>
                   <button type="button" className="btn btn-outline btn-sm" onClick={addVariant}>+ Add Variant</button>
                 </div>
@@ -249,7 +249,7 @@ const AdminProductsPage: React.FC = () => {
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {formData.variants.map((v, i) => (
-                      <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr 1fr 1fr auto', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '4px', border: '1px solid var(--color-border)', alignItems: 'end' }}>
+                      <div key={i} className="admin-grid-5" style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '4px', border: '1px solid var(--color-border)', alignItems: 'end' }}>
                         <div><label className="form-label" style={{ fontSize: '0.75rem' }}>Name/Size</label><input type="text" className="form-input" placeholder="e.g. 50ml" required value={v.name} onChange={e => updateVariant(i, 'name', e.target.value)} /></div>
                         <div><label className="form-label" style={{ fontSize: '0.75rem' }}>SKU</label><input type="text" className="form-input" required value={v.sku} onChange={e => updateVariant(i, 'sku', e.target.value)} /></div>
                         <div><label className="form-label" style={{ fontSize: '0.75rem' }}>Price (₹)</label><input type="number" className="form-input" required value={v.price} onChange={e => updateVariant(i, 'price', e.target.value)} /></div>
@@ -265,7 +265,7 @@ const AdminProductsPage: React.FC = () => {
               {/* SEO Section */}
               <section>
                 <h4 style={{ color: 'var(--color-gold)', marginBottom: '16px', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Search Engine Optimization</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="admin-grid-2">
                   <div><label className="form-label">Meta Title</label><input type="text" className="form-input" value={formData.metaTitle} onChange={e => setFormData({...formData, metaTitle: e.target.value})} /></div>
                   <div><label className="form-label">Meta Keywords</label><input type="text" className="form-input" placeholder="Comma separated" value={formData.metaKeywords} onChange={e => setFormData({...formData, metaKeywords: e.target.value})} /></div>
                 </div>
@@ -275,7 +275,7 @@ const AdminProductsPage: React.FC = () => {
               {/* Visibility & Tags */}
               <section>
                 <h4 style={{ color: 'var(--color-gold)', marginBottom: '16px', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Visibility & Badges</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
+                <div className="admin-grid-4" style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '4px', border: '1px solid var(--color-border)' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-ivory)' }}><input type="checkbox" checked={formData.isFeatured} onChange={e => setFormData({...formData, isFeatured: e.target.checked})} /> Featured</label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-ivory)' }}><input type="checkbox" checked={formData.isBestseller} onChange={e => setFormData({...formData, isBestseller: e.target.checked})} /> Best Seller</label>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--color-ivory)' }}><input type="checkbox" checked={formData.isNewArrival} onChange={e => setFormData({...formData, isNewArrival: e.target.checked})} /> New Arrival</label>
@@ -283,7 +283,7 @@ const AdminProductsPage: React.FC = () => {
                 </div>
               </section>
 
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px', position: 'sticky', bottom: 0, background: 'var(--color-surface)', padding: '16px 0', borderTop: '1px solid var(--color-border)', zIndex: 10 }}>
+              <div className="admin-flex-row" style={{ justifyContent: 'flex-end', marginTop: '16px', position: 'sticky', bottom: 0, background: 'var(--color-surface)', padding: '16px 0', borderTop: '1px solid var(--color-border)', zIndex: 10 }}>
                 <button type="button" className="btn btn-outline" onClick={() => setShowForm(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={createMutation.isPending || updateMutation.isPending}>
                   {editingProduct ? 'Save Changes' : 'Publish Product'}

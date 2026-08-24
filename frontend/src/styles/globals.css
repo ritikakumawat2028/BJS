@@ -569,3 +569,39 @@ p { line-height: 1.75; color: var(--color-text-secondary); font-size: clamp(0.9r
   width: 32px;
   height: 32px;
 }
+
+/* ===== ADMIN RESPONSIVE CLASSES ===== */
+.admin-grid-2, .admin-grid-3, .admin-grid-4, .admin-grid-5, .admin-grid-auto {
+  display: grid;
+  gap: 16px;
+}
+.admin-grid-2 { grid-template-columns: 1fr 1fr; }
+.admin-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.admin-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.admin-grid-5 { grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr auto; }
+.admin-grid-auto { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+.admin-flex-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.admin-flex-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+  .admin-grid-4, .admin-grid-5 { grid-template-columns: 1fr 1fr; }
+  .admin-grid-3 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .admin-grid-2, .admin-grid-3, .admin-grid-4, .admin-grid-5 { grid-template-columns: 1fr; }
+  .admin-flex-header { flex-direction: column; align-items: stretch; gap: 12px; }
+  .admin-page-title { margin-bottom: 8px; text-align: center; }
+}

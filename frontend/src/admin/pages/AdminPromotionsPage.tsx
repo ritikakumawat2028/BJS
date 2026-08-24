@@ -85,7 +85,7 @@ const AdminPromotionsPage: React.FC = () => {
   return (
     <>
       <Helmet><title>Promotions — Admin | BJS</title></Helmet>
-      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'24px'}}>
+      <div className="admin-flex-header">
         <h1 className="admin-page-title" style={{marginBottom:0}}>Promotions Management</h1>
         <button className="btn btn-primary" onClick={() => { resetForm(); setShowForm(true); }}>+ Create Promotion</button>
       </div>
@@ -126,7 +126,7 @@ const AdminPromotionsPage: React.FC = () => {
             <h3 style={{fontFamily:'var(--font-serif)', fontSize:'1.5rem', color:'var(--color-ivory)', marginBottom:'24px'}}>Create Promotion</h3>
             
             <form onSubmit={handleCreate} style={{display:'flex', flexDirection:'column', gap:'24px'}}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">Promotion Name</label>
                   <input type="text" className="form-input" required value={form.name} onChange={e => setForm({...form, name: e.target.value})} />
@@ -145,7 +145,7 @@ const AdminPromotionsPage: React.FC = () => {
               </div>
 
               {form.type !== 'FREE_SHIPPING' && form.type !== 'BUY_X_GET_Y' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="admin-grid-2">
                   <div className="form-group">
                     <label className="form-label">Discount Type</label>
                     <select className="form-select" value={form.discountType} onChange={e => setForm({...form, discountType: e.target.value})}>
@@ -161,7 +161,7 @@ const AdminPromotionsPage: React.FC = () => {
               )}
 
               {form.type === 'BUY_X_GET_Y' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="admin-grid-2">
                   <div className="form-group">
                     <label className="form-label">Buy Quantity</label>
                     <input type="number" min="1" className="form-input" required value={form.buyQuantity} onChange={e => setForm({...form, buyQuantity: e.target.value})} />
@@ -173,7 +173,7 @@ const AdminPromotionsPage: React.FC = () => {
                 </div>
               )}
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">Start Date & Time</label>
                   <input type="datetime-local" className="form-input" required value={form.startDate} onChange={e => setForm({...form, startDate: e.target.value})} />
@@ -224,7 +224,7 @@ const AdminPromotionsPage: React.FC = () => {
                 </label>
               </div>
 
-              <div style={{display:'flex', justifyContent:'flex-end', gap:'12px', marginTop:'16px'}}>
+              <div className="admin-flex-row" style={{justifyContent:'flex-end', marginTop:'16px'}}>
                 <button type="button" className="btn btn-outline" onClick={() => setShowForm(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={createMutation.isPending}>
                   {createMutation.isPending ? 'Creating...' : 'Create Promotion'}
