@@ -181,7 +181,7 @@ exports.createOrder = (0, error_1.asyncHandler)(async (req, res) => {
         await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
         await tx.cart.update({ where: { id: cart.id }, data: { couponId: null } });
         return newOrder;
-    });
+    }, { maxWait: 5000, timeout: 20000 });
     // Send confirmation email if COD
     if (paymentMethod === 'COD') {
         const user = await prisma_1.default.user.findUnique({ where: { id: userId } });
@@ -249,15 +249,11 @@ exports.verifyPayment = (0, error_1.asyncHandler)(async (req, res) => {
     await prisma_1.default.$transaction([
         prisma_1.default.payment.update({
             where: { orderId },
-            data: {
-                razorpayPaymentId,
-                razorpaySignature,
-                status: 'PAID',
-            },
+            data: { status: 'PAID', razorpayPaymentId, razorpaySignature }
         }),
         prisma_1.default.order.update({
             where: { id: orderId },
-            data: { paymentStatus: 'PAID', status: 'CONFIRMED' },
+            data: { paymentStatus: 'PAID', status: 'CONFIRMED' }
         }),
         prisma_1.default.orderTimeline.create({
             data: { orderId, status: 'CONFIRMED', message: 'Payment received securely and order confirmed' },
@@ -479,7 +475,7 @@ exports.adminUpdateOrderStatus = (0, error_1.asyncHandler)(async (req, res) => {
             });
         }
         return updatedOrder;
-    });
+    }, { maxWait: 5000, timeout: 20000 });
     await prisma_1.default.orderTimeline.create({
         data: { orderId: id, status, message: message || `Order status updated to ${status}`, createdBy: req.user.userId },
     });

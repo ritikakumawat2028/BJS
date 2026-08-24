@@ -193,7 +193,7 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
     await tx.cart.update({ where: { id: cart.id }, data: { couponId: null } });
 
     return newOrder;
-  });
+  }, { maxWait: 5000, timeout: 20000 });
 
   // Send confirmation email if COD
   if (paymentMethod === 'COD') {
@@ -277,15 +277,11 @@ export const verifyPayment = asyncHandler(async (req: AuthRequest, res: Response
   await prisma.$transaction([
     prisma.payment.update({
       where: { orderId },
-      data: {
-        razorpayPaymentId,
-        razorpaySignature,
-        status: 'PAID',
-      },
+      data: { status: 'PAID', razorpayPaymentId, razorpaySignature }
     }),
     prisma.order.update({
       where: { id: orderId },
-      data: { paymentStatus: 'PAID', status: 'CONFIRMED' },
+      data: { paymentStatus: 'PAID', status: 'CONFIRMED' }
     }),
     prisma.orderTimeline.create({
       data: { orderId, status: 'CONFIRMED', message: 'Payment received securely and order confirmed' },
@@ -521,7 +517,7 @@ export const adminUpdateOrderStatus = asyncHandler(async (req: AuthRequest, res:
     }
 
     return updatedOrder;
-  });
+  }, { maxWait: 5000, timeout: 20000 });
 
   await prisma.orderTimeline.create({
     data: { orderId: id, status, message: message || `Order status updated to ${status}`, createdBy: req.user!.userId },
