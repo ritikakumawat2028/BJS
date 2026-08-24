@@ -26,7 +26,7 @@ exports.cancelPendingOrder = (0, error_1.asyncHandler)(async (req, res) => {
     if (order.payment && order.payment.status === 'PAID') {
         throw (0, error_1.createError)('Cannot cancel an already paid order', 400);
     }
-    // Cancel order + restore stock in a transaction
+    // Cancel order + restore stock + repopulate cart in a transaction
     await prisma_1.default.$transaction(async (tx) => {
         // Update order and payment status
         await tx.order.update({
@@ -44,7 +44,7 @@ exports.cancelPendingOrder = (0, error_1.asyncHandler)(async (req, res) => {
             data: {
                 orderId: id,
                 status: 'CANCELLED',
-                message: 'Order cancelled due to payment failure. Stock has been restored.',
+                message: 'Order cancelled due to payment failure. Stock and cart have been restored.',
             },
         });
         // Restore stock for all items
@@ -76,8 +76,37 @@ exports.cancelPendingOrder = (0, error_1.asyncHandler)(async (req, res) => {
                 });
             }
         }
+        // === RESTORE CART ITEMS so user can retry checkout ===
+        // Get or create the user's cart
+        let userCart = await tx.cart.findUnique({ where: { userId } });
+        if (!userCart) {
+            userCart = await tx.cart.create({ data: { userId } });
+        }
+        // Re-add each order item back into the cart
+        for (const item of order.items) {
+            const existing = await tx.cartItem.findFirst({
+                where: { cartId: userCart.id, productId: item.productId, variantId: item.variantId ?? null },
+            });
+            if (existing) {
+                // If item is already in cart (e.g. partial retry), bump quantity
+                await tx.cartItem.update({
+                    where: { id: existing.id },
+                    data: { quantity: existing.quantity + item.quantity },
+                });
+            }
+            else {
+                await tx.cartItem.create({
+                    data: {
+                        cartId: userCart.id,
+                        productId: item.productId,
+                        variantId: item.variantId ?? null,
+                        quantity: item.quantity,
+                    },
+                });
+            }
+        }
     }, { maxWait: 5000, timeout: 20000 });
-    res.json({ success: true, message: 'Order cancelled and stock restored successfully' });
+    res.json({ success: true, message: 'Order cancelled, stock restored, and cart repopulated successfully' });
 });
 const generateOrderNumber = () => `BJS${Date.now()}${Math.floor(Math.random() * 1000)}`;
 exports.createOrder = (0, error_1.asyncHandler)(async (req, res) => {

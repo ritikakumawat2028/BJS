@@ -144,6 +144,8 @@ const CheckoutPage: React.FC = () => {
         orderCancelled = true;
         try {
           await ordersApi.cancelOrder(order.id);
+          // Refresh cart — backend restored items, sync the frontend store
+          await useCartStore.getState().fetchCart();
         } catch {
           // Best-effort — order may already be cancelled
         }
