@@ -40,11 +40,16 @@ export const getAllBanners = async (req: Request, res: Response) => {
 
 export const createBanner = async (req: Request, res: Response) => {
   try {
+    const { priority, ...rest } = req.body;
     const banner = await prisma.banner.create({
-      data: req.body
+      data: {
+        ...rest,
+        priority: priority ? parseInt(priority) : 0,
+      }
     });
     res.status(201).json({ success: true, data: banner });
   } catch (error) {
+    console.error('Banner create error:', error);
     res.status(500).json({ success: false, message: 'Failed to create banner' });
   }
 };
@@ -52,13 +57,17 @@ export const createBanner = async (req: Request, res: Response) => {
 export const updateBanner = async (req: Request, res: Response) => {
   try {
     const { id } = req.params as any;
-    const { id: _id, createdAt, updatedAt, ...updateData } = req.body;
+    const { id: _id, createdAt, updatedAt, priority, ...updateData } = req.body;
     const banner = await prisma.banner.update({
       where: { id },
-      data: updateData
+      data: {
+        ...updateData,
+        ...(priority !== undefined && { priority: priority ? parseInt(priority) : 0 }),
+      }
     });
     res.json({ success: true, data: banner });
   } catch (error) {
+    console.error('Banner update error:', error);
     res.status(500).json({ success: false, message: 'Failed to update banner' });
   }
 };
