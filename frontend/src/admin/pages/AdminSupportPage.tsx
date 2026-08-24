@@ -88,7 +88,7 @@ const AdminSupportPage: React.FC = () => {
                       <tr>
                         <td colSpan={6} style={{ padding: '0' }}>
                           <div style={{ padding: '24px', backgroundColor: 'rgba(255, 255, 255, 0.02)', borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+                            <div className="admin-grid-2" style={{ marginBottom: '24px' }}>
                               <div>
                                 <h4 style={{ color: 'var(--color-gold)', marginBottom: '8px', fontSize: '0.9rem', textTransform: 'uppercase' }}>Contact Details</h4>
                                 <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Name:</strong> {ticket.name}</p>

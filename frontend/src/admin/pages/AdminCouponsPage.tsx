@@ -97,7 +97,7 @@ const AdminCouponsPage: React.FC = () => {
             <h3 style={{fontFamily:'var(--font-serif)', fontSize:'1.5rem', color:'var(--color-ivory)', marginBottom:'24px'}}>Create Coupon</h3>
             
             <form onSubmit={handleCreate} style={{display:'flex', flexDirection:'column', gap:'24px'}}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group"><label className="form-label">Coupon Code *</label><input required className="form-input" value={form.code} onChange={e=>setForm(f=>({...f,code:e.target.value.toUpperCase()}))} placeholder="e.g. SAVE20" /></div>
                 <div className="form-group"><label className="form-label">Discount Type</label><select className="form-select" value={form.discountType} onChange={e=>setForm(f=>({...f,discountType:e.target.value}))}><option value="PERCENTAGE">Percentage (%)</option><option value="FIXED">Fixed (₹)</option></select></div>
                 <div className="form-group"><label className="form-label">Discount Value *</label><input required type="number" className="form-input" value={form.discountValue} onChange={e=>setForm(f=>({...f,discountValue:e.target.value}))} /></div>
@@ -105,7 +105,7 @@ const AdminCouponsPage: React.FC = () => {
                 <div className="form-group"><label className="form-label">Min Order (₹)</label><input type="number" className="form-input" value={form.minOrderAmount} onChange={e=>setForm(f=>({...f,minOrderAmount:e.target.value}))} /></div>
               </div>
 
-              <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2" style={{ borderTop: '1px solid var(--color-border)', paddingTop: '16px' }}>
                 <div className="form-group"><label className="form-label">Usage Limit (Global)</label><input type="number" className="form-input" value={form.usageLimit} onChange={e=>setForm(f=>({...f,usageLimit:e.target.value}))} placeholder="Unlimited" /></div>
                 <div className="form-group"><label className="form-label">Per-User Limit</label><input type="number" className="form-input" value={form.perUserLimit} onChange={e=>setForm(f=>({...f,perUserLimit:e.target.value}))} placeholder="e.g. 1" /></div>
                 <div className="form-group"><label className="form-label">Start Date & Time</label><input type="datetime-local" className="form-input" value={form.startDate} onChange={e=>setForm(f=>({...f,startDate:e.target.value}))} /></div>

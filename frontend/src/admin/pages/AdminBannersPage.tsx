@@ -180,7 +180,7 @@ const AdminBannersPage: React.FC = () => {
                 <textarea className="form-input" rows={2} value={formData.description || ''} onChange={e => setFormData({...formData, description: e.target.value})} />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">Placement *</label>
                   <select className="form-select" value={formData.placement} onChange={e => setFormData({...formData, placement: e.target.value})}>
@@ -218,7 +218,7 @@ const AdminBannersPage: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">CTA Text (Button)</label>
                   <input className="form-input" type="text" value={formData.ctaText || ''} onChange={e => setFormData({...formData, ctaText: e.target.value})} />
@@ -229,7 +229,7 @@ const AdminBannersPage: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">Coupon Code (Optional)</label>
                   <input className="form-input" type="text" value={formData.couponCode || ''} onChange={e => setFormData({...formData, couponCode: e.target.value})} placeholder="e.g. RAKHI30" />

@@ -117,7 +117,7 @@ const AdminDeliveryPage: React.FC = () => {
         <button className="btn btn-primary" onClick={() => openModal()}>+ Add Delivery Zone</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+      <div className="admin-grid-auto" style={{ gap: '24px', marginBottom: '32px' }}>
         <div className="card" style={{ padding: '24px' }}>
           <h3 style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-gold)', fontSize: '1.2rem', marginBottom: '16px' }}>Global Shipping Fallbacks</h3>
           <p style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', marginBottom: '16px' }}>
@@ -207,7 +207,7 @@ const AdminDeliveryPage: React.FC = () => {
                 <label className="form-label">Covered States (Comma separated)</label>
                 <textarea className="form-textarea" rows={2} value={states} onChange={e => setStates(e.target.value)} placeholder="e.g. Delhi, Punjab, Haryana" />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">Shipping Charge (₹)</label>
                   <input type="number" className="form-input" required value={shippingCharge} onChange={e => setShippingCharge(e.target.value)} />

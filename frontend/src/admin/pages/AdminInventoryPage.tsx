@@ -95,7 +95,7 @@ const AdminInventoryPage: React.FC = () => {
           {[1,2,3,4,5].map(i => <div key={i} className="skeleton card" style={{ flex: 1, height: '100px' }} />)}
         </div>
       ) : stats ? (
-        <div className="metrics-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+        <div className="metrics-grid admin-grid-auto" style={{ marginBottom: '32px' }}>
           <div className="card stat-card">
             <div className="stat-icon"><PackageOpen size={24} color="var(--color-gold)" /></div>
             <div>

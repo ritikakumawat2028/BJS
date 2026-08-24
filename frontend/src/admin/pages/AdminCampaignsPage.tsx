@@ -180,7 +180,7 @@ const AdminCampaignsPage: React.FC = () => {
             </h2>
 
             <form onSubmit={handleSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">Campaign Name (Internal) *</label>
                   <input className="form-input" type="text" name="name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
@@ -191,7 +191,7 @@ const AdminCampaignsPage: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">Start Date *</label>
                   <input className="form-input" type="date" value={formData.startDate} onChange={e => setFormData({...formData, startDate: e.target.value})} required />
@@ -206,7 +206,7 @@ const AdminCampaignsPage: React.FC = () => {
 
               <h3 style={{ fontSize: '1.1rem', color: 'var(--color-gold)', marginBottom: '16px' }}>Display Content</h3>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">Public Heading</label>
                   <input className="form-input" type="text" value={formData.heading || ''} onChange={e => setFormData({...formData, heading: e.target.value})} />
@@ -222,7 +222,7 @@ const AdminCampaignsPage: React.FC = () => {
                 <textarea className="form-input" rows={3} value={formData.description || ''} onChange={e => setFormData({...formData, description: e.target.value})}></textarea>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">CTA Button Text</label>
                   <input className="form-input" type="text" placeholder="Shop Sale" value={formData.ctaText || ''} onChange={e => setFormData({...formData, ctaText: e.target.value})} />
@@ -233,7 +233,7 @@ const AdminCampaignsPage: React.FC = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">Desktop Banner Image</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
@@ -261,7 +261,7 @@ const AdminCampaignsPage: React.FC = () => {
 
               <h3 style={{ fontSize: '1.1rem', color: 'var(--color-gold)', marginBottom: '16px' }}>Promotion Rules</h3>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-grid-2">
                 <div className="form-group">
                   <label className="form-label">Discount Percentage (%)</label>
                   <input className="form-input" type="number" name="discount" min="0" max="100" value={formData.discount || ''} onChange={e => setFormData({...formData, discount: e.target.value})} />

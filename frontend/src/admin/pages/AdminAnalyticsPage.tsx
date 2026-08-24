@@ -46,7 +46,7 @@ const AdminAnalyticsPage: React.FC = () => {
       <div>
         <h1 className="admin-page-title">Analytics Overview</h1>
         <div className="skeleton" style={{ height: '400px', borderRadius: '12px', marginBottom: '24px' }}></div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div className="admin-grid-2" style={{ gap: '24px' }}>
           <div className="skeleton" style={{ height: '300px', borderRadius: '12px' }}></div>
           <div className="skeleton" style={{ height: '300px', borderRadius: '12px' }}></div>
         </div>

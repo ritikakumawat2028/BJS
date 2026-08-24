@@ -575,10 +575,10 @@ p { line-height: 1.75; color: var(--color-text-secondary); font-size: clamp(0.9r
   display: grid;
   gap: 16px;
 }
-.admin-grid-2 { grid-template-columns: 1fr 1fr; }
-.admin-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
-.admin-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-.admin-grid-5 { grid-template-columns: 2fr 1.5fr 1fr 1fr 1fr auto; }
+.admin-grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.admin-grid-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.admin-grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.admin-grid-5 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 .admin-grid-auto { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 
 .admin-flex-header {
@@ -596,8 +596,7 @@ p { line-height: 1.75; color: var(--color-text-secondary); font-size: clamp(0.9r
 }
 
 @media (max-width: 1024px) {
-  .admin-grid-4, .admin-grid-5 { grid-template-columns: 1fr 1fr; }
-  .admin-grid-3 { grid-template-columns: 1fr 1fr; }
+  .admin-grid-5 { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 768px) {
