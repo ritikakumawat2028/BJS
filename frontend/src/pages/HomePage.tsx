@@ -14,9 +14,6 @@ const stagger = { visible: { transition: { staggerChildren: 0.1 } } };
 
 
 const FALLBACK_TESTIMONIALS = [
-  { id: "f1", rating: 5, comment: "The Royal Oud Essence is absolutely divine. I receive compliments every time I wear it. The scent lasts all day and the packaging is so luxurious. This is my third purchase and I am officially obsessed.", user: { firstName: "Priya", lastName: "Sharma", avatar: "https://randomuser.me/api/portraits/women/44.jpg" }, productName: "Royal Oud Essence", location: "Mumbai, India" },
-  { id: "f2", rating: 5, comment: "The Argan Gold Shampoo transformed my hair in just two weeks. It feels incredibly soft and looks so healthy and shiny. I will never switch back to any other brand.", user: { firstName: "Anjali", lastName: "Mehta", avatar: "https://randomuser.me/api/portraits/women/68.jpg" }, productName: "Argan Gold Shampoo", location: "Delhi, India" },
-  { id: "f3", rating: 5, comment: "I gifted the special set to my sister and she absolutely loved it. The packaging was premium and the fragrances are unlike anything we have tried before.", user: { firstName: "Rahul", lastName: "Verma", avatar: "https://randomuser.me/api/portraits/men/32.jpg" }, productName: "Gift Set", location: "Bangalore, India" },
 ];
 
 const StarSelector: React.FC<{ value: number; onChange: (v: number) => void }> = ({ value, onChange }) => (
@@ -76,11 +73,11 @@ const HomePage: React.FC = () => {
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!reviewForm.comment.trim() || !reviewForm.name.trim()) return;
-    submitReviewMutation.mutate({ 
-      rating: reviewForm.rating, 
-      comment: reviewForm.comment, 
+    submitReviewMutation.mutate({
+      rating: reviewForm.rating,
+      comment: reviewForm.comment,
       title: "Review by " + reviewForm.name,
-      productName: reviewForm.product 
+      productName: reviewForm.product
     });
   };
 
@@ -98,13 +95,13 @@ const HomePage: React.FC = () => {
 
   const heroHeading = settings.hero_heading || "Luxury, Naturally Crafted.";
   const heroSub = settings.hero_subheading || "Premium perfumes, skincare & haircare — elevated for the discerning few.";
-  
+
   // Choose the top priority HERO banner if available
   const topHero = heroBanners.length > 0 ? heroBanners[0] : null;
   const heroImg = "https://public.readdy.ai/ai/img_res/3812a198e3446b048d04b92569ffca79.jpg";
   const displayHeading = topHero?.title || heroHeading;
   const displaySub = topHero?.description || heroSub;
-  
+
   const t = displayTestimonials[testimonialIdx];
 
   const categories = [
@@ -126,9 +123,9 @@ const HomePage: React.FC = () => {
       <main>
         {/* ACTIVE CAMPAIGN BANNER */}
         {campaigns.length > 0 && campaigns[0] && (
-          <section className="hp-campaign-banner" style={{ 
+          <section className="hp-campaign-banner" style={{
             backgroundImage: `url('${window.innerWidth < 768 ? campaigns[0].mobileBanner || campaigns[0].desktopBanner : campaigns[0].desktopBanner}')`,
-            backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '300px', display: 'flex', alignItems: 'center', position: 'relative' 
+            backgroundSize: 'cover', backgroundPosition: 'center', minHeight: '300px', display: 'flex', alignItems: 'center', position: 'relative'
           }}>
             <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)' }} />
             <div className="container" style={{ position: 'relative', zIndex: 1, textAlign: 'center', color: '#fff', padding: '40px 20px' }}>
@@ -139,7 +136,7 @@ const HomePage: React.FC = () => {
             </div>
           </section>
         )}
-        
+
         {/* HERO */}
         <section className="hp-hero" style={{ backgroundImage: `url('${heroImg}')` }}>
           <div className="hp-hero__overlay" />
@@ -168,12 +165,12 @@ const HomePage: React.FC = () => {
           <div className="container">
             <div className="hp-trust__grid">
               {[
-                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 20A7 7 0 0 1 9.9 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 22l7-7"/></svg>, title: "100% Natural", desc: "Crafted with pure, sustainably sourced ingredients" },
-                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>, title: "Cruelty Free", desc: "Never tested on animals, certified ethical" },
-                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, title: "Free Shipping", desc: "On all orders over ₹1,499 across India" },
-                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>, title: "Easy Returns", desc: "30-day hassle-free return policy" },
-                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>, title: "Premium Quality", desc: "Handcrafted in small batches for excellence" },
-                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>, title: "24/7 Support", desc: "Dedicated team always ready to help" },
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 20A7 7 0 0 1 9.9 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" /><path d="M2 22l7-7" /></svg>, title: "100% Natural", desc: "Crafted with pure, sustainably sourced ingredients" },
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="M9 12l2 2 4-4" /></svg>, title: "Cruelty Free", desc: "Never tested on animals, certified ethical" },
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg>, title: "Free Shipping", desc: "On all orders over ₹1,499 across India" },
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>, title: "Easy Returns", desc: "30-day hassle-free return policy" },
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="7" /><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" /></svg>, title: "Premium Quality", desc: "Handcrafted in small batches for excellence" },
+                { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6" /><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" /></svg>, title: "24/7 Support", desc: "Dedicated team always ready to help" },
               ].map(item => (
                 <motion.div key={item.title} className="hp-trust__item" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
                   <div className="hp-trust__icon">{item.icon}</div>
@@ -296,11 +293,13 @@ const HomePage: React.FC = () => {
         {/* TESTIMONIALS + REVIEW FORM */}
         <section className="hp-testimonials">
           <div className="container">
-            <motion.div className="hp-section-head hp-section-head--center" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-              <p className="hp-label">TESTIMONIALS</p>
-              <h2 className="hp-title">What Our Customers Say</h2>
-              <p className="hp-subtitle">Real experiences from real people who have discovered the luxury of natural care</p>
-            </motion.div>
+            {displayTestimonials.length > 0 && (
+              <motion.div className="hp-section-head hp-section-head--center" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+                <p className="hp-label">TESTIMONIALS</p>
+                <h2 className="hp-title">What Our Customers Say</h2>
+                <p className="hp-subtitle">Real experiences from real people who have discovered the luxury of natural care</p>
+              </motion.div>
+            )}
             {t && (
               <>
                 <AnimatePresence mode="wait">
@@ -380,8 +379,8 @@ const HomePage: React.FC = () => {
             <motion.div className="hp-newsletter__content" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
               <div className="hp-newsletter__icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                  <polyline points="22,6 12,13 2,6"/>
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
                 </svg>
               </div>
               <h2 className="hp-newsletter__title">Stay in the Loop</h2>
