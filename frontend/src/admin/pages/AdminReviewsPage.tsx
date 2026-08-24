@@ -79,7 +79,7 @@ const AdminReviewsPage: React.FC = () => {
                     <div>
                       <p style={{ color: 'var(--color-ivory)', fontWeight: 600, fontSize: '1.1rem' }}>{review.product.name}</p>
                       <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
-                        By {review.user.firstName} {review.user.lastName} ({review.user.email})
+                        By {review.user ? `${review.user.firstName} ${review.user.lastName} (${review.user.email})` : 'Guest'}
                       </p>
                       {review.isVerifiedBuyer && <span style={{ color: 'var(--color-gold)', fontSize: '0.8rem' }}>??? Verified Purchase</span>}
                     </div>
