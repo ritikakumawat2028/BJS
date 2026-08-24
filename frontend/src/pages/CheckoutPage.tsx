@@ -135,6 +135,20 @@ const CheckoutPage: React.FC = () => {
       const { data: rpRes } = await ordersApi.createRazorpay({ orderId: order.id });
       const rpOrder = rpRes.data;
 
+      // Flags to prevent double-cancel and post-success cancel
+      let paymentSucceeded = false;
+      let orderCancelled = false;
+
+      const cancelOrderOnce = async () => {
+        if (orderCancelled || paymentSucceeded) return;
+        orderCancelled = true;
+        try {
+          await ordersApi.cancelOrder(order.id);
+        } catch {
+          // Best-effort — order may already be cancelled
+        }
+      };
+
       const options = {
         key: rpOrder.key,
         amount: rpOrder.amount,
@@ -143,6 +157,7 @@ const CheckoutPage: React.FC = () => {
         description: `Order ${order.orderNumber}`,
         order_id: rpOrder.razorpayOrderId,
         handler: async (response: any) => {
+          paymentSucceeded = true;
           try {
             await ordersApi.verifyPayment({
               orderId: order.id,
@@ -164,16 +179,13 @@ const CheckoutPage: React.FC = () => {
         },
         theme: { color: '#C9A227' },
         modal: {
-          // Called when user closes the modal without completing payment
+          // Fires whenever the modal closes — guard against post-success cancel
           ondismiss: async () => {
             setLoading(false);
-            // Silently cancel the pending order to restore stock
-            try {
-              await ordersApi.cancelOrder(order.id);
-            } catch {
-              // Best-effort — don't block the user
+            if (!paymentSucceeded) {
+              await cancelOrderOnce();
+              toast('Payment cancelled. You can retry from your cart.', { icon: 'ℹ️' });
             }
-            toast('Payment cancelled. Your cart items are available again.', { icon: 'ℹ️' });
           },
         },
       };
@@ -192,17 +204,12 @@ const CheckoutPage: React.FC = () => {
           reason.toLowerCase().includes('dismissed') ||
           errorCode === 'CANCELLED';
 
-        // Always cancel the pending order to restore stock
-        try {
-          await ordersApi.cancelOrder(order.id);
-        } catch {
-          // Best-effort — don't block UX
-        }
-
+        // Cancel the pending order once to restore stock
+        await cancelOrderOnce();
         setLoading(false);
 
         if (isUserCancelled) {
-          toast('Payment cancelled. Your cart items are available again.', { icon: 'ℹ️' });
+          toast('Payment cancelled. You can retry from your cart.', { icon: 'ℹ️' });
         } else {
           // Show the real reason (e.g. "International cards are not supported")
           toast.error(`Payment failed: ${reason}`);

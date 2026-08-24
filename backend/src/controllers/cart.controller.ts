@@ -175,7 +175,7 @@ export const addToCart = asyncHandler(async (req: AuthRequest, res: Response) =>
     cart = await prisma.cart.upsert({ 
       where: { userId }, 
       update: {}, 
-      create: { userId, sessionId: sessionId || `mock-${Date.now()}-${Math.random()}` } 
+      create: { userId } 
     });
     // Merge session cart if exists
     if (sessionId) {
