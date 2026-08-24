@@ -206,14 +206,11 @@ const CheckoutPage: React.FC = () => {
           reason.toLowerCase().includes('dismissed') ||
           errorCode === 'CANCELLED';
 
-        // Cancel the pending order once to restore stock
-        await cancelOrderOnce();
-        setLoading(false);
-
-        if (isUserCancelled) {
-          toast('Payment cancelled. You can retry from your cart.', { icon: 'ℹ️' });
-        } else {
+        if (!isUserCancelled) {
           // Show the real reason (e.g. "International cards are not supported")
+          // But DO NOT cancel the order or setLoading(false) here, because the Razorpay modal
+          // remains open and allows the user to retry payment with a different method.
+          // Cancellation is handled strictly by the `ondismiss` handler when the popup is closed.
           toast.error(`Payment failed: ${reason}`);
         }
       });
