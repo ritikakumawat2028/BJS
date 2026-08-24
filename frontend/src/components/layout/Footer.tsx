@@ -139,7 +139,7 @@ const Footer: React.FC = () => {
       </div>
 
       <style>{`
-        .footer { background: var(--color-rich-black); border-top: 1px solid #333333; }
+        .footer { background: var(--color-rich-black); border-top: 1px solid #ffffff; }
         .footer__top { padding: var(--space-16) 0 var(--space-10); }
         .footer__grid {
           display: grid;
@@ -182,7 +182,7 @@ const Footer: React.FC = () => {
         .footer__link:hover { color: #ffffff; }
         .footer__contact { display: flex; flex-direction: column; gap: var(--space-3); }
         .footer__contact-item { display: flex; align-items: center; gap: var(--space-3); font-size: 0.8rem; color: var(--color-text-muted); }
-        .footer__bottom { border-top: 1px solid #333333; padding: var(--space-5) 0; }
+        .footer__bottom { border-top: 1px solid #ffffff; padding: var(--space-5) 0; }
         .footer__bottom-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; }
         .footer__copyright { font-family: 'Inter', sans-serif; font-size: 0.8rem; color: #777777; }
         .footer__payment-icons { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
