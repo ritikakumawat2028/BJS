@@ -52,6 +52,7 @@ const adminSidebarGroups: NavGroup[] = [
       { label: 'Campaigns', to: '/admin/campaigns' },
       { label: 'Coupons', to: '/admin/coupons' },
       { label: 'Promotions', to: '/admin/promotions' },
+      { label: 'Newsletter', to: '/admin/newsletter' },
     ]
   },
   {

@@ -58,6 +58,10 @@ const AdminSettingsPage = lazy(() => import('./admin/pages/AdminSettingsPage'));
 const AdminAuditLogsPage = lazy(() => import('./admin/pages/AdminAuditLogsPage'));
 const AdminSupportPage = lazy(() => import('./admin/pages/AdminSupportPage'));
 const AdminAnalyticsPage = lazy(() => import('./admin/pages/AdminAnalyticsPage'));
+const AdminNewsletterPage = lazy(() => import('./admin/pages/AdminNewsletterPage'));
+
+const NewsletterVerifyPage = lazy(() => import('./pages/NewsletterVerifyPage'));
+const NewsletterUnsubscribePage = lazy(() => import('./pages/NewsletterUnsubscribePage'));
 
 import './styles/globals.css';
 
@@ -131,6 +135,8 @@ const App: React.FC = () => {
                 <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="terms" element={<TermsPage />} />
                 <Route path="track-order" element={<TrackOrderPage />} />
+                <Route path="newsletter/verify" element={<NewsletterVerifyPage />} />
+                <Route path="newsletter/unsubscribe" element={<NewsletterUnsubscribePage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
 
@@ -156,6 +162,7 @@ const App: React.FC = () => {
                 <Route path="banners" element={<AdminBannersPage />} />
                 <Route path="campaigns" element={<AdminCampaignsPage />} />
                 <Route path="reviews" element={<AdminReviewsPage />} />
+                <Route path="newsletter" element={<AdminNewsletterPage />} />
                 <Route path="support" element={<AdminSupportPage />} />
                 <Route path="settings" element={<AdminSettingsPage />} />
                 <Route path="audit-logs" element={<AdminAuditLogsPage />} />

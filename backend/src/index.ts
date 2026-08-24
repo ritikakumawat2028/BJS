@@ -20,6 +20,7 @@ import sitemapRoutes from './routes/sitemap.routes';
 import uploadRoutes from './routes/upload.routes';
 import bannerRoutes from './routes/banner.routes';
 import campaignRoutes from './routes/campaign.routes';
+import newsletterRoutes from './routes/newsletter.routes';
 import path from 'path';
 import { errorHandler } from './middleware/error';
 import prisma from './config/prisma';
@@ -54,6 +55,9 @@ app.use(cookieParser());
 if (process.env.NODE_ENV === 'production') {
   const apiLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200, message: { success: false, message: 'Too many requests' } });
   const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { success: false, message: 'Too many authentication attempts' } });
+  const newsletterLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, message: { success: false, message: 'Too many subscription attempts, please try again later' } });
+  
+  app.use('/api/newsletter/subscribe', newsletterLimiter);
   app.use('/api/', apiLimiter);
   app.use('/api/auth/', authLimiter);
 }
@@ -82,6 +86,7 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/promotions', promotionRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Sitemap

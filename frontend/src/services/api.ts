@@ -161,6 +161,7 @@ export const userApi = {
 
 // ===== ADMIN =====
 export const adminApi = {
+  getNewsletterSubscribers: (params?: any) => api.get('/newsletter/admin/subscribers', { params }).then(res => res.data),
   getDashboard: (params?: { filter?: string; startDate?: string; endDate?: string }) => api.get('/admin/dashboard', { params }),
   getPayments: (params?: Record<string, any>) => api.get('/admin/payments', { params }),
   
@@ -209,4 +210,10 @@ export const adminApi = {
   subscribeNewsletter: (email: string) => api.post('/admin/newsletter/subscribe', { email }),
   // Upload
   uploadImage: (formData: FormData) => api.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+};
+
+export const newsletterApi = {
+  subscribe: (email: string) => api.post('/newsletter/subscribe', { email }).then(res => res.data),
+  verify: (token: string, email: string) => api.post('/newsletter/verify', { token, email }).then(res => res.data),
+  unsubscribe: (email: string) => api.post('/newsletter/unsubscribe', { email }).then(res => res.data),
 };

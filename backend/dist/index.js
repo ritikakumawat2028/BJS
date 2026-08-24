@@ -24,6 +24,7 @@ const sitemap_routes_1 = __importDefault(require("./routes/sitemap.routes"));
 const upload_routes_1 = __importDefault(require("./routes/upload.routes"));
 const banner_routes_1 = __importDefault(require("./routes/banner.routes"));
 const campaign_routes_1 = __importDefault(require("./routes/campaign.routes"));
+const newsletter_routes_1 = __importDefault(require("./routes/newsletter.routes"));
 const path_1 = __importDefault(require("path"));
 const error_1 = require("./middleware/error");
 const prisma_1 = __importDefault(require("./config/prisma"));
@@ -54,6 +55,8 @@ app.use((0, cookie_parser_1.default)());
 if (process.env.NODE_ENV === 'production') {
     const apiLimiter = (0, express_rate_limit_1.default)({ windowMs: 15 * 60 * 1000, max: 200, message: { success: false, message: 'Too many requests' } });
     const authLimiter = (0, express_rate_limit_1.default)({ windowMs: 15 * 60 * 1000, max: 20, message: { success: false, message: 'Too many authentication attempts' } });
+    const newsletterLimiter = (0, express_rate_limit_1.default)({ windowMs: 60 * 60 * 1000, max: 5, message: { success: false, message: 'Too many subscription attempts, please try again later' } });
+    app.use('/api/newsletter/subscribe', newsletterLimiter);
     app.use('/api/', apiLimiter);
     app.use('/api/auth/', authLimiter);
 }
@@ -79,6 +82,7 @@ app.use('/api/upload', upload_routes_1.default);
 app.use('/api/banners', banner_routes_1.default);
 app.use('/api/campaigns', campaign_routes_1.default);
 app.use('/api/promotions', promotion_routes_1.default);
+app.use('/api/newsletter', newsletter_routes_1.default);
 app.use('/api/admin', admin_routes_1.default);
 // Sitemap
 app.use('/api/sitemap.xml', sitemap_routes_1.default);

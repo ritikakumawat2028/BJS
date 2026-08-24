@@ -690,8 +690,13 @@ model AdminActivityLog {
 // ========== NEWSLETTER ==========
 
 model NewsletterSubscriber {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  email       String   @unique
-  isActive    Boolean  @default(true)
-  subscribedAt DateTime @default(now())
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  email          String    @unique
+  status         String    @default("pending") // pending, active, unsubscribed
+  isVerified     Boolean   @default(false)
+  verifyToken    String?
+  subscribedAt   DateTime  @default(now())
+  unsubscribedAt DateTime?
+  updatedAt      DateTime? @updatedAt
+  source         String    @default("newsletter")
 }

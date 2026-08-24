@@ -6,7 +6,7 @@ import {
   getReviews, updateReviewStatus, deleteReview,
   getStoreSettings, adminUpdateSettings,
   createSupportTicket, adminGetSupportTickets,
-  adminGetAuditLogs, subscribeNewsletter, adminGetInventory,
+  adminGetAuditLogs, adminGetInventory,
   adminGetPromotions, adminCreatePromotion, adminUpdatePromotion,
   adminGetPayments,
   adminGetShippingZones, adminCreateShippingZone, adminUpdateShippingZone, adminDeleteShippingZone,
@@ -81,7 +81,6 @@ router.get('/support', authenticate, requireAdmin, adminGetSupportTickets);
 router.get('/audit-logs', authenticate, requireAdmin, adminGetAuditLogs);
 
 // Newsletter
-router.post('/newsletter/subscribe', subscribeNewsletter);
 
 // Inventory
 import { getInventoryStats, getInventoryList, adjustStock, getStockHistory } from '../controllers/inventory.controller';

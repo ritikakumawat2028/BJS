@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.otpVerificationEmailTemplate = exports.orderConfirmationEmail = exports.sendEmail = void 0;
+exports.newsletterVerificationEmailTemplate = exports.newsletterWelcomeEmailTemplate = exports.otpVerificationEmailTemplate = exports.orderConfirmationEmail = exports.sendEmail = void 0;
 const resend_1 = require("resend");
 const getSetting_1 = require("./getSetting");
 const sendEmail = async ({ to, subject, html }) => {
@@ -102,4 +102,61 @@ const otpVerificationEmailTemplate = (otp) => `
 </html>
 `;
 exports.otpVerificationEmailTemplate = otpVerificationEmailTemplate;
+const newsletterWelcomeEmailTemplate = (unsubscribeUrl) => `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+  body { font-family: 'Georgia', serif; background: #080808; color: #F8F5EE; margin: 0; padding: 0; }
+  .container { max-width: 600px; margin: 0 auto; padding: 40px 24px; }
+  .logo { font-size: 24px; letter-spacing: 3px; color: #C9A227; text-align: center; margin-bottom: 32px; }
+  .heading { font-size: 28px; text-align: center; color: #F8F5EE; margin-bottom: 16px; }
+  .body { font-size: 16px; line-height: 1.8; color: #ccc; text-align: center; }
+  .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; border-top: 1px solid #333; padding-top: 20px; }
+  .unsubscribe { color: #888; text-decoration: underline; font-size: 11px; margin-top: 10px; display: block; }
+</style></head>
+<body>
+<div class="container">
+  <div class="logo">BJ'S NATURAL CARE</div>
+  <div class="heading">Welcome to the family ✨</div>
+  <div class="body">
+    <p>Thank you for subscribing to our newsletter!</p>
+    <p>Get ready to receive exclusive offers, early access to new collections, and beauty tips curated just for you.</p>
+    <p>We are thrilled to have you with us on this journey where luxury meets nature.</p>
+  </div>
+  <div class="footer">
+    © BJ'S Natural Care. All rights reserved.<br/>
+    <a href="${unsubscribeUrl}" class="unsubscribe">Unsubscribe anytime</a>
+  </div>
+</div>
+</body>
+</html>
+`;
+exports.newsletterWelcomeEmailTemplate = newsletterWelcomeEmailTemplate;
+const newsletterVerificationEmailTemplate = (verifyUrl) => `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+  body { font-family: 'Georgia', serif; background: #080808; color: #F8F5EE; margin: 0; padding: 0; }
+  .container { max-width: 600px; margin: 0 auto; padding: 40px 24px; }
+  .logo { font-size: 24px; letter-spacing: 3px; color: #C9A227; text-align: center; margin-bottom: 32px; }
+  .heading { font-size: 28px; text-align: center; color: #F8F5EE; margin-bottom: 16px; }
+  .body { font-size: 16px; line-height: 1.8; color: #ccc; text-align: center; }
+  .btn { display: inline-block; background: #C9A227; color: #000; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 4px; margin: 20px 0; }
+  .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; }
+</style></head>
+<body>
+<div class="container">
+  <div class="logo">BJ'S NATURAL CARE</div>
+  <div class="heading">Confirm your subscription</div>
+  <div class="body">
+    <p>You're almost there! Please confirm your subscription to the BJ'S Natural Care newsletter by clicking the button below.</p>
+    <a href="${verifyUrl}" class="btn">Verify My Email</a>
+    <p style="font-size: 12px; color: #888;">If you didn't request this, you can safely ignore this email.</p>
+  </div>
+  <div class="footer">© BJ'S Natural Care. All rights reserved.</div>
+</div>
+</body>
+</html>
+`;
+exports.newsletterVerificationEmailTemplate = newsletterVerificationEmailTemplate;
 //# sourceMappingURL=email.js.map

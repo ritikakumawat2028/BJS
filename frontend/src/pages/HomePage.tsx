@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { productsApi, adminApi, userApi, bannersApi, campaignsApi } from "../services/api";
+import { productsApi, adminApi, userApi, bannersApi, campaignsApi, newsletterApi } from "../services/api";
 import ProductCard from "../components/product/ProductCard";
 import { Product, Banner, Campaign, StoreSettings, Review } from "../types";
 import toast from "react-hot-toast";
@@ -80,16 +80,31 @@ const HomePage: React.FC = () => {
     });
   };
 
+  const [isSubscribing, setIsSubscribing] = useState(false);
+
   const handleNewsletter = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newsletterEmail) return;
+    
+    // Frontend validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newsletterEmail)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
     try {
-      await adminApi.subscribeNewsletter(newsletterEmail);
-      toast.success("Successfully subscribed to newsletter!");
+      setIsSubscribing(true);
+      const res = await newsletterApi.subscribe(newsletterEmail);
+      toast.success(res.message || "Successfully subscribed to newsletter!");
       setNewsletterStatus("success");
       setNewsletterEmail("");
       setTimeout(() => setNewsletterStatus("idle"), 5000);
-    } catch { toast.error("Subscription failed. Please try again."); }
+    } catch (err: any) { 
+      toast.error(err.response?.data?.message || "Subscription failed. Please try again."); 
+    } finally {
+      setIsSubscribing(false);
+    }
   };
 
   const heroHeading = settings.hero_heading || "Luxury, Naturally Crafted.";
@@ -389,7 +404,9 @@ const HomePage: React.FC = () => {
               ) : (
                 <form className="hp-newsletter__form" onSubmit={handleNewsletter}>
                   <input type="email" className="hp-newsletter__input" placeholder="Enter your email address" value={newsletterEmail} onChange={e => setNewsletterEmail(e.target.value)} required />
-                  <button type="submit" className="hp-newsletter__btn">Subscribe</button>
+                  <button type="submit" className="hp-newsletter__btn" disabled={isSubscribing}>
+                    {isSubscribing ? 'Subscribing...' : 'Subscribe'}
+                  </button>
                 </form>
               )}
               <p className="hp-newsletter__legal">By subscribing, you agree to our <Link to="/privacy-policy" style={{ color: "inherit", textDecoration: "underline" }}>Privacy Policy</Link>. Unsubscribe anytime.</p>

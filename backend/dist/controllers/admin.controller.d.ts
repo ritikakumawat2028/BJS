@@ -21,7 +21,6 @@ export declare const adminUpdateSettings: (req: Request, res: Response, next: im
 export declare const createSupportTicket: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const adminGetSupportTickets: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const adminGetAuditLogs: (req: Request, res: Response, next: import("express").NextFunction) => void;
-export declare const subscribeNewsletter: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const getCustomers: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const adminGetInventory: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const getReviews: (req: Request, res: Response, next: import("express").NextFunction) => void;

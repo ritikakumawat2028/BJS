@@ -1,0 +1,1 @@
+import{n as e}from"./OrderDetailPage-BHQugeD_.js";export default e();

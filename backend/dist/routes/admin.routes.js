@@ -52,7 +52,6 @@ router.get('/support', auth_1.authenticate, auth_1.requireAdmin, admin_controlle
 // Audit
 router.get('/audit-logs', auth_1.authenticate, auth_1.requireAdmin, admin_controller_1.adminGetAuditLogs);
 // Newsletter
-router.post('/newsletter/subscribe', admin_controller_1.subscribeNewsletter);
 // Inventory
 const inventory_controller_1 = require("../controllers/inventory.controller");
 router.get('/inventory/stats', auth_1.authenticate, auth_1.requireAdmin, inventory_controller_1.getInventoryStats);

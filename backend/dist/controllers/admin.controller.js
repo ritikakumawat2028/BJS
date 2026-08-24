@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminCreateAdmin = exports.adminDeleteShippingZone = exports.adminUpdateShippingZone = exports.adminCreateShippingZone = exports.adminGetShippingZones = exports.adminGetPayments = exports.adminUpdatePromotion = exports.adminCreatePromotion = exports.adminGetPromotions = exports.deleteReview = exports.updateReviewStatus = exports.getReviews = exports.adminGetInventory = exports.getCustomers = exports.subscribeNewsletter = exports.adminGetAuditLogs = exports.adminGetSupportTickets = exports.createSupportTicket = exports.adminUpdateSettings = exports.getStoreSettings = exports.adminDeleteReview = exports.adminApproveReview = exports.adminGetReviews = exports.adminDeleteCoupon = exports.adminUpdateCoupon = exports.adminCreateCoupon = exports.adminGetCoupons = exports.adminUpdateCampaign = exports.adminCreateCampaign = exports.getActiveCampaigns = exports.adminDeleteBanner = exports.adminUpdateBanner = exports.adminCreateBanner = exports.getBanners = exports.adminToggleUserStatus = exports.adminGetCustomers = exports.getDashboard = void 0;
+exports.adminCreateAdmin = exports.adminDeleteShippingZone = exports.adminUpdateShippingZone = exports.adminCreateShippingZone = exports.adminGetShippingZones = exports.adminGetPayments = exports.adminUpdatePromotion = exports.adminCreatePromotion = exports.adminGetPromotions = exports.deleteReview = exports.updateReviewStatus = exports.getReviews = exports.adminGetInventory = exports.getCustomers = exports.adminGetAuditLogs = exports.adminGetSupportTickets = exports.createSupportTicket = exports.adminUpdateSettings = exports.getStoreSettings = exports.adminDeleteReview = exports.adminApproveReview = exports.adminGetReviews = exports.adminDeleteCoupon = exports.adminUpdateCoupon = exports.adminCreateCoupon = exports.adminGetCoupons = exports.adminUpdateCampaign = exports.adminCreateCampaign = exports.getActiveCampaigns = exports.adminDeleteBanner = exports.adminUpdateBanner = exports.adminCreateBanner = exports.getBanners = exports.adminToggleUserStatus = exports.adminGetCustomers = exports.getDashboard = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const crypto_1 = __importDefault(require("crypto"));
 const prisma_1 = __importDefault(require("../config/prisma"));
@@ -378,12 +378,6 @@ exports.adminGetAuditLogs = (0, error_1.asyncHandler)(async (req, res) => {
         include: { admin: { select: { firstName: true, lastName: true, email: true } } },
     });
     res.json({ success: true, data: logs });
-});
-// ========== NEWSLETTER ==========
-exports.subscribeNewsletter = (0, error_1.asyncHandler)(async (req, res) => {
-    const { email } = req.body;
-    await prisma_1.default.newsletterSubscriber.upsert({ where: { email }, update: { isActive: true }, create: { email } });
-    res.json({ success: true, message: 'Subscribed successfully' });
 });
 // ========== INVENTORY OVERVIEW ==========
 exports.getCustomers = (0, error_1.asyncHandler)(async (req, res) => {

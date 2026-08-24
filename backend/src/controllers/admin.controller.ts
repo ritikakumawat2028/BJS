@@ -417,13 +417,6 @@ export const adminGetAuditLogs = asyncHandler(async (req: Request, res: Response
   res.json({ success: true, data: logs });
 });
 
-// ========== NEWSLETTER ==========
-export const subscribeNewsletter = asyncHandler(async (req: Request, res: Response) => {
-  const { email } = req.body;
-  await prisma.newsletterSubscriber.upsert({ where: { email }, update: { isActive: true }, create: { email } });
-  res.json({ success: true, message: 'Subscribed successfully' });
-});
-
 // ========== INVENTORY OVERVIEW ==========
 export const getCustomers = asyncHandler(async (req: Request, res: Response) => {
   const customers = await prisma.user.findMany({
