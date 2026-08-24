@@ -284,7 +284,7 @@ const ContactPage: React.FC = () => {
         .text-red { color: #ff4d4f; }
         .contact-input {
           background: transparent;
-          border: 1px solid rgba(255,255,255,0.15);
+          border: 1px solid #ffffff;
           border-radius: 4px;
           padding: 14px 16px;
           color: #fff;
@@ -340,7 +340,7 @@ const ContactPage: React.FC = () => {
           display: flex;
           gap: 20px;
           padding: 24px;
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid #ffffff;
           border-radius: 8px;
           background: rgba(255,255,255,0.02);
         }
@@ -400,7 +400,7 @@ const ContactPage: React.FC = () => {
         }
         .social-icon {
           width: 40px; height: 40px;
-          border: 1px solid rgba(255,255,255,0.2);
+          border: 1px solid #ffffff;
           border-radius: 4px;
           display: flex; align-items: center; justify-content: center;
           color: #fff;

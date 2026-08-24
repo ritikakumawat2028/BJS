@@ -296,7 +296,7 @@ const AboutPage: React.FC = () => {
           bottom: -20px;
           left: -40px;
           background: #000;
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid #ffffff;
           padding: 20px;
           display: flex;
           align-items: center;
@@ -319,8 +319,8 @@ const AboutPage: React.FC = () => {
 
         /* Stats */
         .about-stats {
-          border-top: 1px solid rgba(255,255,255,0.15);
-          border-bottom: 1px solid rgba(255,255,255,0.15);
+          border-top: 1px solid #ffffff;
+          border-bottom: 1px solid #ffffff;
           background: #000;
           padding: 60px 24px;
         }
@@ -363,7 +363,7 @@ const AboutPage: React.FC = () => {
           gap: 24px;
         }
         .about-value-card {
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid #ffffff;
           border-radius: 8px;
           padding: 40px 32px;
           background: #0a0a0a;
@@ -395,7 +395,7 @@ const AboutPage: React.FC = () => {
 
         /* CTA */
         .about-cta {
-          border-top: 1px solid rgba(255,255,255,0.15);
+          border-top: 1px solid #ffffff;
           background: #000;
           padding: 100px 24px;
           text-align: center;
