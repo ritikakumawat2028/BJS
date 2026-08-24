@@ -332,7 +332,22 @@ export const razorpayWebhook = asyncHandler(async (req: AuthRequest, res: Respon
       await prisma.$transaction(async (tx) => {
         const payment = await tx.payment.findUnique({ where: { orderId: internalOrder!.id } });
         
-        // Prevent double processing if already PAID
+        // GUARD 1: Never overwrite a successfully paid order
+        if (payment && payment.status === 'PAID') {
+          console.log(`[WEBHOOK] Skipping update for order ${internalOrder!.id} - already PAID`);
+          return;
+        }
+
+        // GUARD 2: For FAILED events, only mark as failed if there's a real razorpayPaymentId
+        // (i.e. an actual payment attempt). Popup close events send no paymentId.
+        if (result.paymentStatus === 'FAILED') {
+          const rzpPaymentId = JSON.parse(rawBody)?.payload?.payment?.entity?.id;
+          if (!rzpPaymentId) {
+            console.log(`[WEBHOOK] Skipping FAILED update - no razorpay_payment_id (likely popup close)`);
+            return;
+          }
+        }
+
         if (payment && payment.status !== result.paymentStatus) {
           await tx.payment.update({
             where: { id: payment.id },

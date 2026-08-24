@@ -171,9 +171,16 @@ const CheckoutPage: React.FC = () => {
         return;
       }
       const rzp = new (window as any).Razorpay(options);
-      rzp.on('payment.failed', () => {
-        toast.error('Payment failed');
-        navigate(`/account/orders/${order.id}`);
+      rzp.on('payment.failed', (response: any) => {
+        const reason = response?.error?.description || '';
+        // If the error is due to popup close (cancelled by user), don't redirect
+        if (response?.error?.code === 'BAD_REQUEST_ERROR' || reason.toLowerCase().includes('cancel')) {
+          toast.error('Payment was cancelled. Please try again.');
+          setLoading(false);
+        } else {
+          toast.error('Payment failed: ' + (reason || 'Please try again.'));
+          navigate(`/account/orders/${order.id}`);
+        }
       });
       rzp.open();
     } catch (err: any) {
