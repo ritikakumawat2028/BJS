@@ -130,10 +130,10 @@ exports.getCart = (0, error_1.asyncHandler)(async (req, res) => {
     const { sessionId } = req.query;
     let cart = null;
     if (userId) {
-        cart = await prisma_1.default.cart.findUnique({ where: { userId } });
+        cart = await prisma_1.default.cart.findFirst({ where: { userId } });
     }
     else if (sessionId) {
-        cart = await prisma_1.default.cart.findUnique({ where: { sessionId } });
+        cart = await prisma_1.default.cart.findFirst({ where: { sessionId } });
     }
     if (!cart) {
         res.json({ success: true, data: { items: [], subtotal: 0, discount: 0, shipping: 0, tax: 0, total: 0 } });
@@ -161,14 +161,12 @@ exports.addToCart = (0, error_1.asyncHandler)(async (req, res) => {
     // Get or create cart
     let cart;
     if (userId) {
-        cart = await prisma_1.default.cart.upsert({
-            where: { userId },
-            update: {},
-            create: { userId }
-        });
+        cart = await prisma_1.default.cart.findFirst({ where: { userId } });
+        if (!cart)
+            cart = await prisma_1.default.cart.create({ data: { userId } });
         // Merge session cart if exists
         if (sessionId) {
-            const sessionCart = await prisma_1.default.cart.findUnique({ where: { sessionId } });
+            const sessionCart = await prisma_1.default.cart.findFirst({ where: { sessionId } });
             if (sessionCart && sessionCart.id !== cart.id) {
                 await prisma_1.default.cartItem.updateMany({ where: { cartId: sessionCart.id }, data: { cartId: cart.id } });
                 await prisma_1.default.cart.delete({ where: { id: sessionCart.id } });
@@ -178,7 +176,9 @@ exports.addToCart = (0, error_1.asyncHandler)(async (req, res) => {
     else {
         if (!sessionId)
             throw (0, error_1.createError)('Session ID required for guest cart', 400);
-        cart = await prisma_1.default.cart.upsert({ where: { sessionId }, update: {}, create: { sessionId } });
+        cart = await prisma_1.default.cart.findFirst({ where: { sessionId } });
+        if (!cart)
+            cart = await prisma_1.default.cart.create({ data: { sessionId } });
     }
     // Add or update item
     const existing = await prisma_1.default.cartItem.findFirst({
@@ -248,7 +248,7 @@ exports.applyCoupon = (0, error_1.asyncHandler)(async (req, res) => {
     if (cartId)
         cart = await prisma_1.default.cart.findUnique({ where: { id: cartId } });
     else if (userId)
-        cart = await prisma_1.default.cart.findUnique({ where: { userId } });
+        cart = await prisma_1.default.cart.findFirst({ where: { userId } });
     if (!cart)
         throw (0, error_1.createError)('Cart not found', 404);
     await prisma_1.default.cart.update({ where: { id: cart.id }, data: { couponId: coupon.id } });
@@ -262,7 +262,7 @@ exports.removeCoupon = (0, error_1.asyncHandler)(async (req, res) => {
     if (cartId)
         cart = await prisma_1.default.cart.findUnique({ where: { id: cartId } });
     else if (userId)
-        cart = await prisma_1.default.cart.findUnique({ where: { userId } });
+        cart = await prisma_1.default.cart.findFirst({ where: { userId } });
     if (!cart)
         throw (0, error_1.createError)('Cart not found', 404);
     await prisma_1.default.cart.update({ where: { id: cart.id }, data: { couponId: null } });
@@ -275,14 +275,14 @@ exports.mergeCart = (0, error_1.asyncHandler)(async (req, res) => {
     if (!sessionId) {
         return res.json({ success: true, message: 'No session to merge' });
     }
-    const sessionCart = await prisma_1.default.cart.findUnique({
+    const sessionCart = await prisma_1.default.cart.findFirst({
         where: { sessionId },
         include: { items: true },
     });
     if (!sessionCart || sessionCart.items.length === 0) {
         return res.json({ success: true, message: 'Session cart empty' });
     }
-    let userCart = await prisma_1.default.cart.findUnique({
+    let userCart = await prisma_1.default.cart.findFirst({
         where: { userId },
         include: { items: true },
     });

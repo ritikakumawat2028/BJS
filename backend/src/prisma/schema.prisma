@@ -50,7 +50,7 @@ model User {
 
   addresses       Address[]
   orders          Order[]
-  cart            Cart?
+  carts           Cart[]
   wishlist        Wishlist?
   reviews         Review[]
   notifications   Notification[]
@@ -236,8 +236,8 @@ model InventoryTransaction {
 
 model Cart {
   id        String     @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String?    @unique @db.ObjectId
-  sessionId String?    @unique
+  userId    String?    @db.ObjectId
+  sessionId String?    
   couponId  String?    @db.ObjectId
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -245,6 +245,9 @@ model Cart {
   user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   coupon    Coupon?    @relation(fields: [couponId], references: [id])
   items     CartItem[]
+
+  @@index([userId])
+  @@index([sessionId])
 }
 
 model CartItem {

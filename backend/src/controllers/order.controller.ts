@@ -84,7 +84,7 @@ export const cancelPendingOrder = asyncHandler(async (req: AuthRequest, res: Res
 
     // === RESTORE CART ITEMS so user can retry checkout ===
     // Get or create the user's cart
-    let userCart = await tx.cart.findUnique({ where: { userId } });
+    let userCart = await tx.cart.findFirst({ where: { userId } });
     if (!userCart) {
       userCart = await tx.cart.create({ data: { userId } });
     }
@@ -123,7 +123,7 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
   const userId = req.user!.userId;
 
   // Get user's cart
-  let cart = await prisma.cart.findUnique({
+  let cart = await prisma.cart.findFirst({
     where: { userId },
     include: {
       items: {
@@ -138,7 +138,7 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
 
   // If user cart is empty but session ID is provided, try session cart (guest cart not yet merged)
   if ((!cart || cart.items.length === 0) && sessionId) {
-    const sessionCart = await prisma.cart.findUnique({
+    const sessionCart = await prisma.cart.findFirst({
       where: { sessionId },
       include: {
         items: {

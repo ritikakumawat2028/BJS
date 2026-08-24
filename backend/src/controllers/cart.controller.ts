@@ -137,9 +137,9 @@ export const getCart = asyncHandler(async (req: AuthRequest, res: Response) => {
 
   let cart = null;
   if (userId) {
-    cart = await prisma.cart.findUnique({ where: { userId } });
+    cart = await prisma.cart.findFirst({ where: { userId } });
   } else if (sessionId) {
-    cart = await prisma.cart.findUnique({ where: { sessionId } });
+    cart = await prisma.cart.findFirst({ where: { sessionId } });
   }
 
   if (!cart) {
@@ -172,14 +172,11 @@ export const addToCart = asyncHandler(async (req: AuthRequest, res: Response) =>
   // Get or create cart
   let cart;
   if (userId) {
-    cart = await prisma.cart.upsert({ 
-      where: { userId }, 
-      update: {}, 
-      create: { userId } 
-    });
+    cart = await prisma.cart.findFirst({ where: { userId } });
+    if (!cart) cart = await prisma.cart.create({ data: { userId } });
     // Merge session cart if exists
     if (sessionId) {
-      const sessionCart = await prisma.cart.findUnique({ where: { sessionId } });
+      const sessionCart = await prisma.cart.findFirst({ where: { sessionId } });
       if (sessionCart && sessionCart.id !== cart.id) {
         await prisma.cartItem.updateMany({ where: { cartId: sessionCart.id }, data: { cartId: cart.id } });
         await prisma.cart.delete({ where: { id: sessionCart.id } });
@@ -187,7 +184,8 @@ export const addToCart = asyncHandler(async (req: AuthRequest, res: Response) =>
     }
   } else {
     if (!sessionId) throw createError('Session ID required for guest cart', 400);
-    cart = await prisma.cart.upsert({ where: { sessionId }, update: {}, create: { sessionId } });
+    cart = await prisma.cart.findFirst({ where: { sessionId } });
+    if (!cart) cart = await prisma.cart.create({ data: { sessionId } });
   }
 
   // Add or update item
@@ -258,7 +256,7 @@ export const applyCoupon = asyncHandler(async (req: AuthRequest, res: Response) 
 
   let cart;
   if (cartId) cart = await prisma.cart.findUnique({ where: { id: cartId } });
-  else if (userId) cart = await prisma.cart.findUnique({ where: { userId } });
+  else if (userId) cart = await prisma.cart.findFirst({ where: { userId } });
 
   if (!cart) throw createError('Cart not found', 404);
 
@@ -274,7 +272,7 @@ export const removeCoupon = asyncHandler(async (req: AuthRequest, res: Response)
 
   let cart;
   if (cartId) cart = await prisma.cart.findUnique({ where: { id: cartId } });
-  else if (userId) cart = await prisma.cart.findUnique({ where: { userId } });
+  else if (userId) cart = await prisma.cart.findFirst({ where: { userId } });
   if (!cart) throw createError('Cart not found', 404);
 
   await prisma.cart.update({ where: { id: cart.id }, data: { couponId: null } });
@@ -289,7 +287,7 @@ export const mergeCart = asyncHandler(async (req: AuthRequest, res: Response) =>
     return res.json({ success: true, message: 'No session to merge' });
   }
 
-  const sessionCart = await prisma.cart.findUnique({
+  const sessionCart = await prisma.cart.findFirst({
     where: { sessionId },
     include: { items: true },
   });
@@ -298,7 +296,7 @@ export const mergeCart = asyncHandler(async (req: AuthRequest, res: Response) =>
     return res.json({ success: true, message: 'Session cart empty' });
   }
 
-  let userCart = await prisma.cart.findUnique({
+  let userCart = await prisma.cart.findFirst({
     where: { userId },
     include: { items: true },
   });
