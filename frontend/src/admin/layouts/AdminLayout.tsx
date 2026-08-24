@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth.store';
 import toast from 'react-hot-toast';
@@ -134,6 +134,40 @@ const NavGroupComponent: React.FC<{ group: NavGroup; setSidebarOpen: (o: boolean
   );
 };
 
+const ScrollButton: React.FC = () => {
+  const [direction, setDirection] = useState<'down' | 'up'>('down');
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 100) {
+        setDirection('up');
+      } else {
+        setDirection('down');
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleClick = () => {
+    if (direction === 'up') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <button 
+      onClick={handleClick}
+      className="admin-scroll-btn"
+      title={`Scroll ${direction}`}
+    >
+      {direction === 'up' ? '↑' : '↓'}
+    </button>
+  );
+};
+
 const AdminLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuthStore();
@@ -147,6 +181,7 @@ const AdminLayout: React.FC = () => {
 
   return (
     <div className="admin-layout">
+      <ScrollButton />
       {/* Mobile Overlay */}
       {sidebarOpen && (
         <div 
@@ -259,6 +294,30 @@ const AdminLayout: React.FC = () => {
           .admin-sidebar__close { display: flex; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
           .admin-content { margin-left: 0; }
           .admin-hamburger { display: flex !important; }
+        }
+        .admin-scroll-btn {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background: var(--color-gold);
+          color: var(--color-rich-black);
+          border: none;
+          font-size: 1.5rem;
+          font-weight: bold;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3);
+          z-index: 99;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s;
+        }
+        .admin-scroll-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(201, 162, 39, 0.4);
         }
       `}</style>
     </div>

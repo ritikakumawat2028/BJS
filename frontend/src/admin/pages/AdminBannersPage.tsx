@@ -180,8 +180,8 @@ const AdminBannersPage: React.FC = () => {
                 <div className="form-group">
                   <label className="form-label">Placement *</label>
                   <select className="form-select" value={formData.placement} onChange={e => setFormData({...formData, placement: e.target.value})}>
-                    <option value="HERO">HERO (Homepage Banner)</option>
-                    <option value="PROMO">PROMO (Promotional Strip)</option>
+                    <option value="HERO">HERO (Homepage Top)</option>
+                    <option value="PROMO">PROMO (Under Best Sellers)</option>
                     <option value="POPUP">POPUP (Modal Dialog)</option>
                   </select>
                 </div>
