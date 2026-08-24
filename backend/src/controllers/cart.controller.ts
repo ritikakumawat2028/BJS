@@ -11,7 +11,7 @@ const getCartWithDetails = async (cartId: string) => {
         include: {
           product: {
             select: {
-              id: true, name: true, slug: true, price: true, comparePrice: true, isActive: true,
+              id: true, name: true, slug: true, price: true, comparePrice: true, isActive: true, categoryId: true,
               images: { where: { isThumbnail: true }, take: 1 },
               inventory: { select: { quantity: true } },
             },
@@ -91,8 +91,7 @@ const calculateCartTotals = async (cartId: string) => {
         const couponCategories = await prisma.couponCategory.findMany({ where: { couponId: coupon.id }, select: { categoryId: true } });
         const validCategoryIds = couponCategories.map(cc => cc.categoryId);
         for (const item of cart.items) {
-           const product = await prisma.product.findUnique({ where: { id: item.productId } });
-           if (product && validCategoryIds.includes(product.categoryId)) {
+           if (item.product && validCategoryIds.includes(item.product.categoryId)) {
               const price = item.variant?.price ?? item.product.price;
               eligibleSubtotal += Number(price) * item.quantity;
            }
