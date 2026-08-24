@@ -26,7 +26,7 @@
   --color-white: #FFFFFF;
   --color-text-muted: var(--color-ivory);
   --color-text-secondary: var(--color-ivory);
-  --color-border: #333333;
+  --color-border: #ffffff;
   --color-border-gold: rgba(201, 162, 39, 0.3);
   --color-surface: var(--color-black);
   --color-surface-hover: var(--color-black);

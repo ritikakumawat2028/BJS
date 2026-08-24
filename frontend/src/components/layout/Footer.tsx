@@ -139,7 +139,7 @@ const Footer: React.FC = () => {
       </div>
 
       <style>{`
-        .footer { background: var(--color-rich-black); border-top: 1px solid var(--color-border); }
+        .footer { background: var(--color-rich-black); border-top: 1px solid #333333; }
         .footer__top { padding: var(--space-16) 0 var(--space-10); }
         .footer__grid {
           display: grid;
