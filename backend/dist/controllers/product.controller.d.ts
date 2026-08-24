@@ -12,5 +12,6 @@ export declare const adminUpdateProduct: (req: Request, res: Response, next: imp
 export declare const adminDeleteProduct: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const adminUpdateInventory: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const adminUploadProductImages: (req: Request, res: Response, next: import("express").NextFunction) => void;
+export declare const getAllApprovedReviews: (req: Request, res: Response, next: import("express").NextFunction) => void;
 export declare const getProductReviews: (req: Request, res: Response, next: import("express").NextFunction) => void;
 //# sourceMappingURL=product.controller.d.ts.map

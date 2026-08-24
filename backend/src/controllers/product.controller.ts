@@ -467,4 +467,17 @@ export const adminUploadProductImages = asyncHandler(async (req: AuthRequest, re
 
   res.json({ success: true, message: 'Images uploaded', data: created });
 });
+export const getAllApprovedReviews = asyncHandler(async (req: Request, res: Response) => {
+  const reviews = await prisma.review.findMany({
+    where: { isApproved: true },
+    include: {
+      user: { select: { firstName: true, lastName: true, avatar: true } },
+      product: { select: { name: true } }
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 10
+  });
+  res.json({ success: true, data: reviews });
+});
+
 export const getProductReviews = asyncHandler(async (req: Request, res: Response) => { const { id } = req.params as any; const reviews = await prisma.review.findMany({ where: { productId: id, isApproved: true }, include: { user: { select: { firstName: true, lastName: true } } }, orderBy: { createdAt: 'desc' } }); res.json({ success: true, data: reviews }); });

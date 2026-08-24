@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getProductReviews = exports.adminUploadProductImages = exports.adminUpdateInventory = exports.adminDeleteProduct = exports.adminUpdateProduct = exports.adminCreateProduct = exports.adminGetProducts = exports.addGuestReview = exports.searchProducts = exports.getNewArrivals = exports.getBestsellerProducts = exports.getFeaturedProducts = exports.getProductBySlug = exports.getProducts = void 0;
+exports.getProductReviews = exports.getAllApprovedReviews = exports.adminUploadProductImages = exports.adminUpdateInventory = exports.adminDeleteProduct = exports.adminUpdateProduct = exports.adminCreateProduct = exports.adminGetProducts = exports.addGuestReview = exports.searchProducts = exports.getNewArrivals = exports.getBestsellerProducts = exports.getFeaturedProducts = exports.getProductBySlug = exports.getProducts = void 0;
 const slugify_1 = __importDefault(require("slugify"));
 const prisma_1 = __importDefault(require("../config/prisma"));
 const error_1 = require("../middleware/error");
@@ -438,6 +438,18 @@ exports.adminUploadProductImages = (0, error_1.asyncHandler)(async (req, res) =>
         data: images.map((img) => ({ ...img, productId: id })),
     });
     res.json({ success: true, message: 'Images uploaded', data: created });
+});
+exports.getAllApprovedReviews = (0, error_1.asyncHandler)(async (req, res) => {
+    const reviews = await prisma_1.default.review.findMany({
+        where: { isApproved: true },
+        include: {
+            user: { select: { firstName: true, lastName: true, avatar: true } },
+            product: { select: { name: true } }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10
+    });
+    res.json({ success: true, data: reviews });
 });
 exports.getProductReviews = (0, error_1.asyncHandler)(async (req, res) => { const { id } = req.params; const reviews = await prisma_1.default.review.findMany({ where: { productId: id, isApproved: true }, include: { user: { select: { firstName: true, lastName: true } } }, orderBy: { createdAt: 'desc' } }); res.json({ success: true, data: reviews }); });
 //# sourceMappingURL=product.controller.js.map

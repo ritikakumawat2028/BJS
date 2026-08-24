@@ -6,6 +6,7 @@ const auth_1 = require("../middleware/auth");
 const cache_1 = require("../middleware/cache");
 const router = (0, express_1.Router)();
 // Public
+router.get('/reviews/all', (0, cache_1.apiCache)('5 minutes'), product_controller_1.getAllApprovedReviews);
 router.post('/reviews/guest', product_controller_1.addGuestReview);
 router.get('/', (0, cache_1.apiCache)('5 minutes'), product_controller_1.getProducts);
 router.get('/search', (0, cache_1.apiCache)('5 minutes'), product_controller_1.searchProducts);

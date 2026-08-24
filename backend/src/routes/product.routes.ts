@@ -3,7 +3,7 @@ import {
   getProducts, getProductBySlug, getFeaturedProducts, getBestsellerProducts,
   getNewArrivals, searchProducts, adminGetProducts, adminCreateProduct,
   adminUpdateProduct, adminDeleteProduct, adminUpdateInventory, adminUploadProductImages,
-  getProductReviews, addGuestReview
+  getProductReviews, addGuestReview, getAllApprovedReviews
 } from '../controllers/product.controller';
 import { authenticate, requireAdmin } from '../middleware/auth';
 import { apiCache } from '../middleware/cache';
@@ -11,6 +11,7 @@ import { apiCache } from '../middleware/cache';
 const router = Router();
 
 // Public
+router.get('/reviews/all', apiCache('5 minutes'), getAllApprovedReviews);
 router.post('/reviews/guest', addGuestReview);
 router.get('/', apiCache('5 minutes'), getProducts);
 router.get('/search', apiCache('5 minutes'), searchProducts);

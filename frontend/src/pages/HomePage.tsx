@@ -42,9 +42,8 @@ const HomePage: React.FC = () => {
   const promoBanners = allBanners.filter(b => b.placement === "PROMO");
   const campaigns: Campaign[] = campaignsData?.data?.data || [];
   const settings: StoreSettings = settingsData?.data?.data || {};
-  const approvedReviews: Review[] = [];
-
-  const displayTestimonials = FALLBACK_TESTIMONIALS;
+  const { data: approvedReviewsData } = useQuery({ queryKey: ["approved-reviews"], queryFn: () => productsApi.getApprovedReviews() });
+  const displayTestimonials = approvedReviewsData?.data || [];
 
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [newsletterEmail, setNewsletterEmail] = useState("");
@@ -307,13 +306,13 @@ const HomePage: React.FC = () => {
                     <div className="hp-testimonial__stars">{Array.from({ length: t.rating }).map((_, i) => <span key={i}>&#9733;</span>)}</div>
                     <p className="hp-testimonial__quote">&ldquo;{t.comment}&rdquo;</p>
                     <div className="hp-testimonial__author">
-                      {t.user?.avatar && <img src={t.user.avatar} alt={t.user.firstName} className="hp-testimonial__avatar" />}
+                      {t.user?.avatar && <img src={t.user.avatar} alt={t.user.firstName || "Guest"} className="hp-testimonial__avatar" />}
                       <div>
-                        <span className="hp-testimonial__name">{t.user.firstName} {t.user.lastName}</span>
+                        <span className="hp-testimonial__name">{t.user ? `${t.user.firstName} ${t.user.lastName}` : "Guest"}</span>
                         {t.location && <span className="hp-testimonial__location">{t.location}</span>}
                       </div>
                     </div>
-                    <p className="hp-testimonial__product">PURCHASED: {t.productName || "BJ'S Product"}</p>
+                    <p className="hp-testimonial__product">PURCHASED: {t.product?.name || t.productName || "BJ'S Product"}</p>
                   </motion.div>
                 </AnimatePresence>
                 <div className="hp-testimonial__dots">
