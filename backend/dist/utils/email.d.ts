@@ -8,5 +8,6 @@ export declare const orderConfirmationEmail: (orderNumber: string, customerName:
 export declare const otpVerificationEmailTemplate: (otp: string) => string;
 export declare const newsletterWelcomeEmailTemplate: (unsubscribeUrl: string) => string;
 export declare const newsletterVerificationEmailTemplate: (verifyUrl: string) => string;
+export declare const forgotPasswordEmailTemplate: (resetUrl: string) => string;
 export {};
 //# sourceMappingURL=email.d.ts.map

@@ -146,7 +146,7 @@ exports.forgotPassword = (0, error_1.asyncHandler)(async (req, res) => {
         await (0, email_1.sendEmail)({
             to: email,
             subject: "Reset your BJ'S Natural Care password",
-            html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. Link expires in 1 hour.</p>`,
+            html: (0, email_1.forgotPasswordEmailTemplate)(resetUrl),
         });
     }
     // Always respond the same to prevent email enumeration

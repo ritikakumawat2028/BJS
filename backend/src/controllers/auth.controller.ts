@@ -5,7 +5,7 @@ import prisma from '../config/prisma';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/jwt';
 import { asyncHandler, createError } from '../middleware/error';
 import { AuthRequest } from '../middleware/auth';
-import { sendEmail, otpVerificationEmailTemplate } from '../utils/email';
+import { sendEmail, otpVerificationEmailTemplate, forgotPasswordEmailTemplate } from '../utils/email';
 
 export const sendRegisterOtp = asyncHandler(async (req: Request, res: Response) => {
   const { email } = req.body;
@@ -167,7 +167,7 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response) =
     await sendEmail({
       to: email,
       subject: "Reset your BJ'S Natural Care password",
-      html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. Link expires in 1 hour.</p>`,
+      html: forgotPasswordEmailTemplate(resetUrl),
     });
   }
   // Always respond the same to prevent email enumeration

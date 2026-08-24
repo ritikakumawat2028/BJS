@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.newsletterVerificationEmailTemplate = exports.newsletterWelcomeEmailTemplate = exports.otpVerificationEmailTemplate = exports.orderConfirmationEmail = exports.sendEmail = void 0;
+exports.forgotPasswordEmailTemplate = exports.newsletterVerificationEmailTemplate = exports.newsletterWelcomeEmailTemplate = exports.otpVerificationEmailTemplate = exports.orderConfirmationEmail = exports.sendEmail = void 0;
 const resend_1 = require("resend");
 const getSetting_1 = require("./getSetting");
 const sendEmail = async ({ to, subject, html }) => {
@@ -159,4 +159,32 @@ const newsletterVerificationEmailTemplate = (verifyUrl) => `
 </html>
 `;
 exports.newsletterVerificationEmailTemplate = newsletterVerificationEmailTemplate;
+const forgotPasswordEmailTemplate = (resetUrl) => `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+  body { font-family: 'Georgia', serif; background: #080808; color: #F8F5EE; margin: 0; padding: 0; }
+  .container { max-width: 600px; margin: 0 auto; padding: 40px 24px; }
+  .logo { font-size: 24px; letter-spacing: 3px; color: #C9A227; text-align: center; margin-bottom: 32px; }
+  .heading { font-size: 28px; text-align: center; color: #F8F5EE; margin-bottom: 16px; }
+  .body { font-size: 16px; line-height: 1.8; color: #ccc; text-align: center; }
+  .btn { display: inline-block; background: #C9A227; color: #000; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 4px; margin: 20px 0; }
+  .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; }
+</style></head>
+<body>
+<div class="container">
+  <div class="logo">BJ'S NATURAL CARE</div>
+  <div class="heading">Reset Your Password</div>
+  <div class="body">
+    <p>We received a request to reset your password for your BJ'S Natural Care account.</p>
+    <p>Click the button below to choose a new password:</p>
+    <a href="${resetUrl}" class="btn">Reset Password</a>
+    <p style="font-size: 12px; color: #888;">This link will expire in 1 hour. If you didn't request this, you can safely ignore this email.</p>
+  </div>
+  <div class="footer">© BJ'S Natural Care. All rights reserved.</div>
+</div>
+</body>
+</html>
+`;
+exports.forgotPasswordEmailTemplate = forgotPasswordEmailTemplate;
 //# sourceMappingURL=email.js.map
