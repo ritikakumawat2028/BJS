@@ -74,8 +74,8 @@ const ContactPage: React.FC = () => {
 
             <form className="contact-form" onSubmit={handleSubmit}>
               <div className="form-group-full">
-                <label className="contact-label">Full Name <span className="text-muted">(optional)</span></label>
-                <input type="text" name="name" className="contact-input" value={formData.name} onChange={handleChange} placeholder="Your full name" />
+                <label className="contact-label">Full Name <span className="text-red">*</span></label>
+                <input type="text" name="name" className="contact-input" required value={formData.name} onChange={handleChange} placeholder="Your full name" />
               </div>
 
               <div className="form-row">

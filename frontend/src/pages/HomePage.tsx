@@ -308,7 +308,7 @@ const HomePage: React.FC = () => {
                     <div className="hp-testimonial__author">
                       {t.user?.avatar && <img src={t.user.avatar} alt={t.user.firstName || "Guest"} className="hp-testimonial__avatar" />}
                       <div>
-                        <span className="hp-testimonial__name">{t.user ? `${t.user.firstName} ${t.user.lastName}` : "Guest"}</span>
+                        <span className="hp-testimonial__name">{t.user ? `${t.user.firstName} ${t.user.lastName}` : (t.title?.replace('Review by ', '') || "Guest")}</span>
                         {t.location && <span className="hp-testimonial__location">{t.location}</span>}
                       </div>
                     </div>

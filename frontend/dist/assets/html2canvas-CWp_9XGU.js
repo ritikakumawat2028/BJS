@@ -1,1 +1,0 @@
-import{n as e}from"./OrderDetailPage-CBafc158.js";export default e();
