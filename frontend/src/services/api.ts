@@ -132,6 +132,7 @@ export const ordersApi = {
   create: (data: any) => api.post('/orders', data),
   createRazorpay: (data: { orderId: string }) => api.post('/payments/create', data),
   verifyPayment: (data: any) => api.post('/payments/verify', data),
+  cancelOrder: (id: string) => api.post(`/orders/${id}/cancel`),
   getAll: (params?: any) => api.get('/orders', { params }),
   getById: (id: string) => api.get(`/orders/${id}`),
   adminGetAll: (params?: any) => api.get('/admin/orders', { params }),

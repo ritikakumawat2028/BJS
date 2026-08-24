@@ -3,11 +3,82 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminUpdateOrderStatus = exports.adminGetOrderById = exports.adminGetOrders = exports.getOrderById = exports.getUserOrders = exports.razorpayWebhook = exports.verifyPayment = exports.createRazorpayOrder = exports.createOrder = void 0;
+exports.adminUpdateOrderStatus = exports.adminGetOrderById = exports.adminGetOrders = exports.getOrderById = exports.getUserOrders = exports.razorpayWebhook = exports.verifyPayment = exports.createRazorpayOrder = exports.createOrder = exports.cancelPendingOrder = void 0;
 const prisma_1 = __importDefault(require("../config/prisma"));
 const error_1 = require("../middleware/error");
 const notification_service_1 = require("../services/notification.service");
 const payment_factory_1 = require("../services/payment/payment.factory");
+// ===================== CANCEL PENDING ORDER =====================
+exports.cancelPendingOrder = (0, error_1.asyncHandler)(async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user.userId;
+    // Find the order and verify ownership
+    const order = await prisma_1.default.order.findFirst({
+        where: { id, userId },
+        include: { items: true, payment: true },
+    });
+    if (!order)
+        throw (0, error_1.createError)('Order not found', 404);
+    // Only allow cancellation if order is still PENDING and payment is still PENDING (i.e. never paid)
+    if (order.status !== 'PENDING') {
+        throw (0, error_1.createError)(`Cannot cancel an order with status "${order.status}"`, 400);
+    }
+    if (order.payment && order.payment.status === 'PAID') {
+        throw (0, error_1.createError)('Cannot cancel an already paid order', 400);
+    }
+    // Cancel order + restore stock in a transaction
+    await prisma_1.default.$transaction(async (tx) => {
+        // Update order and payment status
+        await tx.order.update({
+            where: { id },
+            data: { status: 'CANCELLED', paymentStatus: 'FAILED' },
+        });
+        if (order.payment) {
+            await tx.payment.update({
+                where: { orderId: id },
+                data: { status: 'FAILED', failureReason: 'Order cancelled by customer after payment failure' },
+            });
+        }
+        // Add timeline entry
+        await tx.orderTimeline.create({
+            data: {
+                orderId: id,
+                status: 'CANCELLED',
+                message: 'Order cancelled due to payment failure. Stock has been restored.',
+            },
+        });
+        // Restore stock for all items
+        for (const item of order.items) {
+            if (item.variantId) {
+                await tx.productVariant.update({
+                    where: { id: item.variantId },
+                    data: { stock: { increment: item.quantity } },
+                });
+            }
+            else {
+                await tx.inventory.update({
+                    where: { productId: item.productId },
+                    data: { quantity: { increment: item.quantity } },
+                });
+            }
+            await tx.product.update({
+                where: { id: item.productId },
+                data: { totalSold: { decrement: item.quantity } },
+            });
+        }
+        // Decrement coupon usage if a coupon was applied
+        if (order.couponCode) {
+            const coupon = await tx.coupon.findFirst({ where: { code: order.couponCode } });
+            if (coupon && coupon.usedCount > 0) {
+                await tx.coupon.update({
+                    where: { id: coupon.id },
+                    data: { usedCount: { decrement: 1 } },
+                });
+            }
+        }
+    }, { maxWait: 5000, timeout: 20000 });
+    res.json({ success: true, message: 'Order cancelled and stock restored successfully' });
+});
 const generateOrderNumber = () => `BJS${Date.now()}${Math.floor(Math.random() * 1000)}`;
 exports.createOrder = (0, error_1.asyncHandler)(async (req, res) => {
     const { shippingAddressId, billingAddressId, paymentMethod, notes, sessionId } = req.body;

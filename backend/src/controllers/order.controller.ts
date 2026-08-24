@@ -6,6 +6,86 @@ import { AuthRequest } from '../middleware/auth';
 import { NotificationService } from '../services/notification.service';
 import { PaymentFactory } from '../services/payment/payment.factory';
 
+// ===================== CANCEL PENDING ORDER =====================
+
+export const cancelPendingOrder = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const { id } = req.params as any;
+  const userId = req.user!.userId;
+
+  // Find the order and verify ownership
+  const order = await prisma.order.findFirst({
+    where: { id, userId },
+    include: { items: true, payment: true },
+  });
+
+  if (!order) throw createError('Order not found', 404);
+
+  // Only allow cancellation if order is still PENDING and payment is still PENDING (i.e. never paid)
+  if (order.status !== 'PENDING') {
+    throw createError(`Cannot cancel an order with status "${order.status}"`, 400);
+  }
+  if (order.payment && order.payment.status === 'PAID') {
+    throw createError('Cannot cancel an already paid order', 400);
+  }
+
+  // Cancel order + restore stock in a transaction
+  await prisma.$transaction(async (tx) => {
+    // Update order and payment status
+    await tx.order.update({
+      where: { id },
+      data: { status: 'CANCELLED', paymentStatus: 'FAILED' },
+    });
+
+    if (order.payment) {
+      await tx.payment.update({
+        where: { orderId: id },
+        data: { status: 'FAILED', failureReason: 'Order cancelled by customer after payment failure' },
+      });
+    }
+
+    // Add timeline entry
+    await tx.orderTimeline.create({
+      data: {
+        orderId: id,
+        status: 'CANCELLED',
+        message: 'Order cancelled due to payment failure. Stock has been restored.',
+      },
+    });
+
+    // Restore stock for all items
+    for (const item of order.items) {
+      if (item.variantId) {
+        await tx.productVariant.update({
+          where: { id: item.variantId },
+          data: { stock: { increment: item.quantity } },
+        });
+      } else {
+        await tx.inventory.update({
+          where: { productId: item.productId },
+          data: { quantity: { increment: item.quantity } },
+        });
+      }
+      await tx.product.update({
+        where: { id: item.productId },
+        data: { totalSold: { decrement: item.quantity } },
+      });
+    }
+
+    // Decrement coupon usage if a coupon was applied
+    if (order.couponCode) {
+      const coupon = await tx.coupon.findFirst({ where: { code: order.couponCode } });
+      if (coupon && coupon.usedCount > 0) {
+        await tx.coupon.update({
+          where: { id: coupon.id },
+          data: { usedCount: { decrement: 1 } },
+        });
+      }
+    }
+  }, { maxWait: 5000, timeout: 20000 });
+
+  res.json({ success: true, message: 'Order cancelled and stock restored successfully' });
+});
+
 const generateOrderNumber = () => `BJS${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
 export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) => {

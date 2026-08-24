@@ -1,4 +1,5 @@
 import { Response } from 'express';
+export declare const cancelPendingOrder: (req: import("express").Request, res: Response, next: import("express").NextFunction) => void;
 export declare const createOrder: (req: import("express").Request, res: Response, next: import("express").NextFunction) => void;
 export declare const createRazorpayOrder: (req: import("express").Request, res: Response, next: import("express").NextFunction) => void;
 export declare const verifyPayment: (req: import("express").Request, res: Response, next: import("express").NextFunction) => void;

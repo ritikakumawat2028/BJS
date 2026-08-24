@@ -163,6 +163,19 @@ const CheckoutPage: React.FC = () => {
           contact: addresses.find((a) => a.id === selectedAddressId)?.phone,
         },
         theme: { color: '#C9A227' },
+        modal: {
+          // Called when user closes the modal without completing payment
+          ondismiss: async () => {
+            setLoading(false);
+            // Silently cancel the pending order to restore stock
+            try {
+              await ordersApi.cancelOrder(order.id);
+            } catch {
+              // Best-effort — don't block the user
+            }
+            toast('Payment cancelled. Your cart items are available again.', { icon: 'ℹ️' });
+          },
+        },
       };
 
       if (!(window as any).Razorpay) {
@@ -171,18 +184,33 @@ const CheckoutPage: React.FC = () => {
         return;
       }
       const rzp = new (window as any).Razorpay(options);
-      rzp.on('payment.failed', (response: any) => {
-        const reason = response?.error?.description || '';
-        // If the error is due to popup close (cancelled by user), don't redirect
-        if (response?.error?.code === 'BAD_REQUEST_ERROR' || reason.toLowerCase().includes('cancel')) {
-          toast.error('Payment was cancelled. Please try again.');
-          setLoading(false);
+      rzp.on('payment.failed', async (response: any) => {
+        const reason = response?.error?.description || response?.error?.reason || 'Payment failed';
+        const errorCode = response?.error?.code || '';
+        const isUserCancelled =
+          reason.toLowerCase().includes('cancel') ||
+          reason.toLowerCase().includes('dismissed') ||
+          errorCode === 'CANCELLED';
+
+        // Always cancel the pending order to restore stock
+        try {
+          await ordersApi.cancelOrder(order.id);
+        } catch {
+          // Best-effort — don't block UX
+        }
+
+        setLoading(false);
+
+        if (isUserCancelled) {
+          toast('Payment cancelled. Your cart items are available again.', { icon: 'ℹ️' });
         } else {
-          toast.error('Payment failed: ' + (reason || 'Please try again.'));
-          navigate(`/account/orders/${order.id}`);
+          // Show the real reason (e.g. "International cards are not supported")
+          toast.error(`Payment failed: ${reason}`);
         }
       });
       rzp.open();
+      // Don't setLoading(false) here — the modal is open and in control
+      return;
     } catch (err: any) {
       console.error('Checkout error:', err);
       const msg = err.response?.data?.message || err.message || 'An unexpected error occurred';
