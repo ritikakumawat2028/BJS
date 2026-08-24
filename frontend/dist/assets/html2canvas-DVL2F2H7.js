@@ -1,1 +1,0 @@
-import{n as e}from"./OrderDetailPage-Djbau1Un.js";export default e();

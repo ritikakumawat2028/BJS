@@ -52,7 +52,7 @@ const AdminReviewsPage: React.FC = () => {
 
   const renderStars = (count: number) =>
     Array.from({ length: 5 }, (_, i) => (
-      <span key={i} style={{ color: i < count ? 'var(--color-gold)' : 'var(--color-border)', fontSize: '1rem' }}>???</span>
+      <span key={i} style={{ color: i < count ? 'var(--color-gold)' : 'var(--color-border)', fontSize: '1rem' }}>★</span>
     ));
 
   if (isLoading) return <div style={{ padding: '40px', textAlign: 'center', color: '#fff' }}>Loading reviews...</div>;
@@ -61,7 +61,7 @@ const AdminReviewsPage: React.FC = () => {
 
   return (
     <>
-      <Helmet><title>Reviews ? Admin | BJS Natural Care</title></Helmet>
+      <Helmet><title>Reviews | Admin | BJS Natural Care</title></Helmet>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <h1 className="admin-page-title" style={{ margin: 0 }}>Reviews Management</h1>
       </div>
@@ -81,7 +81,7 @@ const AdminReviewsPage: React.FC = () => {
                       <p style={{ color: 'var(--color-text-secondary)', fontSize: '0.9rem' }}>
                         By {review.user ? `${review.user.firstName} ${review.user.lastName} (${review.user.email})` : 'Guest'}
                       </p>
-                      {review.isVerifiedBuyer && <span style={{ color: 'var(--color-gold)', fontSize: '0.8rem' }}>??? Verified Purchase</span>}
+                      {review.isVerifiedBuyer && <span style={{ color: 'var(--color-gold)', fontSize: '0.8rem' }}>✓ Verified Purchase</span>}
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
