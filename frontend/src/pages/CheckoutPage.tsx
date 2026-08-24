@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../store/cart.store';
-import { userApi, ordersApi } from '../services/api';
+import { userApi, ordersApi, cartApi } from '../services/api';
 import { Address } from '../types';
 import toast from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,6 +25,10 @@ const CheckoutPage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<'RAZORPAY' | 'COD'>('RAZORPAY');
   const [loading, setLoading] = useState(false);
   const [fetchingAddresses, setFetchingAddresses] = useState(true);
+
+  // Coupon state
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
 
   // New address form state
   const [showNewAddress, setShowNewAddress] = useState(false);
@@ -132,12 +136,12 @@ const CheckoutPage: React.FC = () => {
       const rpOrder = rpRes.data;
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_123', // Demo key fallback
+        key: rpOrder.key,
         amount: rpOrder.amount,
         currency: rpOrder.currency,
         name: "BJ'S Natural Care",
         description: `Order ${order.orderNumber}`,
-        order_id: rpOrder.id,
+        order_id: rpOrder.razorpayOrderId,
         handler: async (response: any) => {
           try {
             await ordersApi.verifyPayment({
@@ -195,6 +199,34 @@ const CheckoutPage: React.FC = () => {
     { id: 3, name: 'Payment' },
     { id: 4, name: 'Review' },
   ];
+
+  const handleApplyCoupon = async () => {
+    if (!couponCodeInput.trim()) return;
+    setApplyingCoupon(true);
+    try {
+      await cartApi.applyCoupon(couponCodeInput.trim());
+      await useCartStore.getState().fetchCart();
+      toast.success('Coupon applied!');
+      setCouponCodeInput('');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Invalid or expired coupon');
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = async () => {
+    setApplyingCoupon(true);
+    try {
+      await cartApi.removeCoupon();
+      await useCartStore.getState().fetchCart();
+      toast.success('Coupon removed');
+    } catch (err) {
+      toast.error('Failed to remove coupon');
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
 
   const deliveryCharge = deliveryMethod === 'EXPRESS' ? 150 : cart.shipping;
   const finalTotal = cart.total - cart.shipping + deliveryCharge;
@@ -459,10 +491,40 @@ const CheckoutPage: React.FC = () => {
                       <div className="cart-summary-card" style={{ position: 'sticky', top: '100px' }}>
                         <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem', marginBottom: '20px', color: 'var(--color-ivory)' }}>Order Summary</h3>
                         
+                        {!cart.coupon && (
+                          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                            <input 
+                              type="text" 
+                              className="form-input" 
+                              placeholder="Discount code" 
+                              value={couponCodeInput}
+                              onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                              style={{ flex: 1, textTransform: 'uppercase' }}
+                            />
+                            <button 
+                              className="btn btn-outline" 
+                              onClick={handleApplyCoupon}
+                              disabled={applyingCoupon || !couponCodeInput.trim()}
+                            >
+                              {applyingCoupon ? '...' : 'Apply'}
+                            </button>
+                          </div>
+                        )}
+
                         <div className="summary-row"><span>Subtotal</span><span>{formatPrice(cart.subtotal)}</span></div>
                         {cart.coupon && (
-                          <div className="summary-row" style={{ color: 'var(--color-success)' }}>
-                            <span>Discount ({cart.coupon.code})</span><span>-{formatPrice(cart.discount)}</span>
+                          <div className="summary-row" style={{ color: 'var(--color-success)', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span>Discount ({cart.coupon.code})</span>
+                              <button 
+                                onClick={handleRemoveCoupon} 
+                                disabled={applyingCoupon}
+                                style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', fontSize: '0.8rem', padding: 0 }}
+                              >
+                                [Remove]
+                              </button>
+                            </div>
+                            <span>-{formatPrice(cart.discount)}</span>
                           </div>
                         )}
                         <div className="summary-row">
