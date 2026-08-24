@@ -8,8 +8,7 @@ const AdminBannersPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState<Partial<Banner>>({
-    title: '', subtitle: '', description: '', desktopImage: '', mobileImage: '',
-    ctaText: '', ctaUrl: '', placement: 'HERO', priority: 0, isActive: true
+    title: '', subtitle: '', description: '', desktopImage: '', mobileImage: '', ctaText: '', ctaUrl: '', couponCode: '', badgeText: '', placement: 'HERO', priority: 0, isActive: true
   });
   const [editId, setEditId] = useState<string | null>(null);
 
@@ -57,7 +56,7 @@ const AdminBannersPage: React.FC = () => {
       setFormData(banner);
     } else {
       setEditId(null);
-      setFormData({ title: '', subtitle: '', description: '', desktopImage: '', mobileImage: '', ctaText: '', ctaUrl: '', placement: 'HERO', priority: 0, isActive: true });
+      setFormData({ title: '', subtitle: '', description: '', desktopImage: '', mobileImage: '', ctaText: '', ctaUrl: '', couponCode: '', badgeText: '', placement: 'HERO', priority: 0, isActive: true });
     }
     setIsModalOpen(true);
   };
@@ -176,6 +175,11 @@ const AdminBannersPage: React.FC = () => {
                 <input className="form-input" type="text" value={formData.subtitle || ''} onChange={e => setFormData({...formData, subtitle: e.target.value})} />
               </div>
 
+              <div className="form-group">
+                <label className="form-label">Description</label>
+                <textarea className="form-input" rows={2} value={formData.description || ''} onChange={e => setFormData({...formData, description: e.target.value})} />
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div className="form-group">
                   <label className="form-label">Placement *</label>
@@ -187,7 +191,7 @@ const AdminBannersPage: React.FC = () => {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Priority (Higher = First)</label>
-                  <input className="form-input" type="number" value={formData.priority} onChange={e => setFormData({...formData, priority: parseInt(e.target.value)})} />
+                  <input className="form-input" type="number" value={formData.priority} onChange={e => setFormData({...formData, priority: parseInt(e.target.value) || 0})} />
                 </div>
               </div>
 
@@ -222,6 +226,17 @@ const AdminBannersPage: React.FC = () => {
                 <div className="form-group">
                   <label className="form-label">CTA URL</label>
                   <input className="form-input" type="text" value={formData.ctaUrl || ''} onChange={e => setFormData({...formData, ctaUrl: e.target.value})} />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="form-group">
+                  <label className="form-label">Coupon Code (Optional)</label>
+                  <input className="form-input" type="text" value={formData.couponCode || ''} onChange={e => setFormData({...formData, couponCode: e.target.value})} placeholder="e.g. RAKHI30" />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Badge Text (Optional)</label>
+                  <input className="form-input" type="text" value={formData.badgeText || ''} onChange={e => setFormData({...formData, badgeText: e.target.value})} placeholder="e.g. LIMITED TIME" />
                 </div>
               </div>
 
