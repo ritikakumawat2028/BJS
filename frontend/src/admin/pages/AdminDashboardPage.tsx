@@ -332,49 +332,49 @@ const AdminDashboardPage: React.FC = () => {
       </div>
 
       <style>{`
-        .dash-stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
-        .dash-stat-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+        .dash-stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 24px; }
+        .dash-stat-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
         .dash-stat-header { display: flex; justify-content: flex-end; margin-bottom: 12px; }
-        .dash-stat-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; alignItems: center; justify-content: center; font-size: 1.2rem; }
+        .dash-stat-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; alignItems: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
         .dash-stat-body { display: flex; justify-content: space-between; align-items: flex-end; }
-        .dash-stat-label { font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 4px; }
-        .dash-stat-value { font-size: 1.5rem; font-weight: 600; color: var(--color-ivory); margin: 0; }
-        .dash-stat-trend { font-size: 0.75rem; font-weight: 500; padding: 4px 8px; border-radius: 4px; }
+        .dash-stat-label { font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dash-stat-value { font-size: 1.5rem; font-weight: 600; color: var(--color-ivory); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dash-stat-trend { font-size: 0.75rem; font-weight: 500; padding: 4px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
         .dash-stat-trend.positive { color: #00e676; background: rgba(0,230,118,0.1); }
         .dash-stat-trend.negative { color: #ff5252; background: rgba(255,82,82,0.1); }
 
-        .dash-main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-        .dash-left-col { display: flex; flex-direction: column; gap: 24px; }
-        .dash-right-col { display: flex; flex-direction: column; gap: 24px; }
+        .dash-main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px; margin-bottom: 24px; }
+        .dash-left-col { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+        .dash-right-col { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
         
-        .dash-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; }
-        .dash-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .dash-card-title { font-family: 'Inter', sans-serif; font-size: 1.1rem; color: var(--color-ivory); margin: 0; font-weight: 600; }
+        .dash-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; overflow: hidden; }
+        .dash-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+        .dash-card-title { font-family: 'Inter', sans-serif; font-size: 1.1rem; color: var(--color-ivory); margin: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .dash-circular-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .circular-stat { flex-direction: row; justify-content: space-between; align-items: center; padding: 20px 24px; }
-        .circle-progress { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; font-size: 0.75rem; font-weight: bold; border: 4px solid var(--color-border); }
+        .dash-circular-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+        .circular-stat { flex-direction: row; justify-content: space-between; align-items: center; padding: 20px 24px; overflow: hidden; }
+        .circle-progress { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; font-size: 0.75rem; font-weight: bold; border: 4px solid var(--color-border); flex-shrink: 0; }
         .circle-progress.green { border-top-color: #00e676; border-right-color: #00e676; color: var(--color-ivory); }
         .circle-progress.blue { border-top-color: #00b0ff; color: var(--color-ivory); }
 
-        .dash-legend { display: flex; gap: 16px; font-size: 0.8rem; color: var(--color-text-muted); }
-        .dash-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+        .dash-legend { display: flex; gap: 16px; font-size: 0.8rem; color: var(--color-text-muted); flex-wrap: wrap; }
+        .dash-legend .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
         .dot.yellow { background: #ffca28; }
         .dot.blue { background: #448aff; }
         .dot.cyan { background: #00e5ff; }
 
-        .pill-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+        .pill-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
         .pill-badge.paid { color: #ff5252; background: rgba(255,82,82,0.1); }
         .pill-badge.pending { color: #00e676; background: rgba(0,230,118,0.1); }
         .pill-badge.unpaid { color: #448aff; background: rgba(68,138,255,0.1); }
 
         @media (max-width: 1200px) {
-          .dash-stat-row { grid-template-columns: repeat(2, 1fr); }
           .dash-main-grid { grid-template-columns: 1fr; }
         }
         @media (max-width: 768px) {
           .dash-stat-row { grid-template-columns: 1fr; }
           .dash-circular-row { grid-template-columns: 1fr; }
+          .dash-main-grid { grid-template-columns: 1fr; }
         }
       `}</style>
     </>
