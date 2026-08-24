@@ -72,8 +72,8 @@ exports.register = (0, error_1.asyncHandler)(async (req, res) => {
     });
     res.cookie('bjs_refresh_token', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: true,
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.status(201).json({ success: true, message: 'Account created successfully.', data: { user, accessToken } });
@@ -99,8 +99,8 @@ exports.login = (0, error_1.asyncHandler)(async (req, res) => {
     });
     res.cookie('bjs_refresh_token', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        secure: true,
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     res.json({
