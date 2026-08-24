@@ -99,8 +99,7 @@ exports.createOrder = (0, error_1.asyncHandler)(async (req, res) => {
                 const couponCategories = await prisma_1.default.couponCategory.findMany({ where: { couponId: c.id }, select: { categoryId: true } });
                 const validCategoryIds = couponCategories.map(cc => cc.categoryId);
                 for (const item of cart.items) {
-                    const product = await prisma_1.default.product.findUnique({ where: { id: item.productId } });
-                    if (product && validCategoryIds.includes(product.categoryId)) {
+                    if (item.product && validCategoryIds.includes(item.product.categoryId)) {
                         const price = item.variant ? Number(item.variant.price) : Number(item.product.price);
                         eligibleSubtotal += price * item.quantity;
                     }
@@ -125,7 +124,7 @@ exports.createOrder = (0, error_1.asyncHandler)(async (req, res) => {
     let shippingChargeValue = parseFloat(shippingSettings.find(s => s.key === 'default_shipping_charge')?.value || '99');
     // Find matching Shipping Zone
     const zones = await prisma_1.default.shipping.findMany({ where: { isActive: true } });
-    const matchingZone = zones.find(z => z.states?.toLowerCase().includes(address.state.toLowerCase()));
+    const matchingZone = zones.find(z => z.states?.toLowerCase()?.includes(address.state?.toLowerCase() || ''));
     if (matchingZone) {
         shippingChargeValue = Number(matchingZone.shippingCharge);
         if (matchingZone.freeAbove) {

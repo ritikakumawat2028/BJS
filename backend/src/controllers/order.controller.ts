@@ -104,8 +104,7 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
         const couponCategories = await prisma.couponCategory.findMany({ where: { couponId: c.id }, select: { categoryId: true } });
         const validCategoryIds = couponCategories.map(cc => cc.categoryId);
         for (const item of cart.items) {
-           const product = await prisma.product.findUnique({ where: { id: item.productId } });
-           if (product && validCategoryIds.includes(product.categoryId)) {
+           if (item.product && validCategoryIds.includes(item.product.categoryId)) {
               const price = item.variant ? Number(item.variant.price) : Number(item.product.price);
               eligibleSubtotal += price * item.quantity;
            }
@@ -131,7 +130,7 @@ export const createOrder = asyncHandler(async (req: AuthRequest, res: Response) 
 
   // Find matching Shipping Zone
   const zones = await prisma.shipping.findMany({ where: { isActive: true } });
-  const matchingZone = zones.find(z => z.states?.toLowerCase().includes(address.state.toLowerCase()));
+  const matchingZone = zones.find(z => z.states?.toLowerCase()?.includes(address.state?.toLowerCase() || ''));
   
   if (matchingZone) {
     shippingChargeValue = Number(matchingZone.shippingCharge);
