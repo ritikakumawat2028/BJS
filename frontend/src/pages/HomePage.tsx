@@ -335,7 +335,7 @@ const HomePage: React.FC = () => {
                   {reviewSubmitted ? (
                     <div className="hp-review-success">
                       <span className="hp-review-success__icon">&#10003;</span>
-                      <div><strong>Thank you for your review!</strong><p>It will appear after admin approval.</p></div>
+                      <div><strong>Thank you for your review!</strong></div>
                     </div>
                   ) : (
                     <form className="hp-review-form" onSubmit={handleReviewSubmit}>
