@@ -552,7 +552,7 @@ const CheckoutPage: React.FC = () => {
                           </div>
                         )}
 
-                        <div className="summary-row"><span>Subtotal</span><span>{formatPrice(cart.subtotal)}</span></div>
+                        <div className="summary-row" style={{ paddingBottom: '12px' }}><span>Subtotal</span><span>{formatPrice(cart.subtotal)}</span></div>
                         {cart.coupon && (
                           <div className="summary-row" style={{ color: 'var(--color-success)', alignItems: 'center' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -568,11 +568,11 @@ const CheckoutPage: React.FC = () => {
                             <span>-{formatPrice(cart.discount)}</span>
                           </div>
                         )}
-                        <div className="summary-row">
+                        <div className="summary-row" style={{ paddingBottom: '12px' }}>
                           <span>Shipping</span>
                           <span>{deliveryCharge === 0 ? <span style={{ color: 'var(--color-success)' }}>FREE</span> : formatPrice(deliveryCharge)}</span>
                         </div>
-                        <div className="summary-row"><span>Estimated Tax</span><span>{formatPrice(cart.tax)}</span></div>
+                        <div className="summary-row" style={{ paddingBottom: '12px' }}><span>Estimated Tax</span><span>{formatPrice(cart.tax)}</span></div>
 
                         <div className="divider" style={{ margin: '16px 0' }} />
                         <div className="summary-row summary-total"><span>Total</span><span>{formatPrice(finalTotal)}</span></div>

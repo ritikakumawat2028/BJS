@@ -148,8 +148,8 @@ const AccountPage: React.FC = () => {
                 <input type="text" className="form-input" required value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} />
               </div>
               <div className="form-group">
-                <label className="form-label">Phone Number</label>
-                <input type="tel" className="form-input" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="Optional" />
+                <label className="form-label">Phone Number *</label>
+                <input type="tel" className="form-input" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="+91 XXXXX XXXXX" />
               </div>
               
               <div style={{ marginTop: '32px', display: 'flex', gap: '16px' }}>

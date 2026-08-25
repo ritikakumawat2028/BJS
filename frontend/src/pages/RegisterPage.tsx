@@ -34,6 +34,8 @@ const RegisterPage: React.FC = () => {
     } else if (!/[\W_]/.test(form.password)) {
       e.password = 'Password must contain at least one special character (e.g. @, #, !)';
     }
+    if (!form.phone.trim()) e.phone = 'Phone number is required';
+    else if (!/^[+]?[0-9\s-]{10,15}$/.test(form.phone.replace(/\s/g, ''))) e.phone = 'Enter a valid phone number';
     if (form.password !== form.confirmPassword) e.confirmPassword = 'Passwords do not match';
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -138,8 +140,8 @@ const RegisterPage: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Phone (optional)</label>
-                <input type="tel" name="phone" className={`form-input ${errors.phone ? 'error' : ''}`} placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+                <label className="form-label">Phone Number *</label>
+                <input type="tel" name="phone" className={`form-input ${errors.phone ? 'error' : ''}`} placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} required />
                 {errors.phone && <p className="form-error">{errors.phone}</p>}
               </div>
 

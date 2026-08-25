@@ -84,8 +84,8 @@ const ContactPage: React.FC = () => {
                   <input type="email" name="email" className="contact-input" required value={formData.email} onChange={handleChange} placeholder="you@example.com" />
                 </div>
                 <div className="form-group">
-                  <label className="contact-label">Phone Number <span className="text-muted">(optional)</span></label>
-                  <input type="tel" name="phone" className="contact-input" value={formData.phone} onChange={handleChange} placeholder="+91 98765 43210" />
+                  <label className="contact-label">Phone Number <span className="text-red">*</span></label>
+                  <input type="tel" name="phone" className="contact-input" required value={formData.phone} onChange={handleChange} placeholder="+91 98765 43210" />
                 </div>
               </div>
 
