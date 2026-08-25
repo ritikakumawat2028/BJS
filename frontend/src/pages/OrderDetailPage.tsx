@@ -376,7 +376,7 @@ const OrderDetailPage: React.FC = () => {
         .payment-status-box strong { color: var(--color-ivory); }
         
         .summary-list { display: flex; flex-direction: column; gap: 20px; }
-        .summary-row { display: flex; justify-content: space-between; color: var(--color-text-secondary); font-size: 0.95rem; }
+        .summary-row { display: flex; justify-content: space-between; gap: 16px; color: var(--color-text-secondary); font-size: 0.95rem; }
         .summary-row.discount { color: var(--color-success); }
         .summary-row.total { color: var(--color-ivory); font-size: 1.2rem; font-weight: 600; padding-top: 8px; }
         .free { color: var(--color-success); font-weight: 600; }
