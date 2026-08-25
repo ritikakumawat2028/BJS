@@ -15,10 +15,10 @@ const OrderDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { data, isLoading } = useQuery({ queryKey: ['order', id], queryFn: () => ordersApi.getById(id!), enabled: !!id });
   const { data: settingsData } = useQuery({ queryKey: ['store-settings'], queryFn: () => adminApi.getSettings() });
-  
+
   const order = data?.data?.data;
   const storeSettings = settingsData?.data?.data || {};
-  
+
   const invoiceRef = React.useRef<HTMLDivElement>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = React.useState(false);
 
@@ -55,7 +55,7 @@ const OrderDetailPage: React.FC = () => {
     if (order && location.state?.autoDownloadInvoice && invoiceRef.current && !isGeneratingPDF) {
       // Clear the state so it doesn't trigger again on refresh
       navigate(location.pathname, { replace: true, state: {} });
-      
+
       // Slight delay to ensure images/fonts are loaded in the hidden DOM
       setTimeout(() => {
         handleDownloadInvoice();
@@ -99,15 +99,15 @@ const OrderDetailPage: React.FC = () => {
       <Helmet><title>Order #{order.orderNumber} – BJ'S Natural Care</title></Helmet>
       <div className="order-detail-wrapper" style={{ paddingTop: 'calc(var(--nav-height) + 40px)', paddingBottom: '80px', background: 'var(--color-black)', minHeight: '100vh' }}>
         <div className="container" style={{ maxWidth: '1100px' }}>
-          
+
           <Link to="/account/orders" className="back-link">
             ← Back to Orders
           </Link>
-          
+
           <div style={{ position: 'absolute', top: '-10000px', left: '-10000px' }}>
             <InvoiceTemplate ref={invoiceRef} order={order} storeSettings={storeSettings} />
           </div>
-          
+
           <div className="order-header">
             <div className="order-header__left">
               <h1 className="section-title" style={{ marginBottom: '8px' }}>Order #{order.orderNumber}</h1>
@@ -116,9 +116,9 @@ const OrderDetailPage: React.FC = () => {
               </p>
             </div>
             <div className="order-header__right" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <button 
-                className="btn btn-outline-gold btn-sm" 
-                onClick={handleDownloadInvoice} 
+              <button
+                className="btn btn-outline-gold btn-sm"
+                onClick={handleDownloadInvoice}
                 disabled={isGeneratingPDF}
               >
                 {isGeneratingPDF ? 'Generating...' : 'Download Invoice'}
@@ -132,7 +132,7 @@ const OrderDetailPage: React.FC = () => {
           <div className="order-grid">
             {/* Left Column */}
             <div className="order-main">
-              
+
               {/* Order Timeline */}
               <div className="card print-hide">
                 <h3 className="card-title">Order Status Tracker</h3>
@@ -217,7 +217,7 @@ const OrderDetailPage: React.FC = () => {
                     ) : 'Not available yet'}</p>
                   </div>
                 </div>
-                
+
                 <div className="addresses-grid">
                   <div className="address-box">
                     <h4>Shipping Address</h4>
@@ -228,7 +228,7 @@ const OrderDetailPage: React.FC = () => {
                     <p>{order.shippingAddress.country}</p>
                     <p className="address-phone">Phone: {order.shippingAddress.phone}</p>
                   </div>
-                  
+
                   <div className="address-box">
                     <h4>Billing Address</h4>
                     {order.billingAddress ? (
@@ -241,7 +241,7 @@ const OrderDetailPage: React.FC = () => {
                         <p className="address-phone">Phone: {order.billingAddress.phone}</p>
                       </>
                     ) : (
-                      <p>Same as Shipping Address</p>
+                      <p>Same as Shipping Address </p>
                     )}
                   </div>
                 </div>
@@ -252,49 +252,49 @@ const OrderDetailPage: React.FC = () => {
             {/* Right Column */}
             <div className="order-sidebar">
               <div className="card" style={{ position: 'sticky', top: '100px' }}>
-                <h3 className="card-title">Payment Summary</h3>
-                
+                <h3 className="card-title">Payment Summary </h3>
+
                 <div className="payment-status-box">
                   <p>Method: <strong>{order.paymentMethod === 'COD' ? 'Cash on Delivery' : 'Online Payment'}</strong></p>
-                  <p>Status: <span className="status-badge small" style={{ 
-                    backgroundColor: order.paymentStatus === 'PAID' ? 'var(--color-success)' : 
-                                     order.paymentStatus === 'FAILED' ? 'var(--color-error)' : 'var(--color-warning)' 
+                  <p>Status: <span className="status-badge small" style={{
+                    backgroundColor: order.paymentStatus === 'PAID' ? 'var(--color-success)' :
+                      order.paymentStatus === 'FAILED' ? 'var(--color-error)' : 'var(--color-warning)'
                   }}>{order.paymentStatus}</span></p>
                 </div>
 
                 <div className="summary-list">
                   <div className="summary-row">
-                    <span>Subtotal</span>
+                    <span>Subtotal </span>
                     <span>{formatPrice(order.subtotal)}</span>
                   </div>
-                  
+
                   {order.couponDiscount > 0 && (
                     <div className="summary-row discount">
                       <span>Discount ({order.couponCode})</span>
                       <span>-{formatPrice(order.couponDiscount)}</span>
                     </div>
                   )}
-                  
+
                   <div className="summary-row">
-                    <span>Shipping</span>
-                    <span>{order.shippingCharge === 0 ? <span className="free">FREE</span> : formatPrice(order.shippingCharge)}</span>
+                    <span>Shipping </span>
+                    <span>{order.shippingCharge === 0 ? <span className="free"> FREE</span> : formatPrice(order.shippingCharge)}</span>
                   </div>
-                  
+
                   <div className="summary-row">
-                    <span>Tax</span>
+                    <span>Tax </span>
                     <span>{formatPrice(order.tax)}</span>
                   </div>
-                  
+
                   <div className="divider" />
-                  
+
                   <div className="summary-row total">
-                    <span>Grand Total</span>
+                    <span>Grand Total </span>
                     <span>{formatPrice(order.total)}</span>
                   </div>
                 </div>
-                <button 
-                  className="btn btn-outline-gold btn-full" 
-                  style={{ marginTop: '24px' }} 
+                <button
+                  className="btn btn-outline-gold btn-full"
+                  style={{ marginTop: '24px' }}
                   onClick={handleDownloadInvoice}
                   disabled={isGeneratingPDF}
                 >
