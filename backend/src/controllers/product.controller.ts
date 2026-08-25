@@ -3,6 +3,7 @@ import slugify from 'slugify';
 import prisma from '../config/prisma';
 import { asyncHandler, createError } from '../middleware/error';
 import { AuthRequest } from '../middleware/auth';
+import { clearAllCache } from '../middleware/cache';
 
 // ===================== PUBLIC =====================
 
@@ -20,12 +21,10 @@ export const getProducts = asyncHandler(async (req: Request, res: Response) => {
   const where: any = { isActive: true };
 
   if (category) {
-    const cat = await prisma.category.findUnique({ where: { slug: category } });
-    if (cat) where.categoryId = cat.id;
+    where.category = { slug: category };
   }
   if (subcategory) {
-    const sub = await prisma.subcategory.findUnique({ where: { slug: subcategory } });
-    if (sub) where.subcategoryId = sub.id;
+    where.subcategory = { slug: subcategory };
   }
   if (search) {
     where.OR = [
@@ -313,6 +312,7 @@ export const adminCreateProduct = asyncHandler(async (req: AuthRequest, res: Res
     },
   });
 
+  clearAllCache();
   res.status(201).json({ success: true, message: 'Product created', data: product });
 });
 
@@ -405,6 +405,7 @@ export const adminUpdateProduct = asyncHandler(async (req: AuthRequest, res: Res
     },
   });
 
+  clearAllCache();
   res.json({ success: true, message: 'Product updated', data: product });
 });
 
@@ -432,6 +433,7 @@ export const adminDeleteProduct = asyncHandler(async (req: AuthRequest, res: Res
   await prisma.adminActivityLog.create({
     data: { adminId: req.user!.userId, action: 'DELETE_PRODUCT', entity: 'Product', entityId: id },
   });
+  clearAllCache();
   res.json({ success: true, message: 'Product deleted permanently' });
 });
 
@@ -454,6 +456,7 @@ export const adminUpdateInventory = asyncHandler(async (req: AuthRequest, res: R
     }),
   ]);
 
+  clearAllCache();
   res.json({ success: true, message: 'Inventory updated', data: updated });
 });
 
@@ -465,6 +468,7 @@ export const adminUploadProductImages = asyncHandler(async (req: AuthRequest, re
     data: images.map((img: any) => ({ ...img, productId: id })),
   });
 
+  clearAllCache();
   res.json({ success: true, message: 'Images uploaded', data: created });
 });
 export const getAllApprovedReviews = asyncHandler(async (req: Request, res: Response) => {

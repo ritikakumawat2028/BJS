@@ -18,3 +18,8 @@ export const apiCache = (duration: string = '5 minutes') => {
 export const clearCache = (target?: string) => {
   apicache.clear(target || '');
 };
+
+// Clear all API cache when admin mutations happen
+export const clearAllCache = () => {
+  apicache.clear('');
+};

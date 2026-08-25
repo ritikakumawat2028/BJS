@@ -16,6 +16,7 @@ import {
   adminGetOrders, adminGetOrderById, adminUpdateOrderStatus,
 } from '../controllers/order.controller';
 import { authenticate, requireAdmin } from '../middleware/auth';
+import { apiCache } from '../middleware/cache';
 
 const router = Router();
 
@@ -34,7 +35,7 @@ router.put('/orders/:id/status', authenticate, requireAdmin, adminUpdateOrderSta
 router.get('/payments', authenticate, requireAdmin, adminGetPayments);
 
 // Banners (public read)
-router.get('/banners', getBanners);
+router.get('/banners', apiCache('5 minutes'), getBanners);
 router.post('/banners', authenticate, requireAdmin, adminCreateBanner);
 router.put('/banners/:id', authenticate, requireAdmin, adminUpdateBanner);
 router.delete('/banners/:id', authenticate, requireAdmin, adminDeleteBanner);
@@ -65,7 +66,7 @@ router.delete('/shipping-zones/:id', authenticate, requireAdmin, adminDeleteShip
 router.put('/settings', authenticate, requireAdmin, adminUpdateSettings);
 
 // Settings (public read for store info)
-router.get('/settings', getStoreSettings);
+router.get('/settings', apiCache('10 minutes'), getStoreSettings);
 router.put('/settings', authenticate, requireAdmin, adminUpdateSettings);
 
 // Reviews

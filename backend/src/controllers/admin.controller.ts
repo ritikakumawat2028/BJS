@@ -5,6 +5,7 @@ import prisma from '../config/prisma';
 import { asyncHandler, createError } from '../middleware/error';
 import { AuthRequest } from '../middleware/auth';
 import { logAdminAction } from '../utils/audit';
+import { clearAllCache } from '../middleware/cache';
 
 // ========== DASHBOARD ANALYTICS ==========
 export const getDashboard = asyncHandler(async (req: AuthRequest, res: Response) => {
@@ -87,7 +88,7 @@ export const getDashboard = asyncHandler(async (req: AuthRequest, res: Response)
     prisma.user.count({ where: { role: { name: 'CUSTOMER' }, createdAt: dateFilter } }),
     prisma.user.count({ where: { role: { name: 'CUSTOMER' } } }),
     prisma.product.count({ where: { isActive: true } }),
-    prisma.inventory.findMany().then(inv => inv.filter(i => i.quantity <= i.lowStockThreshold).length),
+    prisma.inventory.count({ where: { quantity: { lte: 5 } } }), // Optimization: count instead of fetching all
     prisma.orderItem.groupBy({
       by: ['productName'], 
       where: { order: { paymentStatus: 'PAID', createdAt: dateFilter } },
@@ -215,6 +216,7 @@ export const adminCreateBanner = asyncHandler(async (req: AuthRequest, res: Resp
   if (data.endDate) data.endDate = new Date(data.endDate);
   
   const banner = await prisma.banner.create({ data });
+  clearAllCache();
   res.status(201).json({ success: true, data: banner });
 });
 
@@ -225,11 +227,13 @@ export const adminUpdateBanner = asyncHandler(async (req: AuthRequest, res: Resp
   if (data.endDate) data.endDate = new Date(data.endDate);
 
   const banner = await prisma.banner.update({ where: { id: req.params.id as string }, data });
+  clearAllCache();
   res.json({ success: true, data: banner });
 });
 
 export const adminDeleteBanner = asyncHandler(async (req: AuthRequest, res: Response) => {
   await prisma.banner.delete({ where: { id: req.params.id as string } });
+  clearAllCache();
   res.json({ success: true, message: 'Banner deleted' });
 });
 
@@ -250,6 +254,7 @@ export const adminCreateCampaign = asyncHandler(async (req: AuthRequest, res: Re
   if (data.endDate) data.endDate = new Date(data.endDate);
 
   const campaign = await prisma.campaign.create({ data });
+  clearAllCache();
   res.status(201).json({ success: true, data: campaign });
 });
 
@@ -261,6 +266,7 @@ export const adminUpdateCampaign = asyncHandler(async (req: AuthRequest, res: Re
   if (data.endDate) data.endDate = new Date(data.endDate);
 
   const campaign = await prisma.campaign.update({ where: { id: req.params.id as string }, data });
+  clearAllCache();
   res.json({ success: true, data: campaign });
 });
 
@@ -393,6 +399,7 @@ export const adminUpdateSettings = asyncHandler(async (req: AuthRequest, res: Re
     newValue: settings,
   });
 
+  clearAllCache();
   res.json({ success: true, message: 'Settings updated' });
 });
 
@@ -522,6 +529,7 @@ export const adminCreatePromotion = asyncHandler(async (req: AuthRequest, res: R
   if (data.endDate) data.endDate = new Date(data.endDate);
 
   const promotion = await prisma.promotion.create({ data });
+  clearAllCache();
   res.status(201).json({ success: true, data: promotion });
 });
 
@@ -535,6 +543,7 @@ export const adminUpdatePromotion = asyncHandler(async (req: AuthRequest, res: R
   if (data.endDate) data.endDate = new Date(data.endDate);
 
   const promotion = await prisma.promotion.update({ where: { id: req.params.id as string }, data });
+  clearAllCache();
   res.json({ success: true, data: promotion });
 });
 

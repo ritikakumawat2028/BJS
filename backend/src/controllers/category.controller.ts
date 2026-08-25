@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import slugify from 'slugify';
 import prisma from '../config/prisma';
 import { asyncHandler, createError } from '../middleware/error';
+import { clearAllCache } from '../middleware/cache';
 
 export const getCategories = asyncHandler(async (_req: Request, res: Response) => {
   const categories = await prisma.category.findMany({
@@ -40,6 +41,7 @@ export const adminCreateCategory = asyncHandler(async (req: Request, res: Respon
       metaDesc: metaDesc || null 
     },
   });
+  clearAllCache();
   res.status(201).json({ success: true, message: 'Category created', data: category });
 });
 
@@ -50,6 +52,7 @@ export const adminUpdateCategory = asyncHandler(async (req: Request, res: Respon
   if (updateData.name) updateData.slug = slugify(updateData.name, { lower: true, strict: true });
   
   const category = await prisma.category.update({ where: { id }, data: updateData });
+  clearAllCache();
   res.json({ success: true, message: 'Category updated', data: category });
 });
 
@@ -58,6 +61,7 @@ export const adminDeleteCategory = asyncHandler(async (req: Request, res: Respon
   const count = await prisma.product.count({ where: { categoryId: id, isActive: true } });
   if (count > 0) throw createError(`Cannot delete: ${count} active products exist in this category`, 400);
   await prisma.category.update({ where: { id }, data: { isActive: false } });
+  clearAllCache();
   res.json({ success: true, message: 'Category deactivated' });
 });
 
@@ -75,5 +79,6 @@ export const adminCreateSubcategory = asyncHandler(async (req: Request, res: Res
       sortOrder: sortOrder ? Number(sortOrder) : 0 
     } 
   });
+  clearAllCache();
   res.status(201).json({ success: true, data: sub });
 });
