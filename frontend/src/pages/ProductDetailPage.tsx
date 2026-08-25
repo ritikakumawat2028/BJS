@@ -81,28 +81,33 @@ const ProductDetailPage: React.FC = () => {
   const thumbnail = product.images?.find((img: any) => img.isThumbnail) || product.images?.[0];
 
   const handleAddToCart = async () => {
-    if (!isAuthenticated) {
+    if (!product) return;
+    if (!isAuthenticated) { 
       toast('Please login to add items to your cart', { icon: '🛒' });
-      navigate('/login');
-      return;
+      navigate('/login'); 
+      return; 
     }
     setAdding(true);
-    try {
-      await addItem(product.id, selectedVariant?.id, quantity);
-    } finally {
+    try { 
+      await addItem(product.id, selectedVariant?.id, quantity); 
+    } catch {} finally {
       setAdding(false);
     }
   };
 
   const handleBuyNow = async () => {
+    if (!product) return;
     if (!isAuthenticated) { navigate('/login'); return; }
-    await handleAddToCart();
-    navigate('/checkout');
+    try {
+      await addItem(product.id, selectedVariant?.id, quantity);
+      navigate('/checkout');
+    } catch {}
   };
 
   const handleWishlist = async () => {
+    if (!product) return;
     if (!isAuthenticated) { navigate('/login'); return; }
-    await toggle(product.id);
+    try { await toggle(product.id); } catch {}
   };
 
   const tabs = [

@@ -29,13 +29,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, isWishlistPage }) =>
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!isAuthenticated) { navigate('/login'); return; }
-    await addItem(product.id);
+    try { await addItem(product.id); } catch {}
   };
 
   const handleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!isAuthenticated) { navigate('/login'); return; }
-    await toggle(product.id);
+    try { await toggle(product.id); } catch {}
   };
 
   const thumbnail = product.images?.find((img) => img.isThumbnail)?.url || product.images?.[0]?.url;

@@ -180,9 +180,10 @@ exports.addToCart = (0, error_1.asyncHandler)(async (req, res) => {
         if (!cart)
             cart = await prisma_1.default.cart.create({ data: { sessionId } });
     }
-    // Add or update item
-    const existing = await prisma_1.default.cartItem.findFirst({
-        where: { cartId: cart.id, productId, variantId: variantId || null },
+    // Use upsert to prevent P2002 unique constraint race conditions
+    const cartId_productId_variantId = { cartId: cart.id, productId, variantId: variantId || null };
+    const existing = await prisma_1.default.cartItem.findUnique({
+        where: { cartId_productId_variantId: { cartId: cart.id, productId, variantId: variantId || null } },
     });
     if (existing) {
         const newQty = existing.quantity + quantity;
@@ -191,7 +192,23 @@ exports.addToCart = (0, error_1.asyncHandler)(async (req, res) => {
         await prisma_1.default.cartItem.update({ where: { id: existing.id }, data: { quantity: newQty } });
     }
     else {
-        await prisma_1.default.cartItem.create({ data: { cartId: cart.id, productId, variantId, quantity } });
+        try {
+            await prisma_1.default.cartItem.create({ data: { cartId: cart.id, productId, variantId: variantId || null, quantity } });
+        }
+        catch (error) {
+            if (error.code === 'P2002') {
+                const raceExisting = await prisma_1.default.cartItem.findUnique({ where: { cartId_productId_variantId: { cartId: cart.id, productId, variantId: variantId || null } } });
+                if (raceExisting) {
+                    const newQty = raceExisting.quantity + quantity;
+                    if (newQty > availableStock)
+                        throw (0, error_1.createError)('Insufficient stock', 400);
+                    await prisma_1.default.cartItem.update({ where: { id: raceExisting.id }, data: { quantity: newQty } });
+                }
+            }
+            else {
+                throw error;
+            }
+        }
     }
     const result = await calculateCartTotals(cart.id);
     res.json({ success: true, message: 'Item added to cart', data: result });

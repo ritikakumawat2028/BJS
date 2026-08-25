@@ -188,9 +188,10 @@ export const addToCart = asyncHandler(async (req: AuthRequest, res: Response) =>
     if (!cart) cart = await prisma.cart.create({ data: { sessionId } });
   }
 
-  // Add or update item
-  const existing = await prisma.cartItem.findFirst({
-    where: { cartId: cart.id, productId, variantId: variantId || null },
+  // Use upsert to prevent P2002 unique constraint race conditions
+  const cartId_productId_variantId = { cartId: cart.id, productId, variantId: variantId || null };
+  const existing = await prisma.cartItem.findUnique({
+    where: { cartId_productId_variantId: { cartId: cart.id, productId, variantId: variantId || null } } as any,
   });
 
   if (existing) {
@@ -198,7 +199,20 @@ export const addToCart = asyncHandler(async (req: AuthRequest, res: Response) =>
     if (newQty > availableStock) throw createError('Insufficient stock', 400);
     await prisma.cartItem.update({ where: { id: existing.id }, data: { quantity: newQty } });
   } else {
-    await prisma.cartItem.create({ data: { cartId: cart.id, productId, variantId, quantity } });
+    try {
+      await prisma.cartItem.create({ data: { cartId: cart.id, productId, variantId: variantId || null, quantity } });
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        const raceExisting = await prisma.cartItem.findUnique({ where: { cartId_productId_variantId: { cartId: cart.id, productId, variantId: variantId || null } } as any });
+        if (raceExisting) {
+          const newQty = raceExisting.quantity + quantity;
+          if (newQty > availableStock) throw createError('Insufficient stock', 400);
+          await prisma.cartItem.update({ where: { id: raceExisting.id }, data: { quantity: newQty } });
+        }
+      } else {
+        throw error;
+      }
+    }
   }
 
   const result = await calculateCartTotals(cart.id);
