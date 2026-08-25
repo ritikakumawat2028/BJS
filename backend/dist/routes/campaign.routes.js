@@ -3,9 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const campaign_controller_1 = require("../controllers/campaign.controller");
 const auth_1 = require("../middleware/auth");
+const cache_1 = require("../middleware/cache");
 const router = (0, express_1.Router)();
 // Public routes
-router.get('/', campaign_controller_1.campaignController.getActive);
+router.get('/', (0, cache_1.apiCache)('5 minutes'), campaign_controller_1.campaignController.getActive);
 // Admin routes
 router.get('/admin', auth_1.authenticate, auth_1.requireAdmin, campaign_controller_1.campaignController.getAll);
 router.get('/:id', auth_1.authenticate, auth_1.requireAdmin, campaign_controller_1.campaignController.getById);

@@ -11,6 +11,7 @@ const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const morgan_1 = __importDefault(require("morgan"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const hpp_1 = __importDefault(require("hpp"));
+const compression_1 = __importDefault(require("compression"));
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const product_routes_1 = __importDefault(require("./routes/product.routes"));
 const category_routes_1 = __importDefault(require("./routes/category.routes"));
@@ -66,6 +67,7 @@ app.use('/api/payments/webhook', express_1.default.raw({ type: 'application/json
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true, limit: '10mb' }));
 app.use((0, hpp_1.default)()); // Prevent HTTP Parameter Pollution
+app.use((0, compression_1.default)()); // Compress all responses
 // ===== LOGGING =====
 if (process.env.NODE_ENV === 'development')
     app.use((0, morgan_1.default)('dev'));

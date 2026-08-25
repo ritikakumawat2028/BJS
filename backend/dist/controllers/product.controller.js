@@ -7,6 +7,7 @@ exports.getProductReviews = exports.getAllApprovedReviews = exports.adminUploadP
 const slugify_1 = __importDefault(require("slugify"));
 const prisma_1 = __importDefault(require("../config/prisma"));
 const error_1 = require("../middleware/error");
+const cache_1 = require("../middleware/cache");
 // ===================== PUBLIC =====================
 exports.getProducts = (0, error_1.asyncHandler)(async (req, res) => {
     const { page = '1', limit = '12', category, subcategory, search, minPrice, maxPrice, brand, gender, rating, inStock, sort = 'createdAt', featured, bestseller, newArrival, } = req.query;
@@ -15,14 +16,10 @@ exports.getProducts = (0, error_1.asyncHandler)(async (req, res) => {
     const skip = (pageNum - 1) * limitNum;
     const where = { isActive: true };
     if (category) {
-        const cat = await prisma_1.default.category.findUnique({ where: { slug: category } });
-        if (cat)
-            where.categoryId = cat.id;
+        where.category = { slug: category };
     }
     if (subcategory) {
-        const sub = await prisma_1.default.subcategory.findUnique({ where: { slug: subcategory } });
-        if (sub)
-            where.subcategoryId = sub.id;
+        where.subcategory = { slug: subcategory };
     }
     if (search) {
         where.OR = [
@@ -298,6 +295,7 @@ exports.adminCreateProduct = (0, error_1.asyncHandler)(async (req, res) => {
             newValue: JSON.stringify({ name, sku, price }),
         },
     });
+    (0, cache_1.clearAllCache)();
     res.status(201).json({ success: true, message: 'Product created', data: product });
 });
 exports.adminUpdateProduct = (0, error_1.asyncHandler)(async (req, res) => {
@@ -386,6 +384,7 @@ exports.adminUpdateProduct = (0, error_1.asyncHandler)(async (req, res) => {
             newValue: JSON.stringify({ name: product.name, price: product.price }),
         },
     });
+    (0, cache_1.clearAllCache)();
     res.json({ success: true, message: 'Product updated', data: product });
 });
 exports.adminDeleteProduct = (0, error_1.asyncHandler)(async (req, res) => {
@@ -408,6 +407,7 @@ exports.adminDeleteProduct = (0, error_1.asyncHandler)(async (req, res) => {
     await prisma_1.default.adminActivityLog.create({
         data: { adminId: req.user.userId, action: 'DELETE_PRODUCT', entity: 'Product', entityId: id },
     });
+    (0, cache_1.clearAllCache)();
     res.json({ success: true, message: 'Product deleted permanently' });
 });
 exports.adminUpdateInventory = (0, error_1.asyncHandler)(async (req, res) => {
@@ -429,6 +429,7 @@ exports.adminUpdateInventory = (0, error_1.asyncHandler)(async (req, res) => {
             data: { inventoryId: inventory.id, type, quantity: parseInt(quantity), note, adminId: req.user.userId },
         }),
     ]);
+    (0, cache_1.clearAllCache)();
     res.json({ success: true, message: 'Inventory updated', data: updated });
 });
 exports.adminUploadProductImages = (0, error_1.asyncHandler)(async (req, res) => {
@@ -437,6 +438,7 @@ exports.adminUploadProductImages = (0, error_1.asyncHandler)(async (req, res) =>
     const created = await prisma_1.default.productImage.createMany({
         data: images.map((img) => ({ ...img, productId: id })),
     });
+    (0, cache_1.clearAllCache)();
     res.json({ success: true, message: 'Images uploaded', data: created });
 });
 exports.getAllApprovedReviews = (0, error_1.asyncHandler)(async (req, res) => {

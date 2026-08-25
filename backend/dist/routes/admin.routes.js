@@ -4,6 +4,7 @@ const express_1 = require("express");
 const admin_controller_1 = require("../controllers/admin.controller");
 const order_controller_1 = require("../controllers/order.controller");
 const auth_1 = require("../middleware/auth");
+const cache_1 = require("../middleware/cache");
 const router = (0, express_1.Router)();
 // Dashboard
 router.get('/dashboard', auth_1.authenticate, auth_1.requireAdmin, admin_controller_1.getDashboard);
@@ -17,7 +18,7 @@ router.get('/orders/:id', auth_1.authenticate, auth_1.requireAdmin, order_contro
 router.put('/orders/:id/status', auth_1.authenticate, auth_1.requireAdmin, order_controller_1.adminUpdateOrderStatus);
 router.get('/payments', auth_1.authenticate, auth_1.requireAdmin, admin_controller_1.adminGetPayments);
 // Banners (public read)
-router.get('/banners', admin_controller_1.getBanners);
+router.get('/banners', (0, cache_1.apiCache)('5 minutes'), admin_controller_1.getBanners);
 router.post('/banners', auth_1.authenticate, auth_1.requireAdmin, admin_controller_1.adminCreateBanner);
 router.put('/banners/:id', auth_1.authenticate, auth_1.requireAdmin, admin_controller_1.adminUpdateBanner);
 router.delete('/banners/:id', auth_1.authenticate, auth_1.requireAdmin, admin_controller_1.adminDeleteBanner);
@@ -40,7 +41,7 @@ router.delete('/shipping-zones/:id', auth_1.authenticate, auth_1.requireAdmin, a
 // Settings
 router.put('/settings', auth_1.authenticate, auth_1.requireAdmin, admin_controller_1.adminUpdateSettings);
 // Settings (public read for store info)
-router.get('/settings', admin_controller_1.getStoreSettings);
+router.get('/settings', (0, cache_1.apiCache)('10 minutes'), admin_controller_1.getStoreSettings);
 router.put('/settings', auth_1.authenticate, auth_1.requireAdmin, admin_controller_1.adminUpdateSettings);
 // Reviews
 router.get('/reviews', auth_1.authenticate, auth_1.requireAdmin, admin_controller_1.getReviews);

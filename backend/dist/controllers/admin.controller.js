@@ -9,6 +9,7 @@ const crypto_1 = __importDefault(require("crypto"));
 const prisma_1 = __importDefault(require("../config/prisma"));
 const error_1 = require("../middleware/error");
 const audit_1 = require("../utils/audit");
+const cache_1 = require("../middleware/cache");
 // ========== DASHBOARD ANALYTICS ==========
 exports.getDashboard = (0, error_1.asyncHandler)(async (req, res) => {
     const { filter = '30days', startDate: customStart, endDate: customEnd } = req.query;
@@ -75,7 +76,7 @@ exports.getDashboard = (0, error_1.asyncHandler)(async (req, res) => {
         prisma_1.default.user.count({ where: { role: { name: 'CUSTOMER' }, createdAt: dateFilter } }),
         prisma_1.default.user.count({ where: { role: { name: 'CUSTOMER' } } }),
         prisma_1.default.product.count({ where: { isActive: true } }),
-        prisma_1.default.inventory.findMany().then(inv => inv.filter(i => i.quantity <= i.lowStockThreshold).length),
+        prisma_1.default.inventory.count({ where: { quantity: { lte: 5 } } }), // Optimization: count instead of fetching all
         prisma_1.default.orderItem.groupBy({
             by: ['productName'],
             where: { order: { paymentStatus: 'PAID', createdAt: dateFilter } },
@@ -195,6 +196,7 @@ exports.adminCreateBanner = (0, error_1.asyncHandler)(async (req, res) => {
     if (data.endDate)
         data.endDate = new Date(data.endDate);
     const banner = await prisma_1.default.banner.create({ data });
+    (0, cache_1.clearAllCache)();
     res.status(201).json({ success: true, data: banner });
 });
 exports.adminUpdateBanner = (0, error_1.asyncHandler)(async (req, res) => {
@@ -206,10 +208,12 @@ exports.adminUpdateBanner = (0, error_1.asyncHandler)(async (req, res) => {
     if (data.endDate)
         data.endDate = new Date(data.endDate);
     const banner = await prisma_1.default.banner.update({ where: { id: req.params.id }, data });
+    (0, cache_1.clearAllCache)();
     res.json({ success: true, data: banner });
 });
 exports.adminDeleteBanner = (0, error_1.asyncHandler)(async (req, res) => {
     await prisma_1.default.banner.delete({ where: { id: req.params.id } });
+    (0, cache_1.clearAllCache)();
     res.json({ success: true, message: 'Banner deleted' });
 });
 exports.getActiveCampaigns = (0, error_1.asyncHandler)(async (_req, res) => {
@@ -231,6 +235,7 @@ exports.adminCreateCampaign = (0, error_1.asyncHandler)(async (req, res) => {
     if (data.endDate)
         data.endDate = new Date(data.endDate);
     const campaign = await prisma_1.default.campaign.create({ data });
+    (0, cache_1.clearAllCache)();
     res.status(201).json({ success: true, data: campaign });
 });
 exports.adminUpdateCampaign = (0, error_1.asyncHandler)(async (req, res) => {
@@ -244,6 +249,7 @@ exports.adminUpdateCampaign = (0, error_1.asyncHandler)(async (req, res) => {
     if (data.endDate)
         data.endDate = new Date(data.endDate);
     const campaign = await prisma_1.default.campaign.update({ where: { id: req.params.id }, data });
+    (0, cache_1.clearAllCache)();
     res.json({ success: true, data: campaign });
 });
 // ========== COUPONS ==========
@@ -359,6 +365,7 @@ exports.adminUpdateSettings = (0, error_1.asyncHandler)(async (req, res) => {
         entity: 'Settings',
         newValue: settings,
     });
+    (0, cache_1.clearAllCache)();
     res.json({ success: true, message: 'Settings updated' });
 });
 // ========== SUPPORT TICKETS ==========
@@ -474,6 +481,7 @@ exports.adminCreatePromotion = (0, error_1.asyncHandler)(async (req, res) => {
     if (data.endDate)
         data.endDate = new Date(data.endDate);
     const promotion = await prisma_1.default.promotion.create({ data });
+    (0, cache_1.clearAllCache)();
     res.status(201).json({ success: true, data: promotion });
 });
 exports.adminUpdatePromotion = (0, error_1.asyncHandler)(async (req, res) => {
@@ -491,6 +499,7 @@ exports.adminUpdatePromotion = (0, error_1.asyncHandler)(async (req, res) => {
     if (data.endDate)
         data.endDate = new Date(data.endDate);
     const promotion = await prisma_1.default.promotion.update({ where: { id: req.params.id }, data });
+    (0, cache_1.clearAllCache)();
     res.json({ success: true, data: promotion });
 });
 // ========== PAYMENTS ==========

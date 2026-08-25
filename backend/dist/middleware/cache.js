@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clearCache = exports.apiCache = void 0;
+exports.clearAllCache = exports.clearCache = exports.apiCache = void 0;
 const apicache_1 = __importDefault(require("apicache"));
 // Setup apicache
 const cache = apicache_1.default.middleware;
@@ -23,4 +23,9 @@ const clearCache = (target) => {
     apicache_1.default.clear(target || '');
 };
 exports.clearCache = clearCache;
+// Clear all API cache when admin mutations happen
+const clearAllCache = () => {
+    apicache_1.default.clear('');
+};
+exports.clearAllCache = clearAllCache;
 //# sourceMappingURL=cache.js.map

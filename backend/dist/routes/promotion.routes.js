@@ -3,8 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const promotion_controller_1 = require("../controllers/promotion.controller");
 const auth_1 = require("../middleware/auth");
+const cache_1 = require("../middleware/cache");
 const router = (0, express_1.Router)();
-router.get('/active', promotion_controller_1.getActivePromotions);
+router.get('/active', (0, cache_1.apiCache)('5 minutes'), promotion_controller_1.getActivePromotions);
 router.get('/', auth_1.authenticate, auth_1.requireAdmin, promotion_controller_1.getPromotions);
 router.get('/:id', promotion_controller_1.getPromotionById); // Usually public or at least needs to be fetchable
 router.post('/', auth_1.authenticate, auth_1.requireAdmin, promotion_controller_1.createPromotion);

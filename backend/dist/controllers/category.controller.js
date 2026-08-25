@@ -7,6 +7,7 @@ exports.adminCreateSubcategory = exports.adminDeleteCategory = exports.adminUpda
 const slugify_1 = __importDefault(require("slugify"));
 const prisma_1 = __importDefault(require("../config/prisma"));
 const error_1 = require("../middleware/error");
+const cache_1 = require("../middleware/cache");
 exports.getCategories = (0, error_1.asyncHandler)(async (_req, res) => {
     const categories = await prisma_1.default.category.findMany({
         where: { isActive: true },
@@ -44,6 +45,7 @@ exports.adminCreateCategory = (0, error_1.asyncHandler)(async (req, res) => {
             metaDesc: metaDesc || null
         },
     });
+    (0, cache_1.clearAllCache)();
     res.status(201).json({ success: true, message: 'Category created', data: category });
 });
 exports.adminUpdateCategory = (0, error_1.asyncHandler)(async (req, res) => {
@@ -54,6 +56,7 @@ exports.adminUpdateCategory = (0, error_1.asyncHandler)(async (req, res) => {
     if (updateData.name)
         updateData.slug = (0, slugify_1.default)(updateData.name, { lower: true, strict: true });
     const category = await prisma_1.default.category.update({ where: { id }, data: updateData });
+    (0, cache_1.clearAllCache)();
     res.json({ success: true, message: 'Category updated', data: category });
 });
 exports.adminDeleteCategory = (0, error_1.asyncHandler)(async (req, res) => {
@@ -62,6 +65,7 @@ exports.adminDeleteCategory = (0, error_1.asyncHandler)(async (req, res) => {
     if (count > 0)
         throw (0, error_1.createError)(`Cannot delete: ${count} active products exist in this category`, 400);
     await prisma_1.default.category.update({ where: { id }, data: { isActive: false } });
+    (0, cache_1.clearAllCache)();
     res.json({ success: true, message: 'Category deactivated' });
 });
 exports.adminCreateSubcategory = (0, error_1.asyncHandler)(async (req, res) => {
@@ -79,6 +83,7 @@ exports.adminCreateSubcategory = (0, error_1.asyncHandler)(async (req, res) => {
             sortOrder: sortOrder ? Number(sortOrder) : 0
         }
     });
+    (0, cache_1.clearAllCache)();
     res.status(201).json({ success: true, data: sub });
 });
 //# sourceMappingURL=category.controller.js.map
