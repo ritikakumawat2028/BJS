@@ -182,8 +182,8 @@ exports.addToCart = (0, error_1.asyncHandler)(async (req, res) => {
     }
     // Use upsert to prevent P2002 unique constraint race conditions
     const cartId_productId_variantId = { cartId: cart.id, productId, variantId: variantId || null };
-    const existing = await prisma_1.default.cartItem.findUnique({
-        where: { cartId_productId_variantId: { cartId: cart.id, productId, variantId: variantId || null } },
+    const existing = await prisma_1.default.cartItem.findFirst({
+        where: { cartId: cart.id, productId, variantId: variantId || null },
     });
     if (existing) {
         const newQty = existing.quantity + quantity;
@@ -197,7 +197,9 @@ exports.addToCart = (0, error_1.asyncHandler)(async (req, res) => {
         }
         catch (error) {
             if (error.code === 'P2002') {
-                const raceExisting = await prisma_1.default.cartItem.findUnique({ where: { cartId_productId_variantId: { cartId: cart.id, productId, variantId: variantId || null } } });
+                const raceExisting = await prisma_1.default.cartItem.findFirst({
+                    where: { cartId: cart.id, productId, variantId: variantId || null }
+                });
                 if (raceExisting) {
                     const newQty = raceExisting.quantity + quantity;
                     if (newQty > availableStock)
