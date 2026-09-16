@@ -28,8 +28,20 @@ const ResetPasswordPage: React.FC = () => {
       setError('Invalid reset token.');
       return;
     }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase letter');
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError('Password must contain at least one number');
+      return;
+    }
+    if (!/[\W_]/.test(password)) {
+      setError('Password must contain at least one special character');
       return;
     }
     if (password !== confirmPassword) {
@@ -84,8 +96,8 @@ const ResetPasswordPage: React.FC = () => {
                     <label className="form-label">New Password</label>
                     <input
                       type="password"
-                      className={`form-input ${error && password.length > 0 && password.length < 6 ? 'error' : ''}`}
-                      placeholder="Enter new password (min 6 characters)"
+                      className={`form-input ${error && password.length > 0 && password.length < 8 ? 'error' : ''}`}
+                      placeholder="At least 8 chars, 1 uppercase, 1 number, 1 special char"
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); setError(''); }}
                       autoFocus
