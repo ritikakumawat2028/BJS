@@ -3,6 +3,7 @@ import slugify from 'slugify';
 import prisma from '../config/prisma';
 import { asyncHandler, createError } from '../middleware/error';
 import { AuthRequest } from '../middleware/auth';
+import cache from '../middleware/cache';
 import { clearAllCache } from '../middleware/cache';
 
 // ===================== PUBLIC =====================

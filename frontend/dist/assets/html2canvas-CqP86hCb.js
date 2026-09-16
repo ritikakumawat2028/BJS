@@ -1,0 +1,1 @@
+import{n as e}from"./OrderDetailPage-D8BYOlR5.js";export default e();
