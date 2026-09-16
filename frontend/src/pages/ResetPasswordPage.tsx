@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import { authApi } from '../services/api';
 import toast from 'react-hot-toast';
+import { Eye, EyeOff } from 'lucide-react';
 
 const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -13,6 +14,7 @@ const ResetPasswordPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [showPasswords, setShowPasswords] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -94,25 +96,35 @@ const ResetPasswordPage: React.FC = () => {
                 <>
                   <div className="form-group">
                     <label className="form-label">New Password</label>
-                    <input
-                      type="password"
-                      className={`form-input ${error && password.length > 0 && password.length < 8 ? 'error' : ''}`}
-                      placeholder="At least 8 chars, 1 uppercase, 1 number, 1 special char"
-                      value={password}
-                      onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                      autoFocus
-                    />
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showPasswords ? "text" : "password"}
+                        className={`form-input pr-10 ${error && password.length > 0 && password.length < 8 ? 'error' : ''}`}
+                        placeholder="At least 8 chars, 1 uppercase, 1 number, 1 special char"
+                        value={password}
+                        onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                        autoFocus
+                      />
+                      <button type="button" className="password-toggle" onClick={() => setShowPasswords(!showPasswords)}>
+                        {showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="form-group">
                     <label className="form-label">Confirm New Password</label>
-                    <input
-                      type="password"
-                      className={`form-input ${error && password !== confirmPassword ? 'error' : ''}`}
-                      placeholder="Confirm new password"
-                      value={confirmPassword}
-                      onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
-                    />
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showPasswords ? "text" : "password"}
+                        className={`form-input pr-10 ${error && password !== confirmPassword ? 'error' : ''}`}
+                        placeholder="Confirm new password"
+                        value={confirmPassword}
+                        onChange={(e) => { setConfirmPassword(e.target.value); setError(''); }}
+                      />
+                      <button type="button" className="password-toggle" onClick={() => setShowPasswords(!showPasswords)}>
+                        {showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
                     {error && <p className="form-error">{error}</p>}
                   </div>
 
@@ -182,6 +194,29 @@ const ResetPasswordPage: React.FC = () => {
           line-height: 1.7;
           margin-bottom: var(--space-6);
           font-size: 0.95rem;
+        }
+        .password-input-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+        .password-toggle {
+          position: absolute;
+          right: 12px;
+          background: none;
+          border: none;
+          color: var(--color-text-muted);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+        }
+        .password-toggle:hover {
+          color: var(--color-ivory);
+        }
+        .pr-10 {
+          padding-right: 2.5rem;
         }
       `}</style>
     </>
