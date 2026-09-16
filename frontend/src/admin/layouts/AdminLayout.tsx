@@ -207,7 +207,7 @@ const AdminLayout: React.FC = () => {
         </nav>
 
         <div className="admin-sidebar__footer">
-          <div className="admin-user">
+          <Link to="/admin/profile" className="admin-user" style={{ textDecoration: 'none' }} onClick={() => setSidebarOpen(false)}>
             <div className="admin-user__avatar">
               {user?.firstName?.[0]}{user?.lastName?.[0]}
             </div>
@@ -215,7 +215,7 @@ const AdminLayout: React.FC = () => {
               <p style={{ fontSize: '0.875rem', color: 'var(--color-ivory)', fontWeight: 500 }}>{user?.firstName} {user?.lastName}</p>
               <p style={{ fontSize: '0.75rem', color: 'var(--color-gold)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{typeof user?.role === 'string' ? user.role : (user?.role as any)?.name}</p>
             </div>
-          </div>
+          </Link>
           <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
             <Link to="/" className="btn btn-outline btn-sm" style={{ flex: 1, textAlign: 'center' }}>← Store</Link>
             <button className="btn btn-outline btn-sm" style={{ flex: 1 }} onClick={handleLogout}>Sign Out</button>
@@ -237,7 +237,7 @@ const AdminLayout: React.FC = () => {
             </Link>
             <div style={{ width: '1px', height: '20px', background: 'var(--color-border)' }} />
             <NotificationDropdown />
-            <span style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)' }}>{user?.firstName}</span>
+            <Link to="/admin/profile" style={{ fontSize: '0.875rem', color: 'var(--color-text-secondary)', textDecoration: 'none' }}>{user?.firstName}</Link>
           </div>
         </header>
         <div style={{ padding: '24px' }}>
@@ -318,6 +318,24 @@ const AdminLayout: React.FC = () => {
         .admin-scroll-btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 6px 16px rgba(201, 162, 39, 0.4);
+        }
+        
+        /* Ensure notification bell looks right */
+        .navbar__action-btn {
+          background: transparent;
+          border: none;
+          color: var(--color-ivory, #F8F5EE);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 4px;
+        }
+        .navbar__action-badge-wrap { position: relative; }
+        .navbar__badge {
+          position: absolute; top: -2px; right: -2px;
+          background: #E53935; color: #fff; font-size: 0.65rem; font-weight: 700;
+          width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
         }
       `}</style>
     </div>

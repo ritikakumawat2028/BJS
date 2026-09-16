@@ -59,6 +59,7 @@ const AdminAuditLogsPage = lazy(() => import('./admin/pages/AdminAuditLogsPage')
 const AdminSupportPage = lazy(() => import('./admin/pages/AdminSupportPage'));
 const AdminAnalyticsPage = lazy(() => import('./admin/pages/AdminAnalyticsPage'));
 const AdminNewsletterPage = lazy(() => import('./admin/pages/AdminNewsletterPage'));
+const AdminProfilePage = lazy(() => import('./admin/pages/AdminProfilePage'));
 
 const NewsletterVerifyPage = lazy(() => import('./pages/NewsletterVerifyPage'));
 const NewsletterUnsubscribePage = lazy(() => import('./pages/NewsletterUnsubscribePage'));
@@ -167,6 +168,7 @@ const App: React.FC = () => {
                 <Route path="settings" element={<AdminSettingsPage />} />
                 <Route path="audit-logs" element={<AdminAuditLogsPage />} />
                 <Route path="analytics" element={<AdminAnalyticsPage />} />
+                <Route path="profile" element={<AdminProfilePage />} />
               </Route>
             </Routes>
           </Suspense>

@@ -178,6 +178,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, isWishlistPage }) =>
         .product-card--wishlist {
           border: 1px solid rgba(255, 255, 255, 0.15);
         }
+
+        @media (max-width: 768px) {
+          .product-card__wishlist {
+            display: flex !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+          }
+        }
       `}</style>
     </Link>
   );
