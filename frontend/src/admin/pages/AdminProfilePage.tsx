@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useAuthStore } from '../../store/auth.store';
 import toast from 'react-hot-toast';
 import { authApi } from '../../services/api';
+import { Eye, EyeOff } from 'lucide-react';
 
 const AdminProfilePage: React.FC = () => {
   const { user, fetchMe } = useAuthStore();
@@ -15,6 +16,7 @@ const AdminProfilePage: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPasswords, setShowPasswords] = useState(false);
 
   const handleUpdateEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,33 +90,48 @@ const AdminProfilePage: React.FC = () => {
           <form onSubmit={handleUpdatePassword}>
             <div className="form-group">
               <label>Current Password</label>
-              <input 
-                type="password" 
-                className="form-input" 
-                value={currentPassword} 
-                onChange={e => setCurrentPassword(e.target.value)} 
-                required 
-              />
+              <div className="password-input-wrapper">
+                <input 
+                  type={showPasswords ? "text" : "password"} 
+                  className="form-input pr-10" 
+                  value={currentPassword} 
+                  onChange={e => setCurrentPassword(e.target.value)} 
+                  required 
+                />
+                <button type="button" className="password-toggle" onClick={() => setShowPasswords(!showPasswords)}>
+                  {showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             <div className="form-group">
               <label>New Password</label>
-              <input 
-                type="password" 
-                className="form-input" 
-                value={newPassword} 
-                onChange={e => setNewPassword(e.target.value)} 
-                required 
-              />
+              <div className="password-input-wrapper">
+                <input 
+                  type={showPasswords ? "text" : "password"} 
+                  className="form-input pr-10" 
+                  value={newPassword} 
+                  onChange={e => setNewPassword(e.target.value)} 
+                  required 
+                />
+                <button type="button" className="password-toggle" onClick={() => setShowPasswords(!showPasswords)}>
+                  {showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             <div className="form-group">
               <label>Confirm New Password</label>
-              <input 
-                type="password" 
-                className="form-input" 
-                value={confirmPassword} 
-                onChange={e => setConfirmPassword(e.target.value)} 
-                required 
-              />
+              <div className="password-input-wrapper">
+                <input 
+                  type={showPasswords ? "text" : "password"} 
+                  className="form-input pr-10" 
+                  value={confirmPassword} 
+                  onChange={e => setConfirmPassword(e.target.value)} 
+                  required 
+                />
+                <button type="button" className="password-toggle" onClick={() => setShowPasswords(!showPasswords)}>
+                  {showPasswords ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? 'Updating...' : 'Change Password'}
@@ -172,6 +189,29 @@ const AdminProfilePage: React.FC = () => {
         .btn-primary:disabled {
           opacity: 0.5;
           cursor: not-allowed;
+        }
+        .password-input-wrapper {
+          position: relative;
+          display: flex;
+          align-items: center;
+        }
+        .password-toggle {
+          position: absolute;
+          right: 12px;
+          background: none;
+          border: none;
+          color: var(--color-text-muted);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+        }
+        .password-toggle:hover {
+          color: var(--color-ivory);
+        }
+        .pr-10 {
+          padding-right: 2.5rem;
         }
       `}</style>
     </div>
