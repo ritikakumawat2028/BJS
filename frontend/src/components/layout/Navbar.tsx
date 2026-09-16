@@ -485,7 +485,7 @@ const Navbar: React.FC = () => {
           background: var(--color-charcoal);
           border: 1px solid var(--color-border-gold);
           border-radius: var(--radius-lg);
-          padding: var(--space-6);
+          padding: 48px var(--space-6) var(--space-6);
           position: relative;
         }
         .search-form { display: flex; gap: var(--space-3); }
@@ -511,7 +511,7 @@ const Navbar: React.FC = () => {
         }
         .search-btn:hover { background: var(--color-soft-gold); }
         .search-close {
-          position: absolute; top: var(--space-4); right: var(--space-4);
+          position: absolute; top: 8px; right: 8px;
           color: var(--color-text-muted);
           font-size: 1.25rem;
           padding: var(--space-2);

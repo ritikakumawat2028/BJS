@@ -637,7 +637,7 @@ const CheckoutPage: React.FC = () => {
         .address-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-5); cursor: pointer; transition: all var(--transition-fast); position: relative; }
         .address-card:hover { border-color: var(--color-border-gold); }
         .address-card.active { border-color: var(--color-gold); background: rgba(201,162,39,0.05); }
-        .address-card__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2); }
+        .address-card__header { display: flex; justify-content: flex-start; gap: 12px; align-items: center; margin-bottom: var(--space-2); padding-right: 32px; }
         .address-card__name { font-weight: 600; color: var(--color-ivory); font-size: 1.1rem; }
         .address-card__badge { font-size: 0.7rem; background: var(--color-gold); padding: 2px 8px; border-radius: var(--radius-full); color: var(--color-black); font-weight: 600; }
         .address-card__text { font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 4px; }
@@ -667,6 +667,9 @@ const CheckoutPage: React.FC = () => {
         .review-box { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-5); }
         .review-box h4 { color: var(--color-gold); margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
         .review-box p { color: var(--color-text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 4px; }
+        
+        .summary-row { display: flex; justify-content: space-between; gap: 16px; font-size: 0.95rem; color: var(--color-text-secondary); }
+        .summary-row.summary-total { color: var(--color-ivory); font-size: 1.2rem; font-weight: 600; padding-top: 8px; }
         
         .checkout-items { display: flex; flex-direction: column; gap: var(--space-4); }
         .checkout-item { display: flex; align-items: center; gap: var(--space-4); background: var(--color-surface); padding: var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border); }
