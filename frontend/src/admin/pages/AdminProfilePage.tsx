@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuthStore } from '../../store/auth.store';
 import toast from 'react-hot-toast';
-import { userApi } from '../../services/api';
+import { authApi } from '../../services/api';
 
 const AdminProfilePage: React.FC = () => {
   const { user, fetchMe } = useAuthStore();
@@ -21,11 +21,11 @@ const AdminProfilePage: React.FC = () => {
     if (!email) return;
     try {
       setLoading(true);
-      await userApi.updateProfile({ email });
+      await authApi.updateMe({ email } as any);
       await fetchMe();
-      toast.success('Email updated successfully');
+      toast.success('Profile updated successfully');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Failed to update email');
+      toast.error(error.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ const AdminProfilePage: React.FC = () => {
     }
     try {
       setLoading(true);
-      await userApi.updatePassword({ currentPassword, newPassword });
+      await authApi.changePassword({ currentPassword, newPassword });
       toast.success('Password updated successfully');
       setCurrentPassword('');
       setNewPassword('');
