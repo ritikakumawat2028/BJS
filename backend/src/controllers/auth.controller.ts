@@ -206,10 +206,21 @@ export const getProfile = asyncHandler(async (req: AuthRequest, res: Response) =
 });
 
 export const updateProfile = asyncHandler(async (req: AuthRequest, res: Response) => {
-  const { firstName, lastName, phone } = req.body;
+  const { firstName, lastName, phone, email } = req.body;
+
+  const updateData: any = { firstName, lastName, phone };
+
+  if (email) {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing && existing.id !== req.user!.userId) {
+      throw createError('Email is already in use', 400);
+    }
+    updateData.email = email;
+  }
+
   const user = await prisma.user.update({
     where: { id: req.user!.userId },
-    data: { firstName, lastName, phone },
+    data: updateData,
     select: { id: true, email: true, firstName: true, lastName: true, phone: true, role: true },
   });
   res.json({ success: true, message: 'Profile updated', data: user });
