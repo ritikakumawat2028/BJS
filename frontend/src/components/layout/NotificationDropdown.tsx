@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { userApi } from '../../services/api';
+import { useAuthStore } from '../../store/auth.store';
 import type { Notification } from '../../types';
 
 export const NotificationDropdown: React.FC = () => {
@@ -8,7 +9,10 @@ export const NotificationDropdown: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
   const fetchNotifications = async () => {
+    if (!isAuthenticated) return;
     try {
       const res = await userApi.getNotifications();
       if (res.success) {
@@ -21,11 +25,12 @@ export const NotificationDropdown: React.FC = () => {
   };
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     fetchNotifications();
     // Poll every 30s
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

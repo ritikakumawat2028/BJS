@@ -34,6 +34,7 @@ api.interceptors.response.use(
         return api(original);
       } catch {
         localStorage.removeItem('bjs_access_token');
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
         const protectedRoutes = ['/account', '/admin', '/checkout'];
         if (protectedRoutes.some(route => window.location.pathname.startsWith(route))) {
           window.location.href = '/login';

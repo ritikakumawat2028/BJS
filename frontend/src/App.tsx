@@ -98,6 +98,12 @@ const App: React.FC = () => {
       fetchMe();
       fetchWishlist();
     }
+
+    const handleUnauthorized = () => {
+      useAuthStore.setState({ user: null, accessToken: null, isAuthenticated: false });
+    };
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
   }, [isAuthenticated, fetchCart]);
 
   return (

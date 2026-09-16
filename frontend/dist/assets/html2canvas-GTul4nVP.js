@@ -1,1 +1,0 @@
-import{n as e}from"./OrderDetailPage-BH4_dTpi.js";export default e();
